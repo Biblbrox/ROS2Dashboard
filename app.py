@@ -1,17 +1,15 @@
 import sys
 import configparser
-
 from PySide2.QtGui import QGuiApplication
+import PySide2.QtGui as QtGui
 from PySide2.QtWidgets import QApplication
 from PySide2 import QtWidgets
 from PySide2.QtCore import QFile
 from NodeGraphQt import NodeGraph, BaseNode
+from ros2dashboard.ui.MainWindow import MainWindow
 import rc
 
-from ros2dashboard.app.Ros2Dashboard import Ros2Dashboard as Ros2Dashboard
-
-
-def main():
+def main(args=None):
     app = QApplication(sys.argv)
     app.setApplicationName("ROS2 Dashboard")
     
@@ -24,10 +22,14 @@ def main():
     config = configparser.ConfigParser()
     config.read('config.ini')
 
-    ros2_dashboard = Ros2Dashboard()
-    ros2_dashboard.show()
+    widget = MainWindow(args=args)
+    #print(widget.mainDashboard)
+    #widget.mainDashboard = dashboard_widget
+    widget.show()
 
-    app.exec_()
+    # ros2_dashboard.show()
+
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':

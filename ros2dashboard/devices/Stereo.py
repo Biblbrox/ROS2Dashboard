@@ -1,10 +1,7 @@
-from PySide2.QtGui import QGuiApplication
-from PySide2.QtWidgets import QApplication
-from PySide2 import QtWidgets
-from NodeGraphQt import NodeGraph, BaseNode
+from ros2dashboard.devices.Ros2Node import Ros2Node
 
 
-class StereoNode(BaseNode):
+class StereoNode(Ros2Node):
 
     # unique node identifier domain.
     __identifier__ = 'ros2.stereo_camera'

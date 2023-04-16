@@ -2,4 +2,7 @@
 <qresource prefix="styles">
     <file>styles/app.qss</file>
 </qresource>
+<qresource prefix="ui">
+    <file>ros2dashboard/ui/form.ui</file>
+</qresource>
 </RCC>

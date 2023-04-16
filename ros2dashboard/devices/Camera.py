@@ -1,10 +1,6 @@
-from PySide2.QtGui import QGuiApplication
-from PySide2.QtWidgets import QApplication
-from PySide2 import QtWidgets
-from NodeGraphQt import NodeGraph, BaseNode
+from ros2dashboard.devices.Ros2Node import Ros2Node
 
-
-class CameraNode(BaseNode):
+class CameraNode(Ros2Node):
 
     # unique node identifier domain.
     __identifier__ = 'ros2dashboard.devices.CameraNode'
@@ -13,7 +9,7 @@ class CameraNode(BaseNode):
     NODE_NAME = 'Camera node'
 
     def __init__(self):
-        super(CameraNode, self).__init__()
+        super(CameraNode, self).__init__(self.NODE_NAME)
 
         # create an input port.
         self.add_input('in', color=(180, 80, 0))
