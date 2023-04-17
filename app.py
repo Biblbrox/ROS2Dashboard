@@ -1,11 +1,7 @@
 import sys
 import configparser
-from PySide2.QtGui import QGuiApplication
-import PySide2.QtGui as QtGui
 from PySide2.QtWidgets import QApplication
-from PySide2 import QtWidgets
 from PySide2.QtCore import QFile
-from NodeGraphQt import NodeGraph, BaseNode
 from ros2dashboard.ui.MainWindow import MainWindow
 import rc
 

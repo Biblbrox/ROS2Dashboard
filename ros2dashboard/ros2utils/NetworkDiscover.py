@@ -2,18 +2,18 @@ import subprocess
 import socket
 import uuid
 import time
-import logging
 
 from PySide2.QtCore import Signal, QObject
 import rclpy
 from rclpy.node import Node
 import ros2node.api as cli
-
-
+import ros2lifecycle.api as api
 
 
 from ros2dashboard.edge.Topic import Topic
 from ros2dashboard.edge.Client import Client
+from ros2dashboard.edge.ActionClient import ActionClient
+from ros2dashboard.edge.ActionServer import ActionServer
 from ros2dashboard.edge.Subscriber import Subscriber
 from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
@@ -85,7 +85,6 @@ class NetworkDiscover(Ros2Discover):
                     break
                 
                 if is_subscriber:
-                    print(line)
                     for subscriber in [sub.strip() for sub in line[len('Subscribers:'):].split(',')]:
                         subscribers.append(subscriber)
             
@@ -117,6 +116,12 @@ class NetworkDiscover(Ros2Discover):
         
 
         return topics
+    
+    def find_action_clients(self, node_name=None) -> list[ActionClient]:
+        return super().find_action_clients(node_name)
+    
+    def find_action_servers(self, node_name=None) -> list[ActionServer]:
+        return super().find_action_servers(node_name)
 
     def find_topics(self, node_name=None) -> list[Topic]:
         """
@@ -202,7 +207,6 @@ class NetworkDiscover(Ros2Discover):
 
         # Decode the byte string to a regular string
         node_names = output.decode('utf-8').split()
-        print(node_names)
 
         return node_names
 

@@ -1,8 +1,4 @@
-from pathlib import Path
-import logging
-
 from PySide2.QtWidgets import QWidget
-
 
 from ros2dashboard.app.Ros2Dashboard import Ros2Dashboard as Ros2Dashboard
 from ros2dashboard.ui.ui_nodewidget import Ui_NodeWidget
