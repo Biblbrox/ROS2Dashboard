@@ -20,16 +20,18 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         self.ros2_dashboard = Ros2Dashboard()
+        self.ros2monitor = Ros2Monitor(self.args)
         self.dashboard_widget = self.ros2_dashboard.graph_widget
         self.ui.mainLayout.replaceWidget(self.ui.dummy_dashboard, self.dashboard_widget)
 
-        self.init_slots()
         self.init_network()
+        self.init_slots()
 
     def init_slots(self):
-        self.ros2monitor = Ros2Monitor(self.args)
-        self.ros2monitor.new_nodes.connect(self.add_nodes)
-        self.ros2monitor.new_nodes.connect(self.ros2_dashboard.update_nodes)
+        self.ros2monitor.new_nodes.connect(self.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_nodes.connect(self.ros2_dashboard.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_subscribers.connect(self.ros2_dashboard.update_subscribers, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_publishers.connect(self.ros2_dashboard.update_publishers, type=QtCore.Qt.BlockingQueuedConnection)
 
     def init_network(self):
         self.thread = QtCore.QThread(self)
@@ -39,14 +41,13 @@ class MainWindow(QMainWindow):
 
     
     @QtCore.Slot(object)
-    def add_nodes(self, nodes: list[Ros2Node]):    
+    def update_nodes(self, nodes: list[Ros2Node]):    
         logging.debug("New nodes found")
 
         self.ui.networkObserver.clear()
         for node in nodes:
             item = QListWidgetItem()
             widget = NodeWidget(node, parent=self)
-            # item.setText(widget.getText())
             item.setSizeHint(widget.sizeHint())
             self.ui.networkObserver.addItem(item)
             self.ui.networkObserver.setItemWidget(item, widget)

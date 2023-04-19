@@ -2,6 +2,7 @@ import subprocess
 import socket
 import uuid
 import time
+from threading import Lock, RLock
 
 from PySide2.QtCore import Signal, QObject
 import rclpy
@@ -32,24 +33,25 @@ def generate_random_node_name():
 
 class NetworkDiscover(Ros2Discover):
     def __init__(self, args) -> None:
+        self.lock = RLock()
         if not rclpy.ok():
             rclpy.init(args=args)
 
         self.ip = socket.gethostbyname(socket.gethostname())
 
     def find_node_topics(self, node_name: str, topics_type="all"):
-        topics = []
-
+        self.lock.acquire()
+        # Run the 'ros2 node info' command to get information about the node
+        proc = subprocess.Popen(
+            ['ros2', 'node', 'info', node_name], stdout=subprocess.PIPE)
+        output, _ = proc.communicate()
         # Get a list of all the publishers associated with the node
+        topics = []
         if topics_type == "Publisher":
-            publishers = []
-
-            # Run the 'ros2 node info' command to get information about the node
-            proc = subprocess.Popen(['ros2', 'node', 'info', node_name], stdout=subprocess.PIPE)
-            output, _ = proc.communicate()
-
             # Parse the output to find publishers and subscribers
-            is_publisher = True
+            is_publisher = False
+            print(
+                f"-----------------Publishers for node {node_name}---------------------")
             for line in output.decode().split('\n'):
                 line = line.strip()
                 if line.startswith('Publishers:'):
@@ -60,21 +62,17 @@ class NetworkDiscover(Ros2Discover):
                     is_publisher = False
 
                 if is_publisher:
-                    for publisher in [pub.strip() for pub in line[len('Publishers:'):].split(',')]:
-                        publishers.append(publisher)
-
-            for publisher in publishers:
-                topics.append(
-                    Publisher(node_name, publisher_name=publisher))
+                    publishers_info = [word.strip()
+                                       for word in line.split(':')]
+                    print(publishers_info)
+                    topics.append(
+                        Publisher(node_name, topic_name=publishers_info[0], topic_type=publishers_info[1]))
+            print("--------------------------------------")
         elif topics_type == "Subscriber":
-            subscribers = []
-
-            # Run the 'ros2 node info' command to get information about the node
-            proc = subprocess.Popen(['ros2', 'node', 'info', node_name], stdout=subprocess.PIPE)
-            output, _ = proc.communicate()
-
             # Parse the output to find publishers and subscribers
             is_subscriber = False
+            print(
+                f"-----------------Subscribers for node {node_name}---------------------")
             for line in output.decode().split('\n'):
                 line = line.strip()
                 if line.startswith('Subscribers:'):
@@ -83,47 +81,44 @@ class NetworkDiscover(Ros2Discover):
 
                 if not line.startswith('/') and is_subscriber:
                     break
-                
+
                 if is_subscriber:
-                    for subscriber in [sub.strip() for sub in line[len('Subscribers:'):].split(',')]:
-                        subscribers.append(subscriber)
-            
-            for subscriber in subscribers:
-                topics.append(Subscriber(
-                    node_name, subscriber_name=subscriber))
+                    subscribers_info = [word.strip()
+                                        for word in line.split(':')]
+                    print(subscribers_info)
+                    topics.append(Subscriber(
+                        node_name, topic_name=subscribers_info[0], topic_type=subscribers_info[1]))
+            print("--------------------------------------")
         else:
-            found_topics = []
-
-            # Run the 'ros2 node info' command to get information about the node
-            proc = subprocess.Popen(['ros2', 'node', 'info', node_name], stdout=subprocess.PIPE)
-            output, _ = proc.communicate()
-
             # Parse the output to find publishers and subscribers
+            is_topic = False
             for line in output.decode().split('\n'):
                 line = line.strip()
-                prefix = ""
-                if line.startswith('Subscribers:'):
-                    prefix = 'Subscribers:'
-                elif line.startswith('Publishers:'):
-                    prefix = 'Publishers'
 
-                if len(prefix) != 0:
-                    for topic in [sub.strip() for sub in line[len(prefix):].split(',')]:
-                        found_topics.append(topic)
-            
-            for topic in found_topics:
-                topics.append(Topic(node_name, topic_name=topic))
-        
+                if line.startswith('Subscribers:') or line.startswith('Publishers:'):
+                    is_topic = True
+                    continue
 
+                if not line.startswith('/') and is_topic:
+                    break
+
+                if is_topic:
+                    topics_info = [word.strip()
+                                   for word in line.split(':')]
+                    topics.append(
+                        Topic(node_name, topic_name=topics_info[0], topic_type=topics_info[1]))
+
+        self.lock.release()
         return topics
-    
+
     def find_action_clients(self, node_name=None) -> list[ActionClient]:
-        return super().find_action_clients(node_name)
-    
+        return []
+
     def find_action_servers(self, node_name=None) -> list[ActionServer]:
-        return super().find_action_servers(node_name)
+        return []
 
     def find_topics(self, node_name=None) -> list[Topic]:
+        self.lock.acquire()
         """
         Find topics for all nodes
         """
@@ -140,9 +135,11 @@ class NetworkDiscover(Ros2Discover):
             for node_topic in node_topics:
                 topics.append(node_topic)
 
+        self.lock.release()
         return topics
 
     def find_subscribers(self, node_name=None) -> list[Subscriber]:
+        self.lock.acquire()
         """
         Find subscribers for all nodes
         """
@@ -159,9 +156,11 @@ class NetworkDiscover(Ros2Discover):
             for node_subscriber in node_subscribers:
                 subscribers.append(node_subscriber)
 
+        self.lock.release()
         return subscribers
 
     def find_publishers(self, node_name=None) -> list[Publisher]:
+        self.lock.acquire()
         """
         Find publishers for all nodes
         """
@@ -169,8 +168,10 @@ class NetworkDiscover(Ros2Discover):
 
         if not node_name:
             for node_name_ in self.find_node_names():
+                print(
+                    f"***********************{node_name_}********************")
                 node_publishers = self.find_node_topics(
-                    node_name_, "Publi  her")
+                    node_name_, "Publisher")
 
                 for node_publisher in node_publishers:
                     publishers.append(node_publisher)
@@ -179,18 +180,14 @@ class NetworkDiscover(Ros2Discover):
             for node_publisher in node_publishers:
                 publishers.append(node_publisher)
 
+        self.lock.release()
         return publishers
 
     def find_service_servers(self):
         return []
 
-    def find_action_servers(self):
-        return []
-
-    def find_action_clients(self):
-        return []
-
-    def find_nodes(self):
+    def find_nodes(self) -> list[Ros2Node]:
+        self.lock.acquire()
         node_names = self.find_node_names()
         nodes = []
         for node_name in node_names:
@@ -198,6 +195,8 @@ class NetworkDiscover(Ros2Discover):
             subscribers = self.find_subscribers(node_name=node_name)
             nodes.append(
                 Ros2Node(node_name, publishers=publishers, subscribers=subscribers))
+
+        self.lock.release()
         return nodes
 
     def find_node_names(self):
