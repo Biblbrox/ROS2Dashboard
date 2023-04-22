@@ -3,10 +3,10 @@ import hashlib
 from ros2dashboard.edge.GraphEdge import GraphEdge
 
 class Subscriber(GraphEdge):
-    def __init__(self, node_name, topic_name, topic_type, port=0):
+    def __init__(self, node_name, topic_name, topic_type, port=None):
         super().__init__(node_name)
-        self.topic_name: str = topic_name
-        self.topic_type: str = topic_type
+        self.topic_name = topic_name
+        self.topic_type = topic_type
         self.port = port
 
 

@@ -4,9 +4,9 @@ from NodeGraphQt import NodeGraph
 from NodeGraphQt import BaseNode
 
 from PySide2.QtCore import Signal, Slot
+from sensor_msgs.msg import Image
 
 from ros2dashboard.ros2utils.NetworkDiscover import NetworkDiscover
-from ros2dashboard.devices.Ros2Node import Ros2Node
 from ros2dashboard.app.logger import logging
 
 from ros2dashboard.edge.Topic import Topic
@@ -26,8 +26,8 @@ class Ros2Dashboard:
         # create node graph controller.
         self.graph = NodeGraph()
         self.nodes: list[Ros2Node] = []
-        self.subscribers = []
-        self.publishers = []
+        self.subscribers: list[Subscriber] = []
+        self.publishers: list[Publisher] = []
         self.lock = RLock()
 
         # register ui nodes
@@ -94,7 +94,9 @@ class Ros2Dashboard:
         subscriber_color = (0, 255, 0)
 
         try:
-            for node in self.nodes:
+            # Update subscriptions and publishers
+            for idx, node in enumerate(self.nodes):
+                # Updating subscribers
                 node.subscribers = [
                     subscription for subscription in subscriptions if subscription.node_name == node.node_name]
                 node.clear_inputs()
@@ -102,12 +104,16 @@ class Ros2Dashboard:
                     logging.error("This should not be happened")
                     exit(-1)
                 for subscriber in node.subscribers:
+                    # if subscriber.topic_type == "sensor_msgs/msg/Image":
+                    #    node.node_widget.w.visualizer.subscribe_topic('image_topic_show', Image)
+
                     logging.debug(
                         f"Registering input port with name {subscriber.topic_name} for node {node.node_name}")
                     port = node.add_input(
                         name=subscriber.topic_name, color=subscriber_color)
                     subscriber.port = port
 
+                # Updating publishers
                 node.publishers = [
                     publisher for publisher in publishers if publisher.node_name == node.node_name]
                 node.clear_outputs()
@@ -120,6 +126,18 @@ class Ros2Dashboard:
                     port = node.add_output(
                         name=publisher.topic_name, color=publisher_color, multi_output=True)
                     publisher.port = port
+
+            for idx, node in enumerate(self.nodes):
+                # Updating inter node connections
+                if idx == len(self.nodes) - 1:
+                    continue
+
+                for nd in self.nodes[idx + 1:]:
+                    for subscriber in nd.subscribers:
+                        for publisher in node.publishers:
+                            if publisher.topic_name == subscriber.topic_name:
+                                publisher.port.connect_to(subscriber.port)
+
         except Exception as e:
             logging.error(
                 f"Unable to update connections. Error: {e}")

@@ -6,10 +6,11 @@ from ros2dashboard.edge.Subscriber import Subscriber
 from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.ros2utils.Network import Host
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import Ros2Node, VISUALIZATION_NODE_PREFIX
 from ros2dashboard.edge.GraphEdge import GraphEdge
 from ros2dashboard.ros2utils.NetworkDiscover import NetworkDiscover
 from ros2dashboard.app.logger import logging
+from ros2dashboard.ros2utils.Network import filter_internal_edges
 
 
 def has_method(obj, method):
@@ -25,15 +26,14 @@ class Ros2Monitor(QObject):
     new_clients = Signal(object)
     new_nodes = Signal(object)
 
-    def is_equal_edges(self, old_edges: list[GraphEdge], new_edges: list[GraphEdge]) -> bool:
+    def is_equal_edges(self, new_edges: list[GraphEdge], old_edges: list[GraphEdge]) -> bool:
         try:
-            logging.debug(f"{len(old_edges)}, {old_edges}")
-            logging.debug(f"{len(new_edges)}, {new_edges}")
+            if old_edges is None:
+                return False
 
             if len(old_edges) != len(new_edges):
                 return False
 
-            logging.debug("is_equal_edges")
             # assert [has_method(edge, "unique_key") for edge in old_edges]
             # assert [has_method(edge, "unique_key") for edge in new_edges]
 
@@ -57,26 +57,32 @@ class Ros2Monitor(QObject):
         hosts = self.network_discover.find_hosts()
 
         if not self.is_equal_edges(topics, self.topics):
-            self.topics = topics
-            self.new_topics.emit(topics)
+            self.topics = filter_internal_edges(topics)
+            self.new_topics.emit(self.topics)
+
         if not self.is_equal_edges(subscribers, self.subscribers):
-            self.subscribers = subscribers
-            self.new_subscribers.emit(subscribers)
+            self.subscribers = filter_internal_edges(subscribers)
+            self.new_subscribers.emit(self.subscribers)
+
         if not self.is_equal_edges(publishers, self.publishers):
-            self.publishers = publishers
-            self.new_publishers.emit(publishers)
+            self.publishers = filter_internal_edges(publishers)
+            self.new_publishers.emit(self.publishers)
+
         if not self.is_equal_edges(service_servers, self.services):
-            self.services = service_servers
-            self.new_services.emit(service_servers)
+            self.services = filter_internal_edges(service_servers)
+            self.new_services.emit(self.services)
+
         if not self.is_equal_edges(service_clients, self.clients):
-            self.clients = service_clients
-            self.new_clients.emit(service_clients)
+            self.clients = filter_internal_edges(service_clients)
+            self.new_clients.emit(self.clients)
+
         if not self.is_equal_edges(nodes, self.nodes):
-            self.nodes = nodes
-            self.new_nodes.emit(nodes)
+            self.nodes = filter_internal_edges(nodes)
+            self.new_nodes.emit(self.nodes)
+
         if not self.is_equal_edges(hosts, self.hosts):
-            self.hosts = hosts
-            self.new_hosts.emit(hosts)
+            self.hosts = filter_internal_edges(hosts)
+            self.new_hosts.emit(self.hosts)
 
     def __init__(self, args, parent=None):
         super(Ros2Monitor, self).__init__(parent)

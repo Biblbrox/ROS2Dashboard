@@ -20,7 +20,7 @@ from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.ros2utils.Ros2Discover import Ros2Discover
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import Ros2Node, VISUALIZATION_NODE_PREFIX
 
 
 def generate_random_node_name():
@@ -50,8 +50,6 @@ class NetworkDiscover(Ros2Discover):
         if topics_type == "Publisher":
             # Parse the output to find publishers and subscribers
             is_publisher = False
-            print(
-                f"-----------------Publishers for node {node_name}---------------------")
             for line in output.decode().split('\n'):
                 line = line.strip()
                 if line.startswith('Publishers:'):
@@ -64,15 +62,11 @@ class NetworkDiscover(Ros2Discover):
                 if is_publisher:
                     publishers_info = [word.strip()
                                        for word in line.split(':')]
-                    print(publishers_info)
                     topics.append(
                         Publisher(node_name, topic_name=publishers_info[0], topic_type=publishers_info[1]))
-            print("--------------------------------------")
         elif topics_type == "Subscriber":
             # Parse the output to find publishers and subscribers
             is_subscriber = False
-            print(
-                f"-----------------Subscribers for node {node_name}---------------------")
             for line in output.decode().split('\n'):
                 line = line.strip()
                 if line.startswith('Subscribers:'):
@@ -85,10 +79,8 @@ class NetworkDiscover(Ros2Discover):
                 if is_subscriber:
                     subscribers_info = [word.strip()
                                         for word in line.split(':')]
-                    print(subscribers_info)
                     topics.append(Subscriber(
                         node_name, topic_name=subscribers_info[0], topic_type=subscribers_info[1]))
-            print("--------------------------------------")
         else:
             # Parse the output to find publishers and subscribers
             is_topic = False
@@ -168,8 +160,6 @@ class NetworkDiscover(Ros2Discover):
 
         if not node_name:
             for node_name_ in self.find_node_names():
-                print(
-                    f"***********************{node_name_}********************")
                 node_publishers = self.find_node_topics(
                     node_name_, "Publisher")
 
@@ -194,7 +184,7 @@ class NetworkDiscover(Ros2Discover):
             publishers = self.find_publishers(node_name=node_name)
             subscribers = self.find_subscribers(node_name=node_name)
             nodes.append(
-                Ros2Node(node_name, publishers=publishers, subscribers=subscribers))
+                Ros2Node(node_name, publishers_=publishers, subscribers_=subscribers))
 
         self.lock.release()
         return nodes
@@ -207,7 +197,12 @@ class NetworkDiscover(Ros2Discover):
         # Decode the byte string to a regular string
         node_names = output.decode('utf-8').split()
 
-        return node_names
+        result = []
+        for node_name in node_names:
+            if not node_name.startswith(f"/{VISUALIZATION_NODE_PREFIX}"):
+                result.append(node_name)
+
+        return result
 
     def find_hosts(self):
         prefix = self.ip.rsplit('.', 1)[0]
