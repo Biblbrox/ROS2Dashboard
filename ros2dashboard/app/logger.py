@@ -1,5 +1,7 @@
 import datetime
 import logging as inner_logging
+from logging.handlers import TimedRotatingFileHandler
+
 
 class CustomFormatter(inner_logging.Formatter):
     """Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629"""
@@ -28,6 +30,9 @@ class CustomFormatter(inner_logging.Formatter):
         return formatter.format(record)
 
 
+logging_folder = "ros2dashboard/logs/"
+
+
 def init_logger():
     # Create custom logger logging all five levels
     logger = inner_logging.getLogger(__name__)
@@ -43,7 +48,8 @@ def init_logger():
 
     # Create file handler for logging to a file (logs all five levels)
     today = datetime.date.today()
-    file_handler = inner_logging.FileHandler('my_app_{}.log'.format(today.strftime('%Y_%m_%d')))
+    file_handler = TimedRotatingFileHandler(logging_folder + 'ros2dashboard_{}.log'.format(today.strftime(
+        '%Y_%m_%d')), when='D', interval=1, backupCount=90, encoding='utf-8', delay=False)
     file_handler.setLevel(inner_logging.DEBUG)
     file_handler.setFormatter(inner_logging.Formatter(fmt))
 
@@ -52,5 +58,6 @@ def init_logger():
     logger.addHandler(file_handler)
 
     return logger
+
 
 logging = init_logger()

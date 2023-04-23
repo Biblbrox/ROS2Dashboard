@@ -48,41 +48,50 @@ class Ros2Monitor(QObject):
         return True
 
     def monitor_changes(self):
-        topics = self.network_discover.find_topics()
-        publishers = self.network_discover.find_publishers()
-        subscribers = self.network_discover.find_subscribers()
-        service_servers = self.network_discover.find_action_servers()
-        service_clients = self.network_discover.find_action_clients()
-        nodes = self.network_discover.find_nodes()
-        hosts = self.network_discover.find_hosts()
+        try: 
+            topics = self.network_discover.find_topics()
+            publishers = self.network_discover.find_publishers()
+            subscribers = self.network_discover.find_subscribers()
+            service_servers = self.network_discover.find_action_servers()
+            service_clients = self.network_discover.find_action_clients()
+            nodes = self.network_discover.find_nodes()
+            hosts = self.network_discover.find_hosts()
+        except Exception as e:
+            logging.error("Unable to get new nodes' data")
+            exit(-1)
+    
 
-        if not self.is_equal_edges(topics, self.topics):
-            self.topics = filter_internal_edges(topics)
-            self.new_topics.emit(self.topics)
+        try: 
+            if not self.is_equal_edges(topics, self.topics):
+                self.topics = filter_internal_edges(topics)
+                self.new_topics.emit(self.topics)
 
-        if not self.is_equal_edges(subscribers, self.subscribers):
-            self.subscribers = filter_internal_edges(subscribers)
-            self.new_subscribers.emit(self.subscribers)
+            if not self.is_equal_edges(subscribers, self.subscribers):
+                self.subscribers = filter_internal_edges(subscribers)
+                self.new_subscribers.emit(self.subscribers)
 
-        if not self.is_equal_edges(publishers, self.publishers):
-            self.publishers = filter_internal_edges(publishers)
-            self.new_publishers.emit(self.publishers)
+            if not self.is_equal_edges(publishers, self.publishers):
+                self.publishers = filter_internal_edges(publishers)
+                self.new_publishers.emit(self.publishers)
 
-        if not self.is_equal_edges(service_servers, self.services):
-            self.services = filter_internal_edges(service_servers)
-            self.new_services.emit(self.services)
+            if not self.is_equal_edges(service_servers, self.services):
+                self.services = filter_internal_edges(service_servers)
+                self.new_services.emit(self.services)
 
-        if not self.is_equal_edges(service_clients, self.clients):
-            self.clients = filter_internal_edges(service_clients)
-            self.new_clients.emit(self.clients)
+            if not self.is_equal_edges(service_clients, self.clients):
+                self.clients = filter_internal_edges(service_clients)
+                self.new_clients.emit(self.clients)
 
-        if not self.is_equal_edges(nodes, self.nodes):
-            self.nodes = filter_internal_edges(nodes)
-            self.new_nodes.emit(self.nodes)
+            if not self.is_equal_edges(nodes, self.nodes):
+                self.nodes = filter_internal_edges(nodes)
+                self.new_nodes.emit(self.nodes)
 
-        if not self.is_equal_edges(hosts, self.hosts):
-            self.hosts = filter_internal_edges(hosts)
-            self.new_hosts.emit(self.hosts)
+            if not self.is_equal_edges(hosts, self.hosts):
+                self.hosts = filter_internal_edges(hosts)
+                self.new_hosts.emit(self.hosts)
+        except Exception as e:
+            logging("Unable to emit signals about nodes' data changes")
+            exit(-1)
 
     def __init__(self, args, parent=None):
         super(Ros2Monitor, self).__init__(parent)

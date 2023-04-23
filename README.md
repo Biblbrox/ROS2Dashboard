@@ -12,3 +12,7 @@ Having all neccessary stuf prepared, you may to run program with command:
 ```bash
     python app.py
 ```
+
+# Roadmap
+- [ ] Implement controlling over node connections - subscribtions, publishers, etc...;
+- [ ] Add visualization for base ros2 types;

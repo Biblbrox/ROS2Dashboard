@@ -1,26 +1,24 @@
 import hashlib
 import uuid
 
-from NodeGraphQt import BaseNode
-
+import PySide2.QtWidgets as QtWidgets
 import rclpy
+from NodeGraphQt import BaseNode, NodeBaseWidget
+from PySide2.QtCore import Signal, Slot, QSize
+from PySide2 import QtGui
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 
-from ros2dashboard.edge.Topic import Topic
-from ros2dashboard.edge.Client import Client
-from ros2dashboard.edge.Subscriber import Subscriber
-from ros2dashboard.edge.Publisher import Publisher
-from ros2dashboard.edge.Service import Service
+from ros2dashboard.app.logger import logging
 from ros2dashboard.edge.ActionClient import ActionClient
 from ros2dashboard.edge.ActionServer import ActionServer
-from ros2dashboard.app.logger import logging
-from ros2dashboard.visualizer.TopicVisualizer import TopicVisualizer, VideoVisualizer
-
-import PySide2.QtWidgets as QtWidgets
-from PySide2.QtCore import Slot, Signal
-
-from NodeGraphQt import BaseNode, NodeBaseWidget
+from ros2dashboard.edge.Client import Client
+from ros2dashboard.edge.Publisher import Publisher
+from ros2dashboard.edge.Service import Service
+from ros2dashboard.edge.Subscriber import Subscriber
+from ros2dashboard.edge.Topic import Topic
+from ros2dashboard.visualizer.TopicVisualizer import (TopicVisualizer,
+                                                      VideoVisualizer)
 
 """ This prefix is used to avoid to show unecessary nodes in graph, which are 
 begin used for internal purposes
@@ -36,30 +34,71 @@ class NodeControlWidget(QtWidgets.QWidget):
     def __init__(self, node_name: str, parent=None):
         super(NodeControlWidget, self).__init__(parent)
         logging.debug("Creating NodeControlWidget")
-        self.btn_visualize = QtWidgets.QPushButton(text='Flow')
-        self.btn_stop = QtWidgets.QPushButton(text='Stop')
+        self.btn_visualize = QtWidgets.QPushButton(
+            text='Topic data', parent=self)
+        self.btn_stop = QtWidgets.QPushButton(text='Stop', parent=self)
         self.node_name = node_name
         self.visualizer = None
 
-        self.layout = QtWidgets.QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.btn_visualize)
-        self.layout.addWidget(self.btn_stop)
+        self.layout = QtWidgets.QVBoxLayout(self)
+        # self.layout.setContentsMargins(0, 0, 0, 0)
+        btn_layout = QtWidgets.QHBoxLayout()
+        btn_layout.addWidget(self.btn_visualize)
+        btn_layout.addWidget(self.btn_stop)
+        btn_wiget = QtWidgets.QWidget()
+        btn_wiget.setLayout(btn_layout)
+        self.layout.addWidget(btn_wiget)
 
         self.visualiser_opened = False
+        self.visualization_inited = False
+        self.adjustSize()
+        self.min_size = QSize(0, 0)
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        super().resizeEvent(event)
+        if self.min_size == QSize(0, 0):
+            self.min_size = self.size()
 
     def toggle_layout(self):
-        if self.visualiser_opened:
-            self.layout.addWidget(self.visualizer.widget)
+        if self.visualizer is None:
+            logging.warning("Unable to open visualizer, it is not ready")
+            return
+
+        if not self.visualiser_opened:
+            logging.debug("Show visualizer wiget")
+            if self.visualization_inited:
+                self.visualizer.widget.setVisible(True)
+                self.adjustSize()
+            else:
+                self.layout.addWidget(self.visualizer.widget)
+                self.adjustSize()
+
+            self.visualiser_opened = True
+            self.visualization_inited = True
         else:
-            self.layout.removeWidget(self.visualizer.widget)
+            # self.layout.removeWidget(self.visualizer.widget)
+            self.visualizer.widget.setVisible(False)
+            self.visualiser_opened = False
+            self.adjustSize()
+            self.resize(self.min_size)
 
     def add_visualizer(self, message_type, topic_name):
         if self.visualizer is None:
-            self.visualizer = TopicVisualizer(self.node_name)
+            self.visualizer = TopicVisualizer(self.node_name, parent=self)
 
         self.visualizer.subscribe_topic(topic_name, message_type)
-        self.layout.addWidget()
+
+    def has_visualizer(self, message_type, topic_name) -> bool:
+        if self.visualizer is None:
+            self.visualizer = TopicVisualizer(self.node_name, parent=self)
+
+        return self.visualizer.has_visualizer(topic_name, message_type)
+
+    def support_visualizer(self, message_type):
+        if self.visualizer is None:
+            self.visualizer = TopicVisualizer(self.node_name, parent=self)
+
+        return self.visualizer.support_visualizer(message_type)
 
 
 class NodeControlWidgetWrapper(NodeBaseWidget):
@@ -69,6 +108,7 @@ class NodeControlWidgetWrapper(NodeBaseWidget):
 
     def __init__(self, node_name: str, parent=None):
         super(NodeControlWidgetWrapper, self).__init__(parent)
+        self.parent = parent
         # set the name for node property.
         self.node_name = node_name
         self.set_name(self.node_name + ".widget")
@@ -77,7 +117,8 @@ class NodeControlWidgetWrapper(NodeBaseWidget):
         self.set_label('Custom Widget')
 
         # set the custom widget.
-        self.set_custom_widget(NodeControlWidget(self.node_name))
+        self.set_custom_widget(NodeControlWidget(
+            self.node_name, parent=self.widget()))
 
         # connect up the signals & slots.
         self.wire_signals()
@@ -91,7 +132,12 @@ class NodeControlWidgetWrapper(NodeBaseWidget):
 
     def add_visualization(self, message_type, topic_name):
         self.control_widget.add_visualizer(message_type, topic_name)
-        pass
+
+    def has_visualizer(self, message_type, topic_name):
+        return self.control_widget.has_visualizer(message_type, topic_name)
+
+    def support_visualizer(self, message_type):
+        return self.control_widget.support_visualizer(message_type)
 
     def wire_signals(self):
         self.control_widget = self.get_custom_widget()
@@ -105,6 +151,9 @@ class NodeControlWidgetWrapper(NodeBaseWidget):
     def on_btn_viz_clicked(self):
         print('Clicked on node: "{}"'.format(self.node.name()))
         self.control_widget = self.get_custom_widget()
+        self.control_widget.toggle_layout()
+        self.adjustSize()
+        
 
     @Slot()
     def on_btn_stop_clicked(self):
@@ -179,6 +228,20 @@ class Ros2Node(BaseNode):
     @subscribers.setter
     def subscribers(self, value):
         self._subscribers = value
+
+        # Update visualization
+        for subscriber in value:
+            if not self.node_widget.has_visualizer(subscriber.topic_type, subscriber.topic_name) and self.node_widget.support_visualizer(subscriber.topic_type):
+                logging.debug(
+                    f"Added visualization for topic with type {subscriber.topic_type} and name {subscriber.topic_name}")
+                self.node_widget.add_visualization(
+                    subscriber.topic_type, subscriber.topic_name)
+            elif self.node_widget.has_visualizer(subscriber.topic_type, subscriber.topic_name):
+                logging.warning(
+                    f"Visualizer for topic type {subscriber.topic_type} with name {subscriber.topic_name} has already been added")
+            else:
+                logging.warning(
+                    f"Not supporting type for visualizing: {subscriber.topic_type}")
 
     @property
     def services(self):

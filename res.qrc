@@ -3,6 +3,10 @@
     <file>styles/app.qss</file>
 </qresource>
 <qresource prefix="ui">
-    <file>ros2dashboard/ui/form.ui</file>
+    <file>ros2dashboard/ui/mainwindow.ui</file>
+    <file>ros2dashboard/ui/nodewidget.ui</file>
+</qresource>
+<qresource prefix="logs">
+    <file>ros2dashboard/logs</file>
 </qresource>
 </RCC>

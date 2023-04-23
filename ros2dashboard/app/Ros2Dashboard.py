@@ -104,9 +104,6 @@ class Ros2Dashboard:
                     logging.error("This should not be happened")
                     exit(-1)
                 for subscriber in node.subscribers:
-                    # if subscriber.topic_type == "sensor_msgs/msg/Image":
-                    #    node.node_widget.w.visualizer.subscribe_topic('image_topic_show', Image)
-
                     logging.debug(
                         f"Registering input port with name {subscriber.topic_name} for node {node.node_name}")
                     port = node.add_input(
