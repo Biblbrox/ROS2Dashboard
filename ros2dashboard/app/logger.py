@@ -2,7 +2,6 @@ import datetime
 import logging as inner_logging
 from logging.handlers import TimedRotatingFileHandler
 
-
 class CustomFormatter(inner_logging.Formatter):
     """Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629"""
 

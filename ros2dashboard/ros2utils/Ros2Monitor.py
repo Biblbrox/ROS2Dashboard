@@ -1,4 +1,4 @@
-from PySide2.QtCore import Signal, QObject, QTimer, QThread
+from PySide2.QtCore import Signal, QObject, QTimer
 
 from ros2dashboard.edge.Topic import Topic
 from ros2dashboard.edge.Client import Client
@@ -98,7 +98,7 @@ class Ros2Monitor(QObject):
 
         self.topics: list[Topic] = []
         self.hosts: list[Host] = []
-        self.subscribers: list[Host] = []
+        self.subscribers: list[Subscriber] = []
         self.publishers: list[Publisher] = []
         self.services: list[Service] = []
         self.clients: list[Client] = []

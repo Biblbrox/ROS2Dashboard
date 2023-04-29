@@ -34,6 +34,7 @@ class Ros2Dashboard:
         self.register_nodes()
 
         self.graph_widget = self.graph.widget
+        self.graph.auto_layout_nodes
 
     def register_nodes(self):
         self.graph.register_node(Ros2Node)
