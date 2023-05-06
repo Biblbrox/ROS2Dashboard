@@ -3,7 +3,7 @@ from PySide2.QtGui import QImage, QPixmap
 from sensor_msgs.msg import Image
 
 from ros2dashboard.visualizer.Visualizer import Visualizer
-from ros2dashboard.app.logger import logging
+from ros2dashboard.core.Logger import logging
 
 
 class GenericTextVisualizer(Visualizer):

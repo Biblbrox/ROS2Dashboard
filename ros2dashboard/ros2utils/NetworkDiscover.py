@@ -6,9 +6,11 @@ from threading import Lock, RLock
 
 from PySide2.QtCore import Signal, QObject
 import rclpy
+
 from rclpy.node import Node
 import ros2node.api as cli
 import ros2lifecycle.api as api
+from ros2dashboard.edge.Package import Package
 
 
 from ros2dashboard.edge.Topic import Topic
@@ -107,6 +109,10 @@ class NetworkDiscover(Ros2Discover):
         return []
 
     def find_action_servers(self, node_name=None) -> list[ActionServer]:
+        return []
+
+    def find_packages(self) -> list[Package]:
+
         return []
 
     def find_topics(self, node_name=None) -> list[Topic]:

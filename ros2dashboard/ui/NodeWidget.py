@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QWidget
 
-from ros2dashboard.app.Ros2Dashboard import Ros2Dashboard as Ros2Dashboard
+from ros2dashboard.core.Ros2Dashboard import Ros2Dashboard as Ros2Dashboard
 from ros2dashboard.ui.ui_nodewidget import Ui_NodeWidget
 from ros2dashboard.devices.Ros2Node import Ros2Node
 

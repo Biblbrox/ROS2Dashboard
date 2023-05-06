@@ -5,11 +5,12 @@ from ros2dashboard.edge.Client import Client
 from ros2dashboard.edge.Subscriber import Subscriber
 from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
+from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.devices.Ros2Node import Ros2Node, VISUALIZATION_NODE_PREFIX
 from ros2dashboard.edge.GraphEdge import GraphEdge
 from ros2dashboard.ros2utils.NetworkDiscover import NetworkDiscover
-from ros2dashboard.app.logger import logging
+from ros2dashboard.core.Logger import logging
 from ros2dashboard.ros2utils.Network import filter_internal_edges
 
 
@@ -25,6 +26,7 @@ class Ros2Monitor(QObject):
     new_services = Signal(object)
     new_clients = Signal(object)
     new_nodes = Signal(object)
+    new_packages = Signal(object)
 
     def is_equal_edges(self, new_edges: list[GraphEdge], old_edges: list[GraphEdge]) -> bool:
         try:
@@ -56,6 +58,7 @@ class Ros2Monitor(QObject):
             service_clients = self.network_discover.find_action_clients()
             nodes = self.network_discover.find_nodes()
             hosts = self.network_discover.find_hosts()
+            packages = self.network_discover.find_packages()
         except Exception as e:
             logging.error("Unable to get new nodes' data")
             exit(-1)
@@ -89,6 +92,11 @@ class Ros2Monitor(QObject):
             if not self.is_equal_edges(hosts, self.hosts):
                 self.hosts = filter_internal_edges(hosts)
                 self.new_hosts.emit(self.hosts)
+
+            if not self.is_equal_edges(packages, self.packages):
+                self.packages = filter_internal_edges(packages)
+                self.new_packages.emit(self.packages)
+
         except Exception as e:
             logging("Unable to emit signals about nodes' data changes")
             exit(-1)
@@ -102,6 +110,7 @@ class Ros2Monitor(QObject):
         self.publishers: list[Publisher] = []
         self.services: list[Service] = []
         self.clients: list[Client] = []
+        self.packages: list[Package] = []
         self.nodes: list[Ros2Node] = []
         self.network_discover = NetworkDiscover(args=args)
 

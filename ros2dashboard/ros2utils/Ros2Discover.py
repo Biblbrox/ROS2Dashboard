@@ -7,6 +7,7 @@ from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.edge.ActionClient import ActionClient
 from ros2dashboard.edge.ActionServer import ActionServer
+from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.devices.Ros2Node import Ros2Node
 
@@ -44,6 +45,10 @@ class Ros2Discover(ABC):
 
     @abstractmethod
     def find_node_names(self) -> list[str]:
+        pass
+
+    @abstractmethod
+    def find_packages(self) -> list[Package]:
         pass
 
     @abstractmethod

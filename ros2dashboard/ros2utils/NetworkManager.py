@@ -9,6 +9,9 @@ class NetworkManager:
     def rename_topic(self, old_name, new_name):
         pass
 
+    def hide_topic(self, topic_name):
+        pass
+
     def save_config(self):
         pass
         

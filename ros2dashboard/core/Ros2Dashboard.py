@@ -7,7 +7,7 @@ from PySide2.QtCore import Signal, Slot
 from sensor_msgs.msg import Image
 
 from ros2dashboard.ros2utils.NetworkDiscover import NetworkDiscover
-from ros2dashboard.app.logger import logging
+from ros2dashboard.core.Logger import logging
 
 from ros2dashboard.edge.Topic import Topic
 from ros2dashboard.edge.Client import Client
@@ -87,6 +87,9 @@ class Ros2Dashboard:
             exit(-1)
 
         self.update_connections(self.subscribers, self.publishers)
+
+        self.graph.auto_layout_nodes(self.nodes, start_nodes=self.nodes)
+
         self.lock.release()
 
     def update_connections(self, subscriptions: list[Subscriber], publishers: list[Publisher]):

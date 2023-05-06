@@ -2,6 +2,7 @@ import hashlib
 import uuid
 
 import PySide2.QtWidgets as QtWidgets
+from PySide2.QtWidgets import QLayout
 from NodeGraphQt import BaseNode, NodeBaseWidget
 from NodeGraphQt.constants import NodePropWidgetEnum
 from PySide2.QtCore import Signal, Slot, QSize
@@ -9,7 +10,7 @@ from PySide2 import QtGui
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 
-from ros2dashboard.app.logger import logging
+from ros2dashboard.core.Logger import logging
 from ros2dashboard.edge.ActionClient import ActionClient
 from ros2dashboard.edge.ActionServer import ActionServer
 from ros2dashboard.edge.Client import Client
@@ -41,6 +42,9 @@ class NodeControlWidget(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         btn_layout = QtWidgets.QHBoxLayout()
+
+        layout.setSizeConstraint(QLayout.SetFixedSize)
+
         btn_layout.addWidget(self.btn_visualize)
         btn_layout.addWidget(self.btn_stop)
         btn_widget = QtWidgets.QWidget(self)
@@ -49,11 +53,15 @@ class NodeControlWidget(QtWidgets.QWidget):
         layout.addWidget(self.visualizer.widget)
 
         self.visualizer.widget.setVisible(False)
-
+        layout.update()
+        layout.setSizeConstraint(QLayout.SetFixedSize)
+        
     def toggle_layout(self):
         logging.debug("Show visualizer wiget")
         self.visualizer.widget.setVisible(
             not self.visualizer.widget.isVisible())
+        if self.visualizer.widget.isVisible():
+            self.visualizer.widget.show()
 
 
 class NodeControlWidgetWrapper(NodeBaseWidget):
@@ -74,6 +82,14 @@ class NodeControlWidgetWrapper(NodeBaseWidget):
 
         # set the custom widget.
         self.control_widget = NodeControlWidget(self.node_name)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Minimum,
+                           QtWidgets.QSizePolicy.Minimum)
+        self.control_widget.setSizePolicy(QtWidgets.QSizePolicy.Minimum,
+                                          QtWidgets.QSizePolicy.Minimum)
+        # layout.setSizeConstraint(QLayout.SetFixedSize)
+        # btn_layout.setSizeConstraint(QLayout.SetFixedSize)
+
+
         self.set_custom_widget(self.control_widget)
 
         # connect up the signals & slots.
@@ -142,8 +158,6 @@ class Ros2Node(BaseNode):
 
             self.add_custom_widget(
                 self.node_widget, tab='Node Graph')
-            #self.node_widget._node = self
-            #self.view.add_widget(self.node_widget)
 
         except Exception as e:
             logging.error(f"Unable to initialize node. Error: {e}")

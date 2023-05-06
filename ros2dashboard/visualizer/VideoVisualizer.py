@@ -1,47 +1,26 @@
 from PySide2.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PySide2.QtGui import QImage, QPixmap
+from PySide2.QtCore import QUrl, QThread, QObject, Signal
 from sensor_msgs.msg import Image
 
 from ros2dashboard.visualizer.Visualizer import Visualizer
-from ros2dashboard.app.logger import logging
+from ros2dashboard.core.Logger import logging
 
 
-class VideoVisualizer(Visualizer):
-    def __init__(self, parent=None) -> None:
-        super().__init__()
-        # self.media_player = QMediaPlayer(self)
+class VideoVisualizer(Visualizer, QObject):
+    def __init__(self, node_name: str, parent=None):
+        super().__init__(node_name)
+
         self.image_label = QLabel(parent)
-        self.widget = QWidget(parent=parent)
         self.width = 512
         self.height = 288
+        self.qml_path = "ros2dashboard/visualizer/qml/VideoVisualizer.qml"
 
-        placeholder_image = "ros2dashboard/content/placeholder_image.png"
-        placeholder = QPixmap(placeholder_image)
+    def init(self):
+        super().init()
+        self.widget.setSource(QUrl.fromLocalFile(self.qml_path))
 
-        self.set_frame(placeholder)
-
-        image_layout = QVBoxLayout(parent)
-        image_layout.addWidget(self.image_label)
-        self.widget.setLayout(image_layout)
-        # self.media_player.setVideoOutput(self.widget)
-        # self.media_player.setMedia()
-        self.img_format_table = {
-            'rgb8': QImage.Format_RGB888, 'mono8': QImage.Format_Mono, 'bgr8': QImage.Format_BGR888}
-        # self.widget.show()
-
-    def set_frame(self, frame: QPixmap):
-        frame = frame.scaledToHeight(self.height)
-        frame = frame.scaledToWidth(self.width)
-        self.image_label.setPixmap(frame)
-        self.widget.update()
-        # self.media_player.setVideoOutput(self.widget)
-        # self.media_player.setMedia()
 
     def update_widget(self, data: Image):
-        try:
-            format = self.img_format_table[data.encoding]
-            image = QImage(data.data, data.width, data.height, format)
-            pixmap = QPixmap(image)
-            self.set_frame(pixmap)
-        except Exception as e:
-            logging.error(f"Unable to update VideoVisualizer. Error: {e}")
+        # We need to do nothing because qml file contains all logic stuff.
+        pass

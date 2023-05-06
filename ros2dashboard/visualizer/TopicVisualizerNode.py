@@ -3,7 +3,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
-from ros2dashboard.app.logger import logging
+from ros2dashboard.core.Logger import logging
 from ros2dashboard.visualizer.VideoVisualizer import VideoVisualizer
 from ros2dashboard.ros2utils.SpinThread import SpinThread
 
@@ -23,7 +23,7 @@ class TopicVisualizer:
         self.node_name = node_name
         self.node = None
         self.visualizers = {
-            "sensor_msgs/msg/Image": VideoVisualizer(parent=parent)
+            "sensor_msgs/msg/Image": VideoVisualizer(node_name, parent=parent)
         }
 
         self.visualizer_types = {
@@ -34,13 +34,10 @@ class TopicVisualizer:
 
         }
 
-        layout = QVBoxLayout(parent)
-        for _, value in self.visualizers.items():
-            layout.addWidget(value.widget)
+        self.layout = QVBoxLayout(parent)
         self.widget = QWidget(parent)
-        self.widget.setLayout(layout)
+        self.widget.setLayout(self.layout)
         self.spin_executor = SpinThread()
-        # self.widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
     def init_node(self):
         self.node = TopicVisualizerNode(self.node_name)
@@ -62,6 +59,9 @@ class TopicVisualizer:
 
         if topic_type in self.visualizer_subscriptions:
             self.visualizer_subscriptions[topic_type].destroy()
+
+        self.visualizers[topic_type].init()
+        self.layout.addWidget(self.visualizers[topic_type].widget)
 
         self.visualizer_subscriptions[topic_type] = self.node.create_subscription(
             self.visualizer_types[topic_type], topic_name,

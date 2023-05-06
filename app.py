@@ -1,31 +1,44 @@
 import sys
-import configparser
+from os.path import exists
 from PySide2.QtWidgets import QApplication
 from PySide2.QtCore import QFile
 from ros2dashboard.ui.MainWindow import MainWindow
-from ros2dashboard.app.logger import logging
+from ros2dashboard.core.Logger import logging
+from ros2dashboard.core.Config import Config
 import rc
+
 
 def main(args=None):
     try:
+        config_path = "config/config.ini"
+        has_config = True
+        if not exists(config_path):
+            logging.warning("Unable to find config. Staying with default values")
+            has_config = False
+        
+        config = Config(config_path)
+        config.load()
+
+        is_debug = config.get_value('Core', 'DebugMode', expected_type=bool) if has_config else True
+        is_debug_view = config.get_value('Core', 'DebugView', expected_type=bool) if has_config else True
+
         app = QApplication(sys.argv)
         app.setApplicationName("ROS2 Dashboard")
-        
+
         styleFile = QFile(":/styles/styles/app.qss")
         styleFile.open(QFile.ReadOnly)
-        app.setStyleSheet(str(styleFile.readAll()))
-
-
-        # Init config
-        config = configparser.ConfigParser()
-        config.read('config.ini')
+        # app.setStyleSheet(str(styleFile.readAll()))
+        
+        if is_debug and is_debug_view:
+            app.setStyleSheet("""
+            * {
+                border: 1px solid red;
+            }
+        """)
 
         widget = MainWindow(args=args)
-        #print(widget.mainDashboard)
-        #widget.mainDashboard = dashboard_widget
+    
         widget.show()
-
-        # ros2_dashboard.show()
 
         sys.exit(app.exec_())
     except Exception as e:
