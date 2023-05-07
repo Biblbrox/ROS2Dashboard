@@ -1,7 +1,7 @@
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import GenericNode
 
 
-class StereoNode(Ros2Node):
+class StereoNode(GenericNode):
 
     # unique node identifier domain.
     __identifier__ = 'ros2.stereo_camera'

@@ -1,6 +1,6 @@
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import GenericNode
 
-class CameraNode(Ros2Node):
+class CameraNode(GenericNode):
 
     # unique node identifier domain.
     __identifier__ = 'ros2dashboard.devices.CameraNode'

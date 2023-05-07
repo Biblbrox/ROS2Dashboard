@@ -9,7 +9,7 @@ from ros2dashboard.edge.ActionClient import ActionClient
 from ros2dashboard.edge.ActionServer import ActionServer
 from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import GenericNode
 
 class Ros2Discover(ABC):
     def __init__(self) -> None:
@@ -40,11 +40,15 @@ class Ros2Discover(ABC):
         pass
 
     @abstractmethod
-    def find_nodes(self) -> list[Ros2Node]:
+    def find_nodes(self) -> list[GenericNode]:
         pass
 
     @abstractmethod
     def find_node_names(self) -> list[str]:
+        pass
+
+    @abstractmethod
+    def find_package_names(self) -> list[str]:
         pass
 
     @abstractmethod

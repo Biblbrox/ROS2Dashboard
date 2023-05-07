@@ -18,14 +18,14 @@ from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.ros2utils.Ros2Discover import Ros2Discover
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import GenericNode
 
 
 class Ros2Dashboard:
     def __init__(self) -> None:
         # create node graph controller.
         self.graph = NodeGraph()
-        self.nodes: list[Ros2Node] = []
+        self.nodes: list[GenericNode] = []
         self.subscribers: list[Subscriber] = []
         self.publishers: list[Publisher] = []
         self.lock = RLock()
@@ -37,7 +37,7 @@ class Ros2Dashboard:
         self.graph.auto_layout_nodes
 
     def register_nodes(self):
-        self.graph.register_node(Ros2Node)
+        self.graph.register_node(GenericNode)
 
     @Slot(object)
     def update_subscribers(self, subscribers: list[Subscriber]):
@@ -54,7 +54,7 @@ class Ros2Dashboard:
         self.lock.release()
 
     @Slot(object)
-    def update_nodes(self, new_nodes: list[Ros2Node]):
+    def update_nodes(self, new_nodes: list[GenericNode]):
         self.lock.acquire()
         try:
             for node in self.nodes:
@@ -128,16 +128,13 @@ class Ros2Dashboard:
                         name=publisher.topic_name, color=publisher_color, multi_output=True)
                     publisher.port = port
 
-            for idx, node in enumerate(self.nodes):
-                # Updating inter node connections
-                if idx == len(self.nodes) - 1:
-                    continue
 
+            for idx, node in enumerate(self.nodes):
                 for nd in self.nodes[idx + 1:]:
                     for subscriber in nd.subscribers:
-                        for publisher in node.publishers:
-                            if publisher.topic_name == subscriber.topic_name:
-                                publisher.port.connect_to(subscriber.port)
+                        publisher = node.get_publisher(subscriber.topic_name)
+                        if publisher is not None:
+                            publisher.port.connect_to(subscriber.port)
 
         except Exception as e:
             logging.error(

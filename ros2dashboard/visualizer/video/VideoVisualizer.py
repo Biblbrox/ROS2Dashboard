@@ -14,7 +14,7 @@ class VideoVisualizer(Visualizer, QObject):
         self.image_label = QLabel(parent)
         self.width = 512
         self.height = 288
-        self.qml_path = "ros2dashboard/visualizer/qml/VideoVisualizer.qml"
+        self.qml_path = "ros2dashboard/visualizer/video/VideoVisualizer.qml"
 
     def init(self):
         super().init()

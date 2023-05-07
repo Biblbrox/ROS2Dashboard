@@ -1,4 +1,5 @@
 import subprocess
+from subprocess import PIPE
 import socket
 import uuid
 import time
@@ -20,9 +21,11 @@ from ros2dashboard.edge.ActionServer import ActionServer
 from ros2dashboard.edge.Subscriber import Subscriber
 from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
+from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.ros2utils.Ros2Discover import Ros2Discover
-from ros2dashboard.devices.Ros2Node import Ros2Node, VISUALIZATION_NODE_PREFIX
+from ros2dashboard.devices.GenericNode import GenericNode, VISUALIZATION_NODE_PREFIX
+from ros2dashboard.core.Processes import get_process_output
 
 
 def generate_random_node_name():
@@ -45,7 +48,7 @@ class NetworkDiscover(Ros2Discover):
         self.lock.acquire()
         # Run the 'ros2 node info' command to get information about the node
         proc = subprocess.Popen(
-            ['ros2', 'node', 'info', node_name], stdout=subprocess.PIPE)
+            ['ros2', 'node', 'info', node_name], stdin=PIPE, stdout=PIPE)
         output, _ = proc.communicate()
         # Get a list of all the publishers associated with the node
         topics = []
@@ -112,8 +115,27 @@ class NetworkDiscover(Ros2Discover):
         return []
 
     def find_packages(self) -> list[Package]:
+        self.lock.acquire()
+        package_names = self.find_package_names()
+        packages = []
+        for package_name in package_names:
+            publishers = self.find_publishers(node_name=package_name)
+            subscribers = self.find_subscribers(node_name=package_name)
+            packages.append(
+                Package(package_name, publishers_=publishers, subscribers_=subscribers))
 
-        return []
+        self.lock.release()
+        return packages
+
+    def find_package_names(self) -> list[str]:
+        # Run the `ros2 node list` command and capture its output
+        output = get_process_output(["ros2", "pkg", "list"])
+
+        # Decode the byte string to a regular string
+        pkg_names = output.decode('utf-8').split()
+
+        return pkg_names
+
 
     def find_topics(self, node_name=None) -> list[Topic]:
         self.lock.acquire()
@@ -182,7 +204,7 @@ class NetworkDiscover(Ros2Discover):
     def find_service_servers(self):
         return []
 
-    def find_nodes(self) -> list[Ros2Node]:
+    def find_nodes(self) -> list[GenericNode]:
         self.lock.acquire()
         node_names = self.find_node_names()
         nodes = []
@@ -190,25 +212,21 @@ class NetworkDiscover(Ros2Discover):
             publishers = self.find_publishers(node_name=node_name)
             subscribers = self.find_subscribers(node_name=node_name)
             nodes.append(
-                Ros2Node(node_name, publishers_=publishers, subscribers_=subscribers))
+                GenericNode(node_name, publishers_=publishers, subscribers_=subscribers))
 
         self.lock.release()
         return nodes
 
     def find_node_names(self):
         # Run the `ros2 node list` command and capture its output
-
-        output = subprocess.check_output(["ros2", "node", "list"])
+        output = get_process_output(["ros2", "node", "list"])
 
         # Decode the byte string to a regular string
         node_names = output.decode('utf-8').split()
+        node_names = filter(lambda name: not name.startswith(
+            f"/{VISUALIZATION_NODE_PREFIX}"), node_names)
 
-        result = []
-        for node_name in node_names:
-            if not node_name.startswith(f"/{VISUALIZATION_NODE_PREFIX}"):
-                result.append(node_name)
-
-        return result
+        return node_names
 
     def find_hosts(self):
         prefix = self.ip.rsplit('.', 1)[0]

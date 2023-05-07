@@ -4,7 +4,7 @@ from PySide2 import QtCore
 from ros2dashboard.core.Ros2Dashboard import Ros2Dashboard as Ros2Dashboard
 from ros2dashboard.ui.ui_mainwindow import Ui_MainWindow
 from ros2dashboard.ui.NodeWidget import NodeWidget
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import GenericNode
 from ros2dashboard.ros2utils.Ros2Monitor import Ros2Monitor
 from ros2dashboard.core.Logger import logging
 
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
 
     
     @QtCore.Slot(object)
-    def update_nodes(self, nodes: list[Ros2Node]):    
+    def update_nodes(self, nodes: list[GenericNode]):    
         logging.debug("New nodes found")
 
         self.ui.networkObserver.clear()

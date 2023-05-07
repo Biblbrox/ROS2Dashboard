@@ -1,8 +1,10 @@
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.GenericNode import GenericNode
 from ros2dashboard.edge.GraphEdge import GraphEdge
 
 class Package(GraphEdge):
-    def __init__(self, package_name: str, nodes: list[Ros2Node] = []):
-        self.nodes = nodes
+    """ Each package may contain multiple executables
+    """
+    def __init__(self, package_name: str, executable_names: list[str] = []):
+        self.executable_names = executable_names
         self.name = package_name
 

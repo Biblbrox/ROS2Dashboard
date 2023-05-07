@@ -4,7 +4,7 @@ from sensor_msgs.msg import Image
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
 from ros2dashboard.core.Logger import logging
-from ros2dashboard.visualizer.VideoVisualizer import VideoVisualizer
+from ros2dashboard.visualizer.video.VideoVisualizer import VideoVisualizer
 from ros2dashboard.ros2utils.SpinThread import SpinThread
 
 

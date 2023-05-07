@@ -7,7 +7,7 @@ from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
-from ros2dashboard.devices.Ros2Node import Ros2Node, VISUALIZATION_NODE_PREFIX
+from ros2dashboard.devices.Ros2Node import GenericNode, VISUALIZATION_NODE_PREFIX
 from ros2dashboard.edge.GraphEdge import GraphEdge
 from ros2dashboard.ros2utils.NetworkDiscover import NetworkDiscover
 from ros2dashboard.core.Logger import logging
@@ -111,11 +111,11 @@ class Ros2Monitor(QObject):
         self.services: list[Service] = []
         self.clients: list[Client] = []
         self.packages: list[Package] = []
-        self.nodes: list[Ros2Node] = []
+        self.nodes: list[GenericNode] = []
         self.network_discover = NetworkDiscover(args=args)
 
     def start(self):
         self.timer = QTimer()
         self.timer.timeout.connect(self.monitor_changes)
-        self.timer.setInterval(500)
+        self.timer.setInterval(1000)
         self.timer.start()

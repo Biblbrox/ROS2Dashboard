@@ -2,11 +2,11 @@ from PySide2.QtWidgets import QWidget
 
 from ros2dashboard.core.Ros2Dashboard import Ros2Dashboard as Ros2Dashboard
 from ros2dashboard.ui.ui_nodewidget import Ui_NodeWidget
-from ros2dashboard.devices.Ros2Node import Ros2Node
+from ros2dashboard.devices.Ros2Node import GenericNode
 
 
 class NodeWidget(QWidget):
-    def __init__(self, node: Ros2Node, parent=None):
+    def __init__(self, node: GenericNode, parent=None):
         super(NodeWidget, self).__init__(parent)
         self.node = node
         self.load_ui()

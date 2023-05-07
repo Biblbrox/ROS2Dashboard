@@ -19,7 +19,7 @@ from ros2dashboard.edge.Service import Service
 from ros2dashboard.edge.Subscriber import Subscriber
 from ros2dashboard.edge.Topic import Topic
 from ros2dashboard.visualizer.TopicVisualizerNode import TopicVisualizer
-from ros2dashboard.visualizer.VideoVisualizer import VideoVisualizer
+from ros2dashboard.visualizer.video.VideoVisualizer import VideoVisualizer
 
 """ This prefix is used to avoid to show unecessary nodes in graph, which are 
 begin used for internal purposes
@@ -55,7 +55,7 @@ class NodeControlWidget(QtWidgets.QWidget):
         self.visualizer.widget.setVisible(False)
         layout.update()
         layout.setSizeConstraint(QLayout.SetFixedSize)
-        
+
     def toggle_layout(self):
         logging.debug("Show visualizer wiget")
         self.visualizer.widget.setVisible(
@@ -88,7 +88,6 @@ class NodeControlWidgetWrapper(NodeBaseWidget):
                                           QtWidgets.QSizePolicy.Minimum)
         # layout.setSizeConstraint(QLayout.SetFixedSize)
         # btn_layout.setSizeConstraint(QLayout.SetFixedSize)
-
 
         self.set_custom_widget(self.control_widget)
 
@@ -131,7 +130,7 @@ class NodeControlWidgetWrapper(NodeBaseWidget):
         print('Clicked on node: "{}"'.format(self.node.name()))
 
 
-class Ros2Node(BaseNode):
+class GenericNode(BaseNode):
 
     # unique node identifier domain.
     __identifier__ = 'ros2.node'
@@ -140,9 +139,9 @@ class Ros2Node(BaseNode):
 
     def __init__(self, node_name_="", host_="localhost", action_servers_: list[ActionServer] = [],
                  action_clients_: list[ActionClient] = [], publishers_: list[Publisher] = [],
-                 subscribers_: list[Subscriber] = [], services_: list[Service] = [], clients_: list[Client] = []):
+                 subscribers_: list[Subscriber] = [], services_: list[Service] = [], clients_: list[Client] = [], package_name_: str = ""):
         try:
-            super(Ros2Node, self).__init__()
+            super(GenericNode, self).__init__()
             self._node_name: str = node_name_
             self._action_servers: list[ActionServer] = action_servers_
             self._action_clients: list[ActionClient] = action_clients_
@@ -151,6 +150,7 @@ class Ros2Node(BaseNode):
             self._services: list[Service] = services_
             self._clients: list[Client] = clients_
             self._host = host_
+            self._package_name = package_name_
 
             self.visualizer_node_name = VISUALIZATION_NODE_PREFIX + uuid.uuid4().hex
             self.node_widget = NodeControlWidgetWrapper(
@@ -170,6 +170,14 @@ class Ros2Node(BaseNode):
     @node_name.setter
     def node_name(self, value):
         self._node_name = value
+
+    @property
+    def package_name(self):
+        return self._package_name
+
+    @package_name.setter
+    def package_name(self, value):
+        self._package_name = value
 
     @property
     def action_servers(self):
