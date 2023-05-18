@@ -155,7 +155,6 @@ class GenericNode(BaseNode):
             self.visualizer_node_name = VISUALIZATION_NODE_PREFIX + uuid.uuid4().hex
             self.node_widget = NodeControlWidgetWrapper(
                 self.visualizer_node_name, parent=self.view)
-
             self.add_custom_widget(
                 self.node_widget, tab='Node Graph')
 
@@ -224,6 +223,10 @@ class GenericNode(BaseNode):
             else:
                 logging.warning(
                     f"Not supporting type for visualizing: {subscriber.topic_type}")
+
+    def add_output(self, name='output', multi_output=True, display_name=True,
+                   color=None, locked=False, painter_func=None):
+        super().add_output(name, multi_output, display_name, color, locked, painter_func)
 
     @property
     def services(self):

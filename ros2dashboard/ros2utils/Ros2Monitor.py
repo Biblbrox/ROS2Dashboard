@@ -7,7 +7,7 @@ from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
-from ros2dashboard.devices.Ros2Node import GenericNode, VISUALIZATION_NODE_PREFIX
+from ros2dashboard.devices.GenericNode import GenericNode, VISUALIZATION_NODE_PREFIX
 from ros2dashboard.edge.GraphEdge import GraphEdge
 from ros2dashboard.ros2utils.NetworkDiscover import NetworkDiscover
 from ros2dashboard.core.Logger import logging

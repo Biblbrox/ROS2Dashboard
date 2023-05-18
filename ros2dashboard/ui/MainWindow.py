@@ -1,12 +1,13 @@
 from PySide2.QtWidgets import QMainWindow, QListWidgetItem
 from PySide2 import QtCore
 
-from ros2dashboard.core.Ros2Dashboard import Ros2Dashboard as Ros2Dashboard
+from ros2dashboard.core.DashboardApp import DashboardApp as DashboardApp
 from ros2dashboard.ui.ui_mainwindow import Ui_MainWindow
 from ros2dashboard.ui.NodeWidget import NodeWidget
-from ros2dashboard.devices.Ros2Node import GenericNode
+from ros2dashboard.devices.GenericNode import GenericNode
 from ros2dashboard.ros2utils.Ros2Monitor import Ros2Monitor
 from ros2dashboard.core.Logger import logging
+from ros2dashboard.qml_models.PackageListModel import PackageModel
 
 
 class MainWindow(QMainWindow):
@@ -18,8 +19,9 @@ class MainWindow(QMainWindow):
     def load_ui(self):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setup_models()
 
-        self.ros2_dashboard = Ros2Dashboard()
+        self.ros2_dashboard = DashboardApp(self.package_model)
         self.ros2monitor = Ros2Monitor(self.args)
         self.dashboard_widget = self.ros2_dashboard.graph_widget
         self.ui.mainLayout.replaceWidget(self.ui.dummy_dashboard, self.dashboard_widget)
@@ -27,11 +29,16 @@ class MainWindow(QMainWindow):
         self.init_network()
         self.init_slots()
 
+    def setup_models(self):
+        self.package_model = PackageModel(None, parent=self.parent())
+        self.ui.packageObserver.rootContext().setContextProperty("packageModel", self.package_model)
+
     def init_slots(self):
         self.ros2monitor.new_nodes.connect(self.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
         self.ros2monitor.new_nodes.connect(self.ros2_dashboard.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
         self.ros2monitor.new_subscribers.connect(self.ros2_dashboard.update_subscribers, type=QtCore.Qt.BlockingQueuedConnection)
         self.ros2monitor.new_publishers.connect(self.ros2_dashboard.update_publishers, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_packages.connect(self.ros2_dashboard.update_packages, type=QtCore.Qt.BlockingQueuedConnection)
 
     def init_network(self):
         self.thread = QtCore.QThread(self)

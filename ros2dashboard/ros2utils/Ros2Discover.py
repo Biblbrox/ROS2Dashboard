@@ -9,7 +9,7 @@ from ros2dashboard.edge.ActionClient import ActionClient
 from ros2dashboard.edge.ActionServer import ActionServer
 from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
-from ros2dashboard.devices.Ros2Node import GenericNode
+from ros2dashboard.devices.GenericNode import GenericNode
 
 class Ros2Discover(ABC):
     def __init__(self) -> None:

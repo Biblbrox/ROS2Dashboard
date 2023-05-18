@@ -5,6 +5,7 @@ from PySide2.QtCore import QFile
 from ros2dashboard.ui.MainWindow import MainWindow
 from ros2dashboard.core.Logger import logging
 from ros2dashboard.core.Config import Config
+from ros2dashboard.qml_models import PackageListModel
 import rc
 
 

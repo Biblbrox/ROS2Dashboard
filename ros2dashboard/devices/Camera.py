@@ -1,4 +1,4 @@
-from ros2dashboard.devices.Ros2Node import GenericNode
+from ros2dashboard.devices.GenericNode import GenericNode
 
 class CameraNode(GenericNode):
 

@@ -1,0 +1,3 @@
+[submodule "webviz"]
+	path = thirdy/webviz
+	url = https://github.com/cruise-automation/webviz.git

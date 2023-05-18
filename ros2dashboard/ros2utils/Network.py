@@ -1,7 +1,7 @@
 import hashlib
 
 from ros2dashboard.edge.GraphEdge import GraphEdge
-from ros2dashboard.devices.Ros2Node import VISUALIZATION_NODE_PREFIX
+from ros2dashboard.devices.GenericNode import VISUALIZATION_NODE_PREFIX
 
 
 class Host(GraphEdge):
