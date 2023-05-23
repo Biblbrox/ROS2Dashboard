@@ -135,7 +135,7 @@ class GenericNode(BaseNode):
     # unique node identifier domain.
     __identifier__ = 'ros2.node'
     # initial default node name.
-    NODE_NAME = 'Ros2Node'
+    NODE_NAME = 'GenericNode'
 
     def __init__(self, node_name_="", host_="localhost", action_servers_: list[ActionServer] = [],
                  action_clients_: list[ActionClient] = [], publishers_: list[Publisher] = [],
@@ -226,7 +226,7 @@ class GenericNode(BaseNode):
 
     def add_output(self, name='output', multi_output=True, display_name=True,
                    color=None, locked=False, painter_func=None):
-        super().add_output(name, multi_output, display_name, color, locked, painter_func)
+        return super().add_output(name, multi_output, display_name, color, locked, painter_func)
 
     @property
     def services(self):

@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     engine = QQmlApplicationEngine()
 
-    engine.load(QUrl("NodeGraph.qml"))
+    engine.load(QUrl("Main.qml"))
 
     if not engine.rootObjects():
         sys.exit(-1)

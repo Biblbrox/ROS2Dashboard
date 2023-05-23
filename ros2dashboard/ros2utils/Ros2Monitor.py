@@ -1,3 +1,5 @@
+import timeit
+
 from PySide2.QtCore import Signal, QObject, QTimer
 
 from ros2dashboard.edge.Topic import Topic
@@ -50,21 +52,29 @@ class Ros2Monitor(QObject):
         return True
 
     def monitor_changes(self):
-        try: 
+        try:
             topics = self.network_discover.find_topics()
+            measure = lambda f: timeit.timeit(lambda: f(), number=1)
+            logging.debug(f"Topics: {measure(self.network_discover.find_topics)}")
             publishers = self.network_discover.find_publishers()
+            logging.debug(f"Pubslishers: {measure(self.network_discover.find_publishers)}")
             subscribers = self.network_discover.find_subscribers()
+            logging.debug(f"Subscribers: {measure(self.network_discover.find_subscribers)}")
             service_servers = self.network_discover.find_action_servers()
+            logging.debug(f"Action servers: {measure(self.network_discover.find_action_servers)}")
             service_clients = self.network_discover.find_action_clients()
+            logging.debug(f"Action clients: {measure(self.network_discover.find_action_clients)}")
             nodes = self.network_discover.find_nodes()
+            logging.debug(f"Nodes: {measure(self.network_discover.find_nodes)}")
             hosts = self.network_discover.find_hosts()
-            packages = self.network_discover.find_packages()
+            logging.debug(f"Hosts: {measure(self.network_discover.find_hosts)}")
+            # packages = self.network_discover.find_packages()
+            # logging.debug(f"Packages: {measure(self.network_discover.find_packages, number=1)}")
         except Exception as e:
-            logging.error("Unable to get new nodes' data")
+            logging.error(f"Unable to get new nodes data. Error: {e}")
             exit(-1)
-    
 
-        try: 
+        try:
             if not self.is_equal_edges(topics, self.topics):
                 self.topics = filter_internal_edges(topics)
                 self.new_topics.emit(self.topics)

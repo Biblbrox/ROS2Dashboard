@@ -22,10 +22,13 @@ from ros2dashboard.edge.Subscriber import Subscriber
 from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.edge.Package import Package
+from ros2dashboard.edge.Executable import Executable
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.ros2utils.Ros2Discover import Ros2Discover
 from ros2dashboard.devices.GenericNode import GenericNode, VISUALIZATION_NODE_PREFIX
 from ros2dashboard.core.Processes import get_process_output
+
+import rust_ros2monitor
 
 
 def generate_random_node_name():
@@ -45,7 +48,7 @@ class NetworkDiscover(Ros2Discover):
         self.ip = socket.gethostbyname(socket.gethostname())
 
     def find_node_topics(self, node_name: str, topics_type="all"):
-        self.lock.acquire()
+        #self.lock.acquire()
         # Run the 'ros2 node info' command to get information about the node
         proc = subprocess.Popen(
             ['ros2', 'node', 'info', node_name], stdin=PIPE, stdout=PIPE)
@@ -105,7 +108,7 @@ class NetworkDiscover(Ros2Discover):
                     topics.append(
                         Topic(node_name, topic_name=topics_info[0], topic_type=topics_info[1]))
 
-        self.lock.release()
+        #self.lock.release()
         return topics
 
     def find_action_clients(self, node_name=None) -> list[ActionClient]:
@@ -115,30 +118,33 @@ class NetworkDiscover(Ros2Discover):
         return []
 
     def find_packages(self) -> list[Package]:
-        self.lock.acquire()
+        #self.lock.acquire()
         package_names = self.find_package_names()
         packages = []
+        
         for package_name in package_names:
-            publishers = self.find_publishers(node_name=package_name)
-            subscribers = self.find_subscribers(node_name=package_name)
-            packages.append(
-                Package(package_name, publishers_=publishers, subscribers_=subscribers))
+            print("*****************************")
+            executable_names = self.find_executable_names(package_name)
+            print("#############################")
+            packages.append(Package(package_name, executable_names))
 
-        self.lock.release()
+        #self.lock.release()
         return packages
 
+    def find_executable_names(self, pkg_name) -> list[str]:
+        #self.lock.acquire()
+        executable_names = rust_ros2monitor.ros2_executable_names_r(pkg_name)
+        #self.lock.release()
+        return executable_names
+
     def find_package_names(self) -> list[str]:
-        # Run the `ros2 node list` command and capture its output
-        output = get_process_output(["ros2", "pkg", "list"])
-
-        # Decode the byte string to a regular string
-        pkg_names = output.decode('utf-8').split()
-
+        #self.lock.acquire()
+        pkg_names = rust_ros2monitor.ros2_package_names_r()
+        #self.lock.release()
         return pkg_names
 
-
     def find_topics(self, node_name=None) -> list[Topic]:
-        self.lock.acquire()
+        #self.lock.acquire()
         """
         Find topics for all nodes
         """
@@ -155,11 +161,11 @@ class NetworkDiscover(Ros2Discover):
             for node_topic in node_topics:
                 topics.append(node_topic)
 
-        self.lock.release()
+        #self.lock.release()
         return topics
 
     def find_subscribers(self, node_name=None) -> list[Subscriber]:
-        self.lock.acquire()
+        #self.lock.acquire()
         """
         Find subscribers for all nodes
         """
@@ -176,11 +182,11 @@ class NetworkDiscover(Ros2Discover):
             for node_subscriber in node_subscribers:
                 subscribers.append(node_subscriber)
 
-        self.lock.release()
+        #self.lock.release()
         return subscribers
 
     def find_publishers(self, node_name=None) -> list[Publisher]:
-        self.lock.acquire()
+        #self.lock.acquire()
         """
         Find publishers for all nodes
         """
@@ -198,14 +204,14 @@ class NetworkDiscover(Ros2Discover):
             for node_publisher in node_publishers:
                 publishers.append(node_publisher)
 
-        self.lock.release()
+        #self.lock.release()
         return publishers
 
     def find_service_servers(self):
         return []
 
     def find_nodes(self) -> list[GenericNode]:
-        self.lock.acquire()
+        #self.lock.acquire()
         node_names = self.find_node_names()
         nodes = []
         for node_name in node_names:
@@ -214,15 +220,16 @@ class NetworkDiscover(Ros2Discover):
             nodes.append(
                 GenericNode(node_name, publishers_=publishers, subscribers_=subscribers))
 
-        self.lock.release()
+        #self.lock.release()
         return nodes
 
     def find_node_names(self):
         # Run the `ros2 node list` command and capture its output
-        output = get_process_output(["ros2", "node", "list"])
+        # output = get_process_output(["ros2", "node", "list"])
+        node_names = rust_ros2monitor.ros2_node_names_r()
 
         # Decode the byte string to a regular string
-        node_names = output.decode('utf-8').split()
+        # node_names = output.decode('utf-8').split()
         node_names = filter(lambda name: not name.startswith(
             f"/{VISUALIZATION_NODE_PREFIX}"), node_names)
 

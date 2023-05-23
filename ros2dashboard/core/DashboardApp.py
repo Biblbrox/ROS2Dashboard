@@ -32,40 +32,45 @@ class DashboardApp:
         self.publishers: list[Publisher] = []
         self.packages: list[Package] = []
         self.package_model = package_model
-        self.lock = RLock()
+        # self.lock = RLock()
 
         # Init gui
         self.graph = NodeGraph()
         self.graph.register_node(GenericNode)
         self.graph_widget = self.graph.widget
 
+
+    def update_models(self):
+        
+        pass
+
     @Slot(object)
     def update_subscribers(self, subscribers: list[Subscriber]):
-        self.lock.acquire()
+        #self.lock.acquire()
         self.subscribers = subscribers
         self.update_connections(self.subscribers, self.publishers)
-        self.lock.release()
+        #self.lock.release()
 
     @Slot(object)
     def update_publishers(self, publishers: list[Publisher]):
-        self.lock.acquire()
+        #self.lock.acquire()
         self.publishers = publishers
         self.update_connections(self.subscribers, self.publishers)
-        self.lock.release()
+        #self.lock.release()
 
     @Slot(object)
     def update_packages(self, new_packages: list[Package]):
-        self.lock.acquire()
+        #self.lock.acquire()
         self.packages = new_packages
         self.package_model.packages = new_packages
-        self.lock.release()
+        #self.lock.release()
         
 
     def remove_node_gui(self, node: any):
         self.graph.remove_node(node)
 
     def create_node_gui(self, node, pos: tuple) -> GenericNode:
-        node_identifier = node.__identifier__ + ".Ros2Node"
+        node_identifier = node.__identifier__ + ".GenericNode"
         created_node: BaseNode = self.graph.create_node(
                     node_identifier, name=node.node_name, pos=pos)
         created_node.set_port_deletion_allowed(True)
@@ -74,7 +79,7 @@ class DashboardApp:
 
     @Slot(object)
     def update_nodes(self, new_nodes: list[GenericNode]):
-        self.lock.acquire()
+        #self.lock.acquire()
         try:
             for node in self.nodes:
                 if node.node_name not in [ros2_node.node_name for ros2_node in new_nodes]:
@@ -90,8 +95,8 @@ class DashboardApp:
 
                 logging.debug(f"Creatig ui node with name: {node.node_name}")
                 
-                created_node: BaseNode = self.create_node_gui(node)
-                self.nodes.append(created_node, pos)
+                created_node: BaseNode = self.create_node_gui(node, pos)
+                self.nodes.append(created_node)
                 pos += (10, 10)
 
                 logging.debug(f"Node with name {node.node_name} were added")
@@ -104,10 +109,10 @@ class DashboardApp:
 
         self.graph.auto_layout_nodes(self.nodes, start_nodes=self.nodes)
 
-        self.lock.release()
+        #self.lock.release()
 
     def update_connections(self, subscriptions: list[Subscriber], publishers: list[Publisher]):
-        self.lock.acquire()
+        #self.lock.acquire()
         publisher_color = (255, 0, 0)
         subscriber_color = (0, 255, 0)
 
@@ -154,7 +159,7 @@ class DashboardApp:
             logging.error(
                 f"Unable to update connections. Error: {e}")
             exit(-1)
-        self.lock.release()
+        #self.lock.release()
 
     def find_publisher(self, topic_name) -> Publisher:
         for node in self.nodes:

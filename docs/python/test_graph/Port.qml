@@ -4,22 +4,12 @@ import QtQuick.Layouts
 import QtQuick.Shapes 1.15
 
 Rectangle {
-    /*MouseArea {
-        id: mouseArea
-
-        anchors.fill: parent
-        propagateComposedEvents: true
-        onClicked: {
-            console.log("Port clicked");
-            portClicked(input);
-        }
-    }*/
-
     id: port
 
     property bool input: true
+    property string topicName
 
-    signal portClicked(bool isInput)
+    signal portClicked(bool isInput, string topicName)
 
     width: 10
     height: width
@@ -40,8 +30,7 @@ Rectangle {
     TapHandler {
         acceptedPointerTypes: PointerDevice.GenericPointer | PointerDevice.Finger | PointerDevice.Pen
         onTapped: {
-            console.log("clicked");
-            portClicked(input);
+            port.portClicked(port.input, port.topicName);
         }
     }
 

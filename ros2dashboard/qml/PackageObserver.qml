@@ -6,12 +6,12 @@ Rectangle {
     visible: true
     width: 800
     height: 500
-    color: "#ffffff"
+    color: "#aaaaaa"
 
     ListView {
         id: packageListModel
 
-        model: packageModel
+        //model: packageModel
 
         delegate: Rectangle {
             Label {

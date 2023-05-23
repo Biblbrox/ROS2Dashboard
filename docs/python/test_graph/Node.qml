@@ -10,6 +10,8 @@ Rectangle {
     property alias color: rect.color
     property alias name: nodeLabel.text
 
+    signal outputPortClicked(string topicName)
+
     radius: 10
     width: width
     height: max(outputPorts.height, inputPorts.height, height)
@@ -38,6 +40,7 @@ Rectangle {
         }
 
         Port {
+            input: true
         }
 
     }
@@ -52,12 +55,37 @@ Rectangle {
         }
 
         Port {
+            input: false
+            topicName: "turtlesim"
+            onPortClicked: function(isInput, topicName) {
+                console.log(isInput);
+                if (!isInput) {
+                    console.log('Port clicked, ', isInput, ", ", topicName);
+                    rect.outputPortClicked(topicName);
+                }
+            }
         }
 
         Port {
+            input: false
+            onPortClicked: function(isInput, topicName) {
+                console.log(isInput);
+                if (!isInput) {
+                    console.log('Port clicked, ', isInput, ", ", topicName);
+                    rect.outputPortClicked(topicName);
+                }
+            }
         }
 
         Port {
+            input: false
+            onPortClicked: function(isInput, topicName) {
+                console.log(isInput);
+                if (!isInput) {
+                    console.log('Port clicked, ', isInput, ", ", topicName);
+                    rect.outputPortClicked(topicName);
+                }
+            }
         }
 
     }

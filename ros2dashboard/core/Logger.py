@@ -2,6 +2,7 @@ import datetime
 import logging as inner_logging
 from logging.handlers import TimedRotatingFileHandler
 
+
 class CustomFormatter(inner_logging.Formatter):
     """Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629"""
 
@@ -11,12 +12,13 @@ class CustomFormatter(inner_logging.Formatter):
     red = '\x1b[38;5;196m'
     bold_red = '\x1b[31;1m'
     reset = '\x1b[0m'
+    green = '\x1b[0;32m'
 
     def __init__(self, fmt):
         super().__init__()
         self.fmt = fmt
         self.FORMATS = {
-            inner_logging.DEBUG: self.grey + self.fmt + self.reset,
+            inner_logging.DEBUG: self.green + self.fmt + self.reset,
             inner_logging.INFO: self.blue + self.fmt + self.reset,
             inner_logging.WARNING: self.yellow + self.fmt + self.reset,
             inner_logging.ERROR: self.red + self.fmt + self.reset,

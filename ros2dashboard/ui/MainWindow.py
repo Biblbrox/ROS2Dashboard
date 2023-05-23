@@ -24,21 +24,28 @@ class MainWindow(QMainWindow):
         self.ros2_dashboard = DashboardApp(self.package_model)
         self.ros2monitor = Ros2Monitor(self.args)
         self.dashboard_widget = self.ros2_dashboard.graph_widget
-        self.ui.mainLayout.replaceWidget(self.ui.dummy_dashboard, self.dashboard_widget)
+        self.ui.mainLayout.replaceWidget(
+            self.ui.dummy_dashboard, self.dashboard_widget)
 
         self.init_network()
         self.init_slots()
 
     def setup_models(self):
         self.package_model = PackageModel(None, parent=self.parent())
-        self.ui.packageObserver.rootContext().setContextProperty("packageModel", self.package_model)
+        self.ui.packageObserver.rootContext().setContextProperty(
+            "packageModel", self.package_model)
 
     def init_slots(self):
-        self.ros2monitor.new_nodes.connect(self.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
-        self.ros2monitor.new_nodes.connect(self.ros2_dashboard.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
-        self.ros2monitor.new_subscribers.connect(self.ros2_dashboard.update_subscribers, type=QtCore.Qt.BlockingQueuedConnection)
-        self.ros2monitor.new_publishers.connect(self.ros2_dashboard.update_publishers, type=QtCore.Qt.BlockingQueuedConnection)
-        self.ros2monitor.new_packages.connect(self.ros2_dashboard.update_packages, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_nodes.connect(
+            self.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_nodes.connect(
+            self.ros2_dashboard.update_nodes, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_subscribers.connect(
+            self.ros2_dashboard.update_subscribers, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_publishers.connect(
+            self.ros2_dashboard.update_publishers, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_packages.connect(
+            self.ros2_dashboard.update_packages, type=QtCore.Qt.BlockingQueuedConnection)
 
     def init_network(self):
         self.thread = QtCore.QThread(self)
@@ -46,9 +53,8 @@ class MainWindow(QMainWindow):
         self.thread.started.connect(self.ros2monitor.start)
         self.thread.start()
 
-    
     @QtCore.Slot(object)
-    def update_nodes(self, nodes: list[GenericNode]):    
+    def update_nodes(self, nodes: list[GenericNode]):
         logging.debug("New nodes found")
 
         self.ui.networkObserver.clear()
@@ -59,9 +65,9 @@ class MainWindow(QMainWindow):
             self.ui.networkObserver.addItem(item)
             self.ui.networkObserver.setItemWidget(item, widget)
 
-    #new_topics = Signal(list[Topic])
-    #new_hosts = Signal(list[Host])
-    #new_subscribers = Signal(list[Subscriber])
-    #new_publishers = Signal(list[Publisher])
-    #new_services = Signal(list[Service])
-    #new_clients = Signal(list[Client])
+    # new_topics = Signal(list[Topic])
+    # new_hosts = Signal(list[Host])
+    # new_subscribers = Signal(list[Subscriber])
+    # new_publishers = Signal(list[Publisher])
+    # new_services = Signal(list[Service])
+    # new_clients = Signal(list[Client])
