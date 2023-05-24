@@ -18,19 +18,35 @@ Window {
         anchors.fill: parent
         orientation: Qt.Horizontal
 
+        NodeObserver {
+            height: parent.height
+            implicitWidth: 400
+            Layout.fillHeight: true
+            z: 2            
+        }
+
         NodeGraph {
             id: nodeGraph
 
-            implicitWidth: 800
+            implicitWidth: 600
             SplitView.fillWidth: true
-            height: parent.height
+            //anchors.left: parent.left
+            //height: parent.height
             SplitView.fillHeight: true
+            z: 1
         }
 
         PackageObserver {
             height: parent.height
             implicitWidth: 400
             Layout.fillHeight: true
+            z: 2
+        }
+
+        background: GridBackground {
+            id: grid
+            //z: 1
+            anchors.fill: parent
         }
 
     }

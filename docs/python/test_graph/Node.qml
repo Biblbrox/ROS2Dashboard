@@ -13,8 +13,10 @@ Rectangle {
     signal outputPortClicked(string topicName)
 
     radius: 10
-    width: width
-    height: max(outputPorts.height, inputPorts.height, height)
+    //width: width
+    //height: max(outputPorts.height, inputPorts.height, height)
+    Layout.minimumWidth: width
+    Layout.minimumHeight: max(outputPorts.height, inputPorts.height, height)
 
     ColumnLayout {
         anchors.fill: parent
@@ -91,10 +93,11 @@ Rectangle {
     }
 
     MouseArea {
+        //drag.minimumX: 0
+        //drag.maximumX: sceneWidth - rect.width
+
         hoverEnabled: true
         drag.target: rect
-        drag.minimumX: 0
-        drag.maximumX: sceneWidth - rect.width
 
         anchors {
             left: inputPorts.right

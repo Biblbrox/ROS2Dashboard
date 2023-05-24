@@ -2,6 +2,16 @@ use pyo3::prelude::*;
 
 pub mod ros2_monitor {
     use std::process::Command;
+
+    use rclrs::Context;
+
+    
+
+    pub fn init_ros2() {}
+    pub fn is_ros2_init() -> bool {
+
+    }
+
     pub fn ros2_node_names() -> Vec<String> {
         let node_bytes_str = Command::new("ros2")
             .arg("node")

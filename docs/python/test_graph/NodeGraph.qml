@@ -5,6 +5,9 @@ import QtQuick.Shapes 1.15
 import QtQuick.Window 2.12
 
 Rectangle {
+    //width: 1920
+    //height: 1080
+
     id: sceneGraph
 
     /**
@@ -13,7 +16,7 @@ Rectangle {
      */
     property bool isNodeConnectingState
     property variant connectorLines: []
-
+    
     function addConnection(sourcePort, destPort) {
         component = Qt.createComponent("ConnectorLine.qml");
         item = component.createObject(null, {
@@ -24,66 +27,94 @@ Rectangle {
         });
         connectorLines.push(item);
     }
-    
+
+    color: "transparent"
     visible: true
-    //width: 1920
-    //height: 1080
-
-    Flow {
-        //anchors.fill: parent
-
-        Repeater {
-            model: nodeGraph
-
-            delegate: Node {
-                sceneWidth: sceneGraph.width
-                color: "red"
-                name: "Node name1"
-                width: 200
-                height: 100
-                x: 1000
-                onOutputPortClicked: function(topicName) {
-                    console.log("Output port clicked: topicName", topicName);
-                }
-            }
-
-        }
-
-    }
 
     Item {
-        id: zoomArea
+        id: modelSize
 
-        width: parent.width
-        height: parent.height
+        property real originalWidth: 200
+        property real originalHeight: 100
 
-        GridBackground {
-            id: grid
+        height: 100
+        width: 200
+    }
 
-            anchors.fill: parent
+    Flow {
+        /*Repeater {
+            model: nodeGraph
+        }*/
+
+        id: flow
+
+        anchors.fill: parent
+
+        Node {
+            sceneWidth: sceneGraph.width
+            color: "red"
+            name: "Node name1"
+            width: modelSize.width
+            height: modelSize.height
+            x: 1000
+            onOutputPortClicked: function(topicName) {
+                console.log("Output port clicked: topicName", topicName);
+            }
+        }
+
+        Node {
+            sceneWidth: sceneGraph.width
+            color: "green"
+            name: "Node name2"
+            width: modelSize.width
+            height: modelSize.height
+            x: 500
+            onOutputPortClicked: function(topicName) {
+                console.log("Output port clicked: topicName", topicName);
+            }
         }
 
     }
 
     MouseArea {
-        property real minScale: 0.2
-        property real maxScale: 3
-
-        anchors.fill: parent
-        width: parent.width
-        z: -1
-        height: parent.height
-        onWheel: {
-            /*if (zoomArea.scale === targetScale)
+        /*if (zoomArea.scale === targetScale)
                     zoomArea.scale *= scaleFactor;
                 else
                     zoomArea.scale = targetScale;
                 zoomArea.scale = Math.min(maxScale, Math.max(minScale, zoomArea.scale));*/
-            console.log("Mouse event", wheel.angleDelta);
-            if (wheel.angleDelta.y < 0)
+
+        property real lastMouseX: 0
+        property real lastMouseY: 0
+
+        preventStealing: true
+        anchors.fill: parent
+        width: parent.width
+        z: -1
+        height: parent.height
+        onWheel: function(wheel) {
+            if (wheel.angleDelta.y < 0) {
+                let scaleStep = 1;
                 grid.gridSize += 1;
-            else
+                modelSize.width += scaleStep;
+                modelSize.height += scaleStep;
+            } else {
+                let scaleStep = 1;
                 grid.gridSize -= 1;
+                modelSize.width -= scaleStep;
+                modelSize.height -= scaleStep;
+            }
+        }
+        onPressed: {
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
+        onPositionChanged: {
+            let deltaX = mouseX - lastMouseX;
+            let deltaY = mouseY - lastMouseY;
+            sceneGraph.x += deltaX;
+            sceneGraph.y += deltaY;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
         }
     }
 
