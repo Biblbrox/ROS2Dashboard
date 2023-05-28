@@ -19,15 +19,32 @@ Rectangle {
     Layout.minimumHeight: max(outputPorts.height, inputPorts.height, height)
 
     ColumnLayout {
-        anchors.fill: parent
+        id: headerLayout
 
-        Label {
-            id: nodeLabel
+        width: parent.width
 
+        RectangleEnch {
+            colorEnch: "#4b516b"
             width: parent.width
-            Layout.rightMargin: 20
-            Layout.leftMargin: 20
-            Layout.fillWidth: true
+            height: nodeLabel.height
+            radiusRect: rect.radius
+            bottomRadius: true
+
+            Text {
+                /*FontMetrics {
+                    id: fm
+
+                    font: nodeLabel.font
+                }*/
+
+                id: nodeLabel
+
+                width: parent.width
+                color: "white"
+                Layout.alignment: Qt.AlignHCenter
+                horizontalAlignment: Text.AlignHCenter
+            }
+
         }
 
     }

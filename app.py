@@ -84,6 +84,7 @@ def main(args=None):
 
         config = Config(config_path)
         config.load()
+    
 
         is_debug = config.get_value(
             'Core', 'DebugMode', expected_type=bool) if has_config else True

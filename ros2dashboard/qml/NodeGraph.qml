@@ -16,7 +16,8 @@ Rectangle {
      */
     property bool isNodeConnectingState
     property variant connectorLines: []
-    
+    property string nodeColor: "#0d1217"
+
     function addConnection(sourcePort, destPort) {
         component = Qt.createComponent("ConnectorLine.qml");
         item = component.createObject(null, {
@@ -50,28 +51,36 @@ Rectangle {
 
         anchors.fill: parent
 
-        Node {
-            sceneWidth: sceneGraph.width
-            color: "red"
-            name: "Node name1"
-            width: modelSize.width
-            height: modelSize.height
-            x: 1000
-            onOutputPortClicked: function(topicName) {
-                console.log("Output port clicked: topicName", topicName);
-            }
-        }
+        Item {
+            id: nodesGroup
 
-        Node {
-            sceneWidth: sceneGraph.width
-            color: "green"
-            name: "Node name2"
-            width: modelSize.width
-            height: modelSize.height
-            x: 500
-            onOutputPortClicked: function(topicName) {
-                console.log("Output port clicked: topicName", topicName);
+            height: parent.height
+            width: parent.width
+
+            Node {
+                sceneWidth: sceneGraph.width
+                color: nodeColor
+                name: "Node name1"
+                width: modelSize.width
+                height: modelSize.height
+                x: 1000
+                onOutputPortClicked: function(topicName) {
+                    console.log("Output port clicked: topicName", topicName);
+                }
             }
+
+            Node {
+                sceneWidth: sceneGraph.width
+                color: nodeColor
+                name: "Node name2"
+                width: modelSize.width
+                height: modelSize.height
+                x: 500
+                onOutputPortClicked: function(topicName) {
+                    console.log("Output port clicked: topicName", topicName);
+                }
+            }
+
         }
 
     }
@@ -82,6 +91,8 @@ Rectangle {
                 else
                     zoomArea.scale = targetScale;
                 zoomArea.scale = Math.min(maxScale, Math.max(minScale, zoomArea.scale));*/
+        //}
+        //}
 
         property real lastMouseX: 0
         property real lastMouseY: 0
@@ -91,28 +102,31 @@ Rectangle {
         width: parent.width
         z: -1
         height: parent.height
+        acceptedButtons: Qt.MiddleButton
         onWheel: function(wheel) {
             if (wheel.angleDelta.y < 0) {
                 let scaleStep = 1;
                 grid.gridSize += 1;
-                modelSize.width += scaleStep;
-                modelSize.height += scaleStep;
+                modelSize.width -= scaleStep;
+                modelSize.height -= scaleStep;
             } else {
                 let scaleStep = 1;
                 grid.gridSize -= 1;
-                modelSize.width -= scaleStep;
-                modelSize.height -= scaleStep;
+                modelSize.width += scaleStep;
+                modelSize.height += scaleStep;
             }
         }
-        onPressed: {
+        onPressed: function(mouse) {
             lastMouseX = mouseX;
             lastMouseY = mouseY;
         }
-        onPositionChanged: {
+        onPositionChanged: function(mouse) {
             let deltaX = mouseX - lastMouseX;
             let deltaY = mouseY - lastMouseY;
-            sceneGraph.x += deltaX;
-            sceneGraph.y += deltaY;
+            nodesGroup.x += deltaX;
+            nodesGroup.y += deltaY;
+            //sceneGraph.x += deltaX;
+            //sceneGraph.y += deltaY;
             lastMouseX = mouseX;
             lastMouseY = mouseY;
         }

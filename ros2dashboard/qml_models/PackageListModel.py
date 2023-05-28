@@ -1,21 +1,22 @@
 from typing import Dict
-from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt
-from PySide6.QtGui import QFont, QColor
+from PySide2.QtCore import QAbstractListModel, QModelIndex, Qt
+
+from ros2dashboard.edge.Package import Package
 
 
-class PackageModel(QAbstractListModel):
-    def __init__(self, packages=None, parent=None):
+class PackageListModel(QAbstractListModel):
+    def __init__(self, packages: list[Package], parent=None):
         super().__init__(parent)
-        self._packages = packages
+        self._packages: list[Package] = packages
         self._roles = {
             'name': Qt.DisplayRole,
-            'nodes': Qt.DisplayRole + 1
+            'executable_names': Qt.DisplayRole + 1
         }
 
     @property
     def packages(self):
         return self._packages
-    
+
     @packages.setter
     def packages(self, new_packages):
         self._packages = new_packages
@@ -28,13 +29,12 @@ class PackageModel(QAbstractListModel):
 
         if role == self._roles['name']:
             # Return the data to be displayed
-            return self._packages[row]
+            return self._packages[row].name
 
-        elif role == self._roles['nodes']:
-            return None
+        elif role == self._roles['executable_names']:
+            return self._packages[row].executable_names
 
         return None
-    
+
     def roleNames(self) -> Dict:
         return self._roles
-    

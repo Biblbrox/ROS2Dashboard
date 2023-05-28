@@ -7,7 +7,7 @@ from ros2dashboard.ui.NodeWidget import NodeWidget
 from ros2dashboard.devices.GenericNode import GenericNode
 from ros2dashboard.ros2utils.Ros2Monitor import Ros2Monitor
 from ros2dashboard.core.Logger import logging
-from ros2dashboard.qml_models.PackageListModel import PackageModel
+from ros2dashboard.qml_models.PackageListModel import PackageListModel
 
 
 class MainWindow(QMainWindow):
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         self.init_slots()
 
     def setup_models(self):
-        self.package_model = PackageModel(None, parent=self.parent())
+        self.package_model = PackageListModel(None, parent=self.parent())
         self.ui.packageObserver.rootContext().setContextProperty(
             "packageModel", self.package_model)
 
@@ -46,6 +46,8 @@ class MainWindow(QMainWindow):
             self.ros2_dashboard.update_publishers, type=QtCore.Qt.BlockingQueuedConnection)
         self.ros2monitor.new_packages.connect(
             self.ros2_dashboard.update_packages, type=QtCore.Qt.BlockingQueuedConnection)
+        self.ros2monitor.new_state.connect(
+            self.ros2_dashboard.update_state, type=QtCore.Qt.BlockingQueuedConnection)
 
     def init_network(self):
         self.thread = QtCore.QThread(self)

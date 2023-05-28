@@ -8,6 +8,9 @@ from ros2dashboard.edge.Subscriber import Subscriber
 from ros2dashboard.edge.Publisher import Publisher
 from ros2dashboard.edge.Service import Service
 from ros2dashboard.edge.Package import Package
+from ros2dashboard.edge.Executable import Executable
+from ros2dashboard.edge.ActionClient import ActionClient
+from ros2dashboard.edge.ActionServer import ActionServer
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.devices.GenericNode import GenericNode, VISUALIZATION_NODE_PREFIX
 from ros2dashboard.edge.GraphEdge import GraphEdge
@@ -29,6 +32,7 @@ class Ros2Monitor(QObject):
     new_clients = Signal(object)
     new_nodes = Signal(object)
     new_packages = Signal(object)
+    new_state = Signal(object)
 
     def is_equal_edges(self, new_edges: list[GraphEdge], old_edges: list[GraphEdge]) -> bool:
         try:
@@ -54,22 +58,31 @@ class Ros2Monitor(QObject):
     def monitor_changes(self):
         try:
             topics = self.network_discover.find_topics()
-            measure = lambda f: timeit.timeit(lambda: f(), number=1)
-            logging.debug(f"Topics: {measure(self.network_discover.find_topics)}")
+            def measure(f): return timeit.timeit(lambda: f(), number=1)
+            logging.debug(
+                f"Topics: {measure(self.network_discover.find_topics)}")
             publishers = self.network_discover.find_publishers()
-            logging.debug(f"Pubslishers: {measure(self.network_discover.find_publishers)}")
+            logging.debug(
+                f"Pubslishers: {measure(self.network_discover.find_publishers)}")
             subscribers = self.network_discover.find_subscribers()
-            logging.debug(f"Subscribers: {measure(self.network_discover.find_subscribers)}")
+            logging.debug(
+                f"Subscribers: {measure(self.network_discover.find_subscribers)}")
             service_servers = self.network_discover.find_action_servers()
-            logging.debug(f"Action servers: {measure(self.network_discover.find_action_servers)}")
+            logging.debug(
+                f"Action servers: {measure(self.network_discover.find_action_servers)}")
             service_clients = self.network_discover.find_action_clients()
-            logging.debug(f"Action clients: {measure(self.network_discover.find_action_clients)}")
+            logging.debug(
+                f"Action clients: {measure(self.network_discover.find_action_clients)}")
             nodes = self.network_discover.find_nodes()
-            logging.debug(f"Nodes: {measure(self.network_discover.find_nodes)}")
+            logging.debug(
+                f"Nodes: {measure(self.network_discover.find_nodes)}")
             hosts = self.network_discover.find_hosts()
-            logging.debug(f"Hosts: {measure(self.network_discover.find_hosts)}")
-            # packages = self.network_discover.find_packages()
-            # logging.debug(f"Packages: {measure(self.network_discover.find_packages, number=1)}")
+            logging.debug(
+                f"Hosts: {measure(self.network_discover.find_hosts)}")
+            # if len(self.packages) == 0:
+            #    packages = self.network_discover.find_packages()
+            #    logging.debug(
+            #        f"Packages: {measure(self.network_discover.find_packages, number=1)}")
         except Exception as e:
             logging.error(f"Unable to get new nodes data. Error: {e}")
             exit(-1)
@@ -77,35 +90,55 @@ class Ros2Monitor(QObject):
         try:
             if not self.is_equal_edges(topics, self.topics):
                 self.topics = filter_internal_edges(topics)
-                self.new_topics.emit(self.topics)
+                # self.new_topics.emit(self.topics)
 
             if not self.is_equal_edges(subscribers, self.subscribers):
                 self.subscribers = filter_internal_edges(subscribers)
-                self.new_subscribers.emit(self.subscribers)
+                # self.new_subscribers.emit(self.subscribers)
 
             if not self.is_equal_edges(publishers, self.publishers):
                 self.publishers = filter_internal_edges(publishers)
-                self.new_publishers.emit(self.publishers)
+                # self.new_publishers.emit(self.publishers)
 
             if not self.is_equal_edges(service_servers, self.services):
                 self.services = filter_internal_edges(service_servers)
-                self.new_services.emit(self.services)
+                # self.new_services.emit(self.services)
 
             if not self.is_equal_edges(service_clients, self.clients):
                 self.clients = filter_internal_edges(service_clients)
-                self.new_clients.emit(self.clients)
+                # self.new_clients.emit(self.clients)
 
             if not self.is_equal_edges(nodes, self.nodes):
                 self.nodes = filter_internal_edges(nodes)
-                self.new_nodes.emit(self.nodes)
+                # self.new_nodes.emit(self.nodes)
 
             if not self.is_equal_edges(hosts, self.hosts):
                 self.hosts = filter_internal_edges(hosts)
-                self.new_hosts.emit(self.hosts)
+                # self.new_hosts.emit(self.hosts)
 
-            if not self.is_equal_edges(packages, self.packages):
-                self.packages = filter_internal_edges(packages)
-                self.new_packages.emit(self.packages)
+            new_state = {
+                'packages': self.packages,
+                'nodes': self.nodes,
+                'topics': self.topics,
+                'services': self.services,
+                'publishers': self.publishers,
+                'subscribers': self.subscribers,
+                'clients': self.clients,
+                'executables': self.executables,
+                'action_clients': self.action_clients,
+                'action_servers': self.action_servers
+            }
+
+            empty = True
+            for k, v in new_state.items():
+                if v:
+                    empty = False
+                    break
+            self.new_state.emit(new_state)
+
+            # if not self.is_equal_edges(packages, self.packages):
+            #    self.packages = filter_internal_edges(packages)
+            #    self.new_packages.emit(self.packages)
 
         except Exception as e:
             logging("Unable to emit signals about nodes' data changes")
@@ -122,7 +155,10 @@ class Ros2Monitor(QObject):
         self.clients: list[Client] = []
         self.packages: list[Package] = []
         self.nodes: list[GenericNode] = []
-        self.network_discover = NetworkDiscover(args=args)
+        self.executables: list[Executable] = []
+        self.action_clients: list[ActionClient] = []
+        self.action_servers: list[ActionServer] = []
+        self.network_discover: list[NetworkDiscover] = []
 
     def start(self):
         self.timer = QTimer()

@@ -21,17 +21,19 @@ from ros2dashboard.edge.Package import Package
 from ros2dashboard.ros2utils.Network import Host
 from ros2dashboard.ros2utils.Ros2Discover import Ros2Discover
 from ros2dashboard.devices.GenericNode import GenericNode
-from ros2dashboard.qml_models.PackageListModel import PackageModel
+from ros2dashboard.qml_models.PackageListModel import PackageListModel
+from ros2dashboard.core.Ros2Storage import Ros2Storage
 
 
 class DashboardApp:
-    def __init__(self, package_model: PackageModel, parent = None):
+    def __init__(self, package_model: PackageListModel, parent=None):
         self.parent = parent
         self.nodes: list[GenericNode] = []
         self.subscribers: list[Subscriber] = []
         self.publishers: list[Publisher] = []
         self.packages: list[Package] = []
         self.package_model = package_model
+        self.ros2_storage = Ros2Storage
         # self.lock = RLock()
 
         # Init gui
@@ -39,32 +41,34 @@ class DashboardApp:
         self.graph.register_node(GenericNode)
         self.graph_widget = self.graph.widget
 
-
     def update_models(self):
-        
+
+        pass
+
+    @Slot(object)
+    def update_state(self, state: dict):
         pass
 
     @Slot(object)
     def update_subscribers(self, subscribers: list[Subscriber]):
-        #self.lock.acquire()
+        # self.lock.acquire()
         self.subscribers = subscribers
         self.update_connections(self.subscribers, self.publishers)
-        #self.lock.release()
+        # self.lock.release()
 
     @Slot(object)
     def update_publishers(self, publishers: list[Publisher]):
-        #self.lock.acquire()
+        # self.lock.acquire()
         self.publishers = publishers
         self.update_connections(self.subscribers, self.publishers)
-        #self.lock.release()
+        # self.lock.release()
 
     @Slot(object)
     def update_packages(self, new_packages: list[Package]):
-        #self.lock.acquire()
+        # self.lock.acquire()
         self.packages = new_packages
         self.package_model.packages = new_packages
-        #self.lock.release()
-        
+        # self.lock.release()
 
     def remove_node_gui(self, node: any):
         self.graph.remove_node(node)
@@ -72,14 +76,14 @@ class DashboardApp:
     def create_node_gui(self, node, pos: tuple) -> GenericNode:
         node_identifier = node.__identifier__ + ".GenericNode"
         created_node: BaseNode = self.graph.create_node(
-                    node_identifier, name=node.node_name, pos=pos)
+            node_identifier, name=node.node_name, pos=pos)
         created_node.set_port_deletion_allowed(True)
         created_node.node_name = node.node_name
         return created_node
 
     @Slot(object)
     def update_nodes(self, new_nodes: list[GenericNode]):
-        #self.lock.acquire()
+        # self.lock.acquire()
         try:
             for node in self.nodes:
                 if node.node_name not in [ros2_node.node_name for ros2_node in new_nodes]:
@@ -94,7 +98,7 @@ class DashboardApp:
                     continue
 
                 logging.debug(f"Creatig ui node with name: {node.node_name}")
-                
+
                 created_node: BaseNode = self.create_node_gui(node, pos)
                 self.nodes.append(created_node)
                 pos += (10, 10)
@@ -109,10 +113,10 @@ class DashboardApp:
 
         self.graph.auto_layout_nodes(self.nodes, start_nodes=self.nodes)
 
-        #self.lock.release()
+        # self.lock.release()
 
     def update_connections(self, subscriptions: list[Subscriber], publishers: list[Publisher]):
-        #self.lock.acquire()
+        # self.lock.acquire()
         publisher_color = (255, 0, 0)
         subscriber_color = (0, 255, 0)
 
@@ -147,7 +151,6 @@ class DashboardApp:
                         name=publisher.topic_name, color=publisher_color, multi_output=True)
                     publisher.port = port
 
-
             for idx, node in enumerate(self.nodes):
                 for nd in self.nodes[idx + 1:]:
                     for subscriber in nd.subscribers:
@@ -159,7 +162,7 @@ class DashboardApp:
             logging.error(
                 f"Unable to update connections. Error: {e}")
             exit(-1)
-        #self.lock.release()
+        # self.lock.release()
 
     def find_publisher(self, topic_name) -> Publisher:
         for node in self.nodes:

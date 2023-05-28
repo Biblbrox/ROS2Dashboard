@@ -7,7 +7,8 @@ from PySide2.QtWidgets import QApplication
 import ros2dashboard.devices.GenericNode as GenericNode
 from ros2dashboard.core.Logger import logging
 
-class NodeModel(QAbstractListModel):
+
+class NodeListModel(QAbstractListModel):
     def __init__(self, parent):
         super().__init__(parent)
 

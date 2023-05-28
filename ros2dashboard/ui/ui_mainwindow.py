@@ -12,9 +12,6 @@ from PySide2.QtCore import *  # type: ignore
 from PySide2.QtGui import *  # type: ignore
 from PySide2.QtWidgets import *  # type: ignore
 
-from PySide2.QtQuickWidgets import QQuickWidget
-
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -73,15 +70,8 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.label_2)
 
-        self.packageObserver = QQuickWidget(self.centralwidget)
+        self.packageObserver = QListWidget(self.centralwidget)
         self.packageObserver.setObjectName(u"packageObserver")
-        sizePolicy1.setHeightForWidth(self.packageObserver.sizePolicy().hasHeightForWidth())
-        self.packageObserver.setSizePolicy(sizePolicy1)
-        font = QFont()
-        font.setFamily(u"Sans Serif")
-        self.packageObserver.setFont(font)
-        self.packageObserver.setResizeMode(QQuickWidget.SizeRootObjectToView)
-        self.packageObserver.setSource(QUrl(u"file:///home/biblbrox/Projects/ROS2Dashboard/ros2dashboard/qml/PackageObserver.qml"))
 
         self.verticalLayout_3.addWidget(self.packageObserver)
 

@@ -3,13 +3,6 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.3
 
 Rectangle {
-    id: visualizarionWindow
-
-    visible: true
-    width: 800
-    height: 500
-    color: "#aaaaaa"
-
     /*ListView {
         //model: packageModel
 
@@ -36,5 +29,25 @@ Rectangle {
         }
 
     }*/
+
+    id: visualizarionWindow
+
+    color: "#2f2e40"
+
+    ColumnLayout {
+        width: parent.width
+
+        Rectangle {
+            width: parent.width
+            height: 30
+            color: "#3d3948"
+        }
+
+        Rectangle {
+            width: parent.width
+            color: "#2f2e40"
+        }
+
+    }
 
 }

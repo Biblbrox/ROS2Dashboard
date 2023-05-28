@@ -3,13 +3,14 @@ use pyo3::prelude::*;
 pub mod ros2_monitor {
     use std::process::Command;
 
+    //use anyhow::{Error, Result};
     use rclrs::Context;
+    //use rosidl_runtime_rs::{seq, BoundedSequence, Message, Sequence};
+    use std::env;
 
-    
-
-    pub fn init_ros2() {}
-    pub fn is_ros2_init() -> bool {
-
+    pub fn init_ros2() -> Context {
+        let context = rclrs::Context::new(env::args());
+        return context.unwrap();
     }
 
     pub fn ros2_node_names() -> Vec<String> {

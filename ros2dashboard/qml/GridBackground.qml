@@ -7,7 +7,7 @@ Item {
     property int gridSize: 20
     property int gridSizeMax: 60
     property int gridSizeMin: 10
-    property string fillColor: "#464646"
+    property string fillColor: "#1d1d27"
 
     onGridSizeChanged: canvas.requestPaint()
     onGridOpacityChanged: canvas.requestPaint()
