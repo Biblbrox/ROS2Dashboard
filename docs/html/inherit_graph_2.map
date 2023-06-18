@@ -1,7 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" title=" " alt="" coords="5,56,56,83"/>
-<area shape="rect" id="node2" href="$class_graph_edge_1_1_graph_edge.html" title=" " alt="" coords="121,5,277,32"/>
-<area shape="rect" id="node3" href="$class_ros2_discover_1_1_ros2_discover.html" title=" " alt="" coords="104,56,295,83"/>
-<area shape="rect" id="node4" href="$class_topic_visualizer_1_1_visualizer.html" title=" " alt="" coords="114,107,285,133"/>
-<area shape="rect" id="node5" href="$class_topic_visualizer_1_1_video_visualizer.html" title=" " alt="" coords="343,107,545,133"/>
-</map>

@@ -1,3 +1,6 @@
-[submodule "webviz"]
-	path = thirdy/webviz
-	url = https://github.com/cruise-automation/webviz.git
+[submodule "thirdy/QuickQanava"]
+	path = thirdy/QuickQanava
+	url = https://github.com/cneben/QuickQanava
+[submodule "thirdy/vcpkg"]
+	path = thirdy/vcpkg
+	url = https://github.com/Microsoft/vcpkg.git
