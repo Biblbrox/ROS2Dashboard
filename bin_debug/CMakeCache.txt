@@ -467,10 +467,10 @@ Z_VCPKG_CL:FILEPATH=Z_VCPKG_CL-NOTFOUND
 _VCPKG_INSTALLED_DIR:PATH=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed
 
 //The directory containing a CMake configuration file for asio.
-asio_DIR:PATH=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/asio
+asio_DIR:PATH=asio_DIR-NOTFOUND
 
 //The directory containing a CMake configuration file for fmt.
-fmt_DIR:PATH=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/fmt
+fmt_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/fmt
 
 //The directory containing a CMake configuration file for nlohmann_json.
 nlohmann_json_DIR:PATH=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/nlohmann_json
@@ -479,7 +479,7 @@ nlohmann_json_DIR:PATH=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/instal
 pkgcfg_lib_PKG_XKB_xkbcommon:FILEPATH=/usr/lib/x86_64-linux-gnu/libxkbcommon.so
 
 //The directory containing a CMake configuration file for spdlog.
-spdlog_DIR:PATH=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/spdlog
+spdlog_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/spdlog
 
 
 ########################

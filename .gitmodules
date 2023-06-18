@@ -1,6 +1,9 @@
 [submodule "thirdy/QuickQanava"]
 	path = thirdy/QuickQanava
-	url = https://github.com/cneben/QuickQanava
+	url = git://github.com/cneben/QuickQanava
 [submodule "thirdy/vcpkg"]
 	path = thirdy/vcpkg
-	url = https://github.com/Microsoft/vcpkg.git
+	url = git://github.com/Microsoft/vcpkg.git
+[submodule "thirdy/doxygen-awesome-css"]
+	path = thirdy/doxygen-awesome-css
+	url = git://github.com/jothepro/doxygen-awesome-css.git
