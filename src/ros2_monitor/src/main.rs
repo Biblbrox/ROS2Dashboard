@@ -10,10 +10,11 @@ use tokio::net::{UnixStream, UnixListener};
 use tokio::runtime::Runtime;
 use ros2monitor::ros2monitor::{nodes, packages};
 use log::{info, warn, debug};
-use crate::ros2entites::ros2entities::{build_state, EntryType, Ros2Entity, Ros2Node, Ros2Service, Ros2State, Ros2Topic};
+use crate::ros2entites::ros2entities::{Ros2Node,Ros2State};
 pub use serde_json::{json};
 use tokio::net::unix::uid_t;
 use tokio::time;
+use crate::ros2monitor::ros2monitor::{ros2_state};
 
 mod ros2entites;
 mod ros2monitor;
@@ -37,8 +38,6 @@ fn ros2_state_json(state: Arc<Mutex<Ros2State>>) -> String {
     let json_str = json!({
         "packages": state_obj.packages,
         "nodes": state_obj.nodes,
-        "subscribers": state_obj.subscribers,
-        "publishers": state_obj.publishers
     });
 
     return json_str.to_string();
@@ -88,15 +87,7 @@ fn main() -> io::Result<()> {
         loop {
             interval.tick().await;
             debug!("Every minute at 00'th and 30'th second");
-            let ros2_packages = packages();
-            let ros2_nodes = nodes();
-            let mut ros2_state_list = ros2entites::ros2entities::Ros2StateList {
-                state: HashMap::new()
-            };
-            ros2_state_list.state.insert("packages".to_string(), ros2_packages);
-            ros2_state_list.state.insert("nodes".to_string(), ros2_nodes);
-            let new_state = build_state(ros2_state_list);
-            *state_clone.lock().unwrap() = new_state;
+            *state_clone.lock().unwrap() = ros2_state();
         }
     });
 

@@ -6,8 +6,10 @@ import QuickQanava 2.0 as Qan
 Qan.NodeItem {
     id: customNode
 
-    width: 160
+    property alias name: title.text
+
     height: 180
+    width: 160
     x: 150
     y: 15
 
@@ -26,17 +28,17 @@ Qan.NodeItem {
                 right: parent.right
                 top: parent.top
             }
-
             Text {
-                anchors.fill: parent
+                id: title
+
                 anchors.centerIn: parent
+                anchors.fill: parent
                 anchors.margins: 5
-                text: "Custom Node"
                 color: Theme.node.color.titleFont
                 horizontalAlignment: Text.AlignHCenter
+                //text: "Custom Node"
                 verticalAlignment: Text.AlignVCenter
             }
-
         }
         // Body
 
@@ -47,14 +49,11 @@ Qan.NodeItem {
             height: customNode.height - header.height
 
             anchors {
+                bottom: parent.bottom
                 left: parent.left
                 right: parent.right
                 top: header.bottom
-                bottom: parent.bottom
             }
-
         }
-
     }
-
 }

@@ -3,57 +3,67 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.3
 
 Rectangle {
+    id: packageObserver
+
+    color: "#2f2e40"
+    height: 500
     visible: true
     width: 800
-    height: 500
-    color: "#2f2e40"
 
     ColumnLayout {
-        spacing: 40
         anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
         anchors.leftMargin: 20
-        anchors.topMargin: 20
+        anchors.right: parent.right
         anchors.rightMargin: 20
+        anchors.top: parent.top
+        anchors.topMargin: 20
+        spacing: 40
 
         Label {
+            id: packageObserverTitle
+
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            text: "Package obserber"
-            font.pixelSize: 18
             color: "white"
+            font.pixelSize: 18
+            text: "Package obserber"
         }
-
         ToolSeparator {
-            orientation: Qt.Horizontal
+            id: packageObserverSeparator
+
             Layout.fillWidth: true
+            orientation: Qt.Horizontal
         }
-
         ListView {
-            id: packageListView
+            id: nodeListView
 
+            Layout.fillWidth: true
+            clip: true
+            height: packageObserver.height - packageObserverTitle.height - packageObserverSeparator.height
             model: packageListModel
+            spacing: 20
+            width: parent.width
 
             delegate: Rectangle {
-                Label {
+                color: Theme.panel.color.elementBackground
+                height: 100
+                radius: 10
+                width: parent.width
+
+                TextArea {
                     id: label
 
-                    //width: 578
-                    height: 100
-                    //anchors.right: parent.right
-                    //horizontalAlignment: Text.AlignHCenter
-                    //verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 21
-                    //renderType: Text.QtRendering
-                    //anchors.left: parent.left
-                    color: "#FFFFFF"
+                    anchors.centerIn: parent
+                    color: Theme.font.color.primary
+                    font.pointSize: 18
+                    readOnly: true
+                    height: parent.height
+                    horizontalAlignment: TextEdit.AlignHCenter
                     text: name
+                    verticalAlignment: TextEdit.AlignVCenter
+                    width: parent.width
                 }
-
             }
-
         }
-
     }
-
 }
+

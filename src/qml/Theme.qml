@@ -6,6 +6,7 @@ QtObject {
     property QtObject font
     property QtObject background
     property QtObject node
+    property QtObject panel
 
     font: QtObject {
         property QtObject pointSize
@@ -19,10 +20,18 @@ QtObject {
         }
 
         color: QtObject {
-            property color primary: darkTheme ? "black" : "white"
-            property color secondary: darkTheme ? "white" : "black"
+            property color primary: darkTheme ? "white" : "black"
+            property color secondary: darkTheme ? "black" : "white"
         }
 
+    }
+
+    panel: QtObject {
+        property QtObject color
+
+        color: QtObject {
+            property color elementBackground: darkTheme ? "#3d3948" : "#c0b8a5"
+        }
     }
 
     node: QtObject {

@@ -25,6 +25,7 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/src/qml/models/Ros2PackageListModel.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/src/qml/models/Ros2TopicListModel.cpp \
 	/home/biblbrox/Projects/ROS2Dashboard/src/qml/models/Ros2TopicListModel.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/src/ros2_entities/Ros2Connection.cpp \
 	/home/biblbrox/Projects/ROS2Dashboard/src/ros2_entities/Ros2Connection.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/src/ros2_entities/Ros2Entity.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/src/ros2_entities/Ros2Node.cpp \
@@ -40,12 +41,15 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/src/ros2_entities/Ros2Topic.cpp \
 	/home/biblbrox/Projects/ROS2Dashboard/src/ros2_entities/Ros2Topic.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/any_completion_executor.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/any_completion_handler.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/any_io_executor.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/append.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/as_tuple.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/associated_allocator.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/associated_cancellation_slot.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/associated_executor.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/associated_immediate_executor.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/associator.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/async_result.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/awaitable.hpp \
@@ -72,6 +76,7 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/bind_allocator.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/bind_cancellation_slot.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/bind_executor.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/bind_immediate_executor.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/buffer.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/buffer_registration.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/buffered_read_stream.hpp \
@@ -89,6 +94,7 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/compose.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/connect.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/connect_pipe.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/consign.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/coroutine.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/deadline_timer.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/defer.hpp \
@@ -110,6 +116,7 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/chrono.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/chrono_time_traits.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/completion_handler.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/composed_work.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/concurrency_hint.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/conditionally_enabled_event.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/conditionally_enabled_mutex.hpp \
@@ -164,6 +171,9 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/impl/thread_context.ipp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/impl/throw_error.ipp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/impl/timer_queue_set.ipp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/initiate_defer.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/initiate_dispatch.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/initiate_post.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/io_control.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/io_object_impl.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/detail/is_buffer_sequence.hpp \
@@ -307,6 +317,7 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/handler_continuation_hook.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/handler_invoke_hook.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/high_resolution_timer.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/any_completion_executor.ipp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/any_io_executor.ipp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/append.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/as_tuple.hpp \
@@ -316,10 +327,9 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/connect.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/connect_pipe.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/connect_pipe.ipp \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/defer.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/consign.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/deferred.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/detached.hpp \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/dispatch.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/error.ipp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/error_code.ipp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/execution_context.hpp \
@@ -330,7 +340,6 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/io_context.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/io_context.ipp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/multiple_exceptions.ipp \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/post.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/prepend.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/read.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/impl/read_at.hpp \
@@ -400,6 +409,7 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/local/datagram_protocol.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/local/detail/endpoint.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/local/detail/impl/endpoint.ipp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/local/seq_packet_protocol.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/local/stream_protocol.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/multiple_exceptions.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/packaged_task.hpp \
@@ -426,6 +436,7 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/serial_port.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/serial_port_base.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/signal_set.hpp \
+	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/signal_set_base.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/socket_base.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/static_thread_pool.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/steady_timer.hpp \
@@ -490,24 +501,6 @@ ROS2Dashboard_autogen/timestamp: \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/include/asio/write_at.hpp \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/asio/asio-config.cmake \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/asio/asio-targets.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/catch2/Catch2Config.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/catch2/Catch2ConfigVersion.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/catch2/Catch2Targets-debug.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/catch2/Catch2Targets-release.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/catch2/Catch2Targets.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/fmt/fmt-config-version.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/fmt/fmt-config.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/fmt/fmt-targets-debug.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/fmt/fmt-targets-release.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/fmt/fmt-targets.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/nlohmann_json/nlohmann_jsonConfig.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/nlohmann_json/nlohmann_jsonConfigVersion.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/nlohmann_json/nlohmann_jsonTargets.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/spdlog/spdlogConfig.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/spdlog/spdlogConfigTargets-debug.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/spdlog/spdlogConfigTargets-release.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/spdlog/spdlogConfigTargets.cmake \
-	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/installed/x64-linux/share/spdlog/spdlogConfigVersion.cmake \
 	/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/scripts/buildsystems/vcpkg.cmake \
 	/home/biblbrox/clion-2020.3/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeCInformation.cmake \
 	/home/biblbrox/clion-2020.3/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeCXXInformation.cmake \
@@ -1034,6 +1027,13 @@ ROS2Dashboard_autogen/timestamp: \
 	/usr/include/x86_64-linux-gnu/sys/ucontext.h \
 	/usr/include/x86_64-linux-gnu/sys/uio.h \
 	/usr/include/x86_64-linux-gnu/sys/un.h \
+	/usr/lib/cmake/Catch2/Catch2Config.cmake \
+	/usr/lib/cmake/Catch2/Catch2ConfigVersion.cmake \
+	/usr/lib/cmake/Catch2/Catch2Targets-none.cmake \
+	/usr/lib/cmake/Catch2/Catch2Targets.cmake \
+	/usr/lib/cmake/nlohmann_json/nlohmann_jsonConfig.cmake \
+	/usr/lib/cmake/nlohmann_json/nlohmann_jsonConfigVersion.cmake \
+	/usr/lib/cmake/nlohmann_json/nlohmann_jsonTargets.cmake \
 	/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
 	/usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
 	/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
@@ -1719,6 +1719,14 @@ ROS2Dashboard_autogen/timestamp: \
 	/usr/lib/x86_64-linux-gnu/cmake/Qt6WebEngineQuick/Qt6WebEngineQuickTargets-none.cmake \
 	/usr/lib/x86_64-linux-gnu/cmake/Qt6WebEngineQuick/Qt6WebEngineQuickTargets.cmake \
 	/usr/lib/x86_64-linux-gnu/cmake/Qt6WebEngineQuick/Qt6WebEngineQuickVersionlessTargets.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/fmt/fmt-config-version.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/fmt/fmt-config.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/fmt/fmt-targets-none.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/fmt/fmt-targets.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/spdlog/spdlogConfig.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/spdlog/spdlogConfigTargets-none.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/spdlog/spdlogConfigTargets.cmake \
+	/usr/lib/x86_64-linux-gnu/cmake/spdlog/spdlogConfigVersion.cmake \
 	/usr/local/QuickQanavaConfig.cmake \
 	/usr/local/QuickQanavaConfigVersion.cmake \
 	/usr/local/share/cmake/QuickQanava/QuickQanavaTargets-release.cmake \

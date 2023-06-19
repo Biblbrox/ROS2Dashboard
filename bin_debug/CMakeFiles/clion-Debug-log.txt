@@ -1,24 +1,4 @@
 /home/biblbrox/clion-2020.3/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/biblbrox/clion-2020.3/bin/ninja/linux/x64/ninja -DCMAKE_TOOLCHAIN_FILE=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/scripts/buildsystems/vcpkg.cmake -G Ninja -S /home/biblbrox/Projects/ROS2Dashboard -B /home/biblbrox/Projects/ROS2Dashboard/bin_debug
-CMake Error at bin_debug/CMakeFiles/3.25.2/CMakeSystem.cmake:6 (include):
-  include could not find requested file:
-
-    /home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/scripts/buildsystems/vcpkg.cmake
-Call Stack (most recent call first):
-  CMakeLists.txt:4 (project)
-
-
-CMake Error at CMakeLists.txt:10 (find_package):
-  Could not find a package configuration file provided by "asio" with any of
-  the following names:
-
-    asioConfig.cmake
-    asio-config.cmake
-
-  Add the installation prefix of "asio" to CMAKE_PREFIX_PATH or set
-  "asio_DIR" to a directory containing one of the above files.  If "asio"
-  provides a separate development package or SDK, be sure it has been
-  installed.
-
-
--- Configuring incomplete, errors occurred!
-See also "/home/biblbrox/Projects/ROS2Dashboard/bin_debug/CMakeFiles/CMakeOutput.log".
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/biblbrox/Projects/ROS2Dashboard/bin_debug

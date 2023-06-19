@@ -31,6 +31,7 @@
 #define __FLT32X_DECIMAL_DIG__ 17
 #define __FLT_EVAL_METHOD__ 0
 #define __cpp_binary_literals 201304L
+#define JSON_USE_IMPLICIT_CONVERSIONS 1
 #define __FLT64_DECIMAL_DIG__ 17
 #define __CET__ 3
 #define __cpp_noexcept_function_type 201510L
@@ -96,8 +97,10 @@
 #define __FLT32_DIG__ 6
 #define __FLT_EPSILON__ 1.19209289550781250000000000000000000e-7F
 #define __GXX_WEAK__ 1
+#define JSON_DIAGNOSTICS 0
 #define __SHRT_WIDTH__ 16
 #define __FLT32_IS_IEC_60559__ 2
+#define SPDLOG_SHARED_LIB 1
 #define __LDBL_MIN__ 3.36210314311209350626267781732175260e-4932L
 #define __DBL_IS_IEC_60559__ 2
 #define __DEC32_MAX__ 9.999999E96DF
@@ -303,6 +306,7 @@
 #define __PTRDIFF_WIDTH__ 64
 #define __LDBL_MANT_DIG__ 64
 #define __cpp_range_based_for 201603L
+#define FMT_SHARED 1
 #define __FLT64_HAS_INFINITY__ 1
 #define __FLT64X_MAX__ 1.18973149535723176502126385303097021e+4932F64x
 #define __STDCPP_DEFAULT_NEW_ALIGNMENT__ 16
@@ -370,6 +374,7 @@
 #define __INTMAX_MAX__ 0x7fffffffffffffffL
 #define __INT_FAST8_TYPE__ signed char
 #define __cpp_namespace_attributes 201411L
+#define FMT_LOCALE 1
 #define __FLT64X_MIN__ 3.36210314311209350626267781732175260e-4932F64x
 #define __STDCPP_THREADS__ 1
 #define __GNUC_STDC_INLINE__ 1

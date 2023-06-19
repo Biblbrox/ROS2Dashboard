@@ -10,9 +10,9 @@ namespace ros2monitor {
 
         QVariant value;
         if (role == ParentNameRole) {
-            value = m_state->topics()[index.row()].node_name.c_str();
+            value = m_state->packages()[index.row()].path.c_str();
         } else if (role == NameRole) {
-            value = m_state->topics()[index.row()].name.c_str();
+            value = m_state->packages()[index.row()].name.c_str();
         } else if (role == TypeRole) {
             value = "package";
         }
@@ -21,7 +21,7 @@ namespace ros2monitor {
     }
 
     int Ros2PackageListModel::rowCount(const QModelIndex &parent) const {
-        return m_state ? m_state->topics().size() : 0;
+        return m_state ? m_state->packages().size() : 0;
     }
 
     QVariant Ros2PackageListModel::getRowByName(int i, QString role_name, QString entry_name) {

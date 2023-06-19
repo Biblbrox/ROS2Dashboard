@@ -2,6 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/thirdy/vcpkg/downloads/git-tmp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/thirdy/QuickQanava" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/thirdy/doxygen-awesome-css" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/thirdy/vcpkg" vcs="Git" />
   </component>
 </project>

@@ -62,7 +62,7 @@ ApplicationWindow {
                         var nodeComponent = Qt.createComponent("qrc:/ui/Node.qml");
                         for (var i = 0; i < nodeListModel.rowCount(); ++i) {
                             var node = graph.insertNode(nodeComponent);
-                            node.label = nodeListModel.getRow(i, "name");
+                            node.item.name = nodeListModel.getRow(i, "name");
                             node.item.x = 50 + i * 10;
                             node.item.y = 50;
                         }

@@ -5,65 +5,67 @@ import QtQuick.Layouts 1.3
 Rectangle {
     id: nodeObserver
 
+    color: "#2f2e40"
+    height: 500
     visible: true
     width: 800
-    height: 500
-    color: "#2f2e40"
 
     ColumnLayout {
-        spacing: 40
         anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
         anchors.leftMargin: 20
-        anchors.topMargin: 20
+        anchors.right: parent.right
         anchors.rightMargin: 20
+        anchors.top: parent.top
+        anchors.topMargin: 20
+        spacing: 40
 
         Label {
+            id: nodeObserverTitle
+
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            text: "Node obserber"
-            font.pixelSize: 18
             color: "white"
+            font.pixelSize: 18
+            text: "Node obserber"
         }
-
         ToolSeparator {
-            orientation: Qt.Horizontal
-            Layout.fillWidth: true
-        }
+            id: nodeObserverSeparator
 
+            Layout.fillWidth: true
+            orientation: Qt.Horizontal
+        }
         ListView {
             id: nodeListView
+
             Layout.fillWidth: true
-            width: parent.width
-            //height: 100
-
+            clip: true
+            height: nodeObserver.height - nodeObserverTitle.height - nodeObserverSeparator.height
             model: nodeListModel
+            spacing: 20
+            width: parent.width
 
-            delegate: Rectangle {
-                width: parent.width
+            delegate: Component {
+                id: childrenRect
 
-                color: "white"
+                Rectangle {
+                    color: Theme.panel.color.elementBackground
+                    height: 100
+                    radius: 10
+                    width: nodeListView.width
 
-                Label {
-                    id: label
+                    TextArea {
+                        id: label
 
-                    height: parent.height
-                    anchors.fill: parent
-                    //anchors.right: parent.right
-                    //horizontalAlignment: Text.AlignHCenter
-                    //verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 21
-                    //renderType: Text.QtRendering
-                    //anchors.left: parent.left
-                    color: "white"
-                    text: name
+                        color: Theme.font.color.primary
+                        font.pointSize: 18
+                        height: parent.height
+                        readOnly: true
+                        horizontalAlignment: TextEdit.AlignHCenter
+                        text: name
+                        verticalAlignment: TextEdit.AlignVCenter
+                        width: parent.width
+                    }
                 }
-
             }
-
         }
-
-
     }
-
 }

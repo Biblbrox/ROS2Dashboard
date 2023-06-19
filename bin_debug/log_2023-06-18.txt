@@ -1,0 +1,4 @@
+[2023-06-18 18:37:44.275] [logger] [error] PID file /tmp/ros2monitor.sock doesn't exists
+[2023-06-18 18:37:44.275] [logger] [error] Can't connect to daemon socket /tmp/ros2monitor.sock
+[2023-06-18 18:37:44.299] [logger] [error] Unhandled exception: write: Transport endpoint is not connected
+[2023-06-18 21:41:27.217] [logger] [debug] Receive message with size: 14110

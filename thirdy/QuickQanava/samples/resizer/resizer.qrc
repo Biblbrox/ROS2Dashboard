@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>resizer.qml</file>
-    </qresource>
-</RCC>

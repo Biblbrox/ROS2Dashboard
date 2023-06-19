@@ -17,7 +17,7 @@ namespace ros2monitor {
     QHash<int, QByteArray> Ros2EntityListModel::roleNames() const {
         QHash<int, QByteArray> roles;
         roles[NameRole] = "name";
-        roles[ParentNameRole] = "parent";
+        roles[ParentNameRole] = "parent_name";
         roles[TypeRole] = "type";
         return roles;
     }
