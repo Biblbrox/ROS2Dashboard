@@ -11,49 +11,69 @@ import "qrc:/QuickQanava" as Qan
 ApplicationWindow {
     id: application
 
-    visible: true
-    width: 1920
+    Material.theme: Material.Dark
     height: 1080
     title: qsTr("ROS2 Dashboard")
-    Material.theme: Material.Dark
+    visible: true
+    width: 1920
+
+    header: ToolBar {
+        background: Rectangle {
+            color: "#3d3948"
+            height: parent.height
+            width: parent.width
+        }
+
+        RowLayout {
+            height: parent.height
+
+            ToolButton {
+                text: "File"
+            }
+            ToolButton {
+                text: "Help"
+            }
+        }
+    }
+
 
     Sidebar {
         id: sidebar
 
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.top: parent.top
         width: 100
     }
-
     SplitView {
-        orientation: Qt.Vertical
-        width: parent.width - sidebar.width
         height: parent.height
+        orientation: Qt.Vertical
+        width: parent.width - sidebar.width - rightSidebar.width
 
         anchors {
             left: sidebar.right
-            right: application.right
+            right: rightSidebar.left
             top: application.top
         }
-
         SplitView {
-            width: parent.width
+            SplitView.fillHeight: true
+            SplitView.fillWidth: true
             implicitHeight: 500
             orientation: Qt.Horizontal
-            SplitView.fillWidth: true
-            SplitView.fillHeight: true
+            width: parent.width
 
             NodeObserver {
+                Layout.fillHeight: true
                 height: parent.height
                 implicitWidth: 400
-                Layout.fillHeight: true
                 z: 2
             }
-
             Qan.GraphView {
-                resizeHandlerColor: Material.accent
+                Layout.fillHeight: true
                 gridThickColor: Theme.background.color.primary
                 height: parent.height
                 implicitWidth: 1000
-                Layout.fillHeight: true
+                resizeHandlerColor: Material.accent
 
                 graph: Qan.Graph {
                     id: graph
@@ -67,42 +87,45 @@ ApplicationWindow {
                             node.item.y = 50;
                         }
                     }
-
                     function createPorts() {
                         for (var i = 0; i < connectionListModel.rowCount(); ++i) {
                             console.log("*******");
                         }
                     }
 
-                    selectionColor: Material.accent
+                    anchors.fill: parent
                     connectorColor: Material.accent
                     connectorEdgeColor: Material.accent
                     objectName: "graph"
-                    anchors.fill: parent
+                    selectionColor: Material.accent
+
                     Component.onCompleted: {
+                        console.log("Creating nodes");
                         createNodes();
                         createPorts();
                     }
                 }
-
             }
-
             PackageObserver {
+                Layout.fillHeight: true
                 height: parent.height
                 implicitWidth: 400
-                Layout.fillHeight: true
                 z: 2
             }
-
         }
-
         VisualizationWindow {
             SplitView.fillWidth: true
             implicitHeight: 400
         }
-
     }
+    Sidebar {
+        id: rightSidebar
 
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.top: parent.top
+        width: 100
+    }
     Connections {
         function onSidebarClicked(itemName) {
             console.log("Clicked on ", itemName);
@@ -110,27 +133,4 @@ ApplicationWindow {
 
         target: sidebar
     }
-
-    header: ToolBar {
-        RowLayout {
-            height: parent.height
-
-            ToolButton {
-                text: "File"
-            }
-
-            ToolButton {
-                text: "Help"
-            }
-
-        }
-
-        background: Rectangle {
-            width: parent.width
-            height: parent.height
-            color: "#3d3948"
-        }
-
-    }
-
 }

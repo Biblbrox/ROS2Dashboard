@@ -4,6 +4,7 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/thirdy/QuickQanava" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/thirdy/doxygen-awesome-css" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/thirdy/rosboard" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/thirdy/vcpkg" vcs="Git" />
   </component>
 </project>

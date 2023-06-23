@@ -1,7 +1,11 @@
 #pragma once
 
 
+#include "Ros2Publisher.hpp"
+#include "Ros2Subscriber.hpp"
+#include "Ros2Topic.hpp"
 #include <string>
+#include <vector>
 
 namespace ros2monitor {
 struct Ros2Node {
@@ -11,6 +15,9 @@ struct Ros2Node {
 
     std::string name;
     std::string package_name;
+
+    std::vector<Ros2Subscriber> subscribers;
+    std::vector<Ros2Publisher> publishers;
 };
 
 }

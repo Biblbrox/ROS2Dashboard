@@ -2,56 +2,45 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtWebEngine
+import com.viz.types 1.0
 
 Rectangle {
-    /*ListView {
-        //model: packageModel
-
-        id: nodeListModel
-
-        delegate: Rectangle {
-            Label {
-                id: label
-
-                x: 0
-                y: 0
-                //width: 578
-                height: 100
-                anchors.right: parent.right
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: 21
-                renderType: Text.QtRendering
-                anchors.left: parent.left
-                color: "#000000"
-                text: packageModel.name
-            }
-
-        }
-
-    }*/
-
-    id: visualizarionWindow
+    id: visualizationWindow
 
     color: "#2f2e40"
 
-    ColumnLayout {
-        width: parent.width
-
-        /*WebEngineView {
-            //width: parent.width
-            //color: "#2f2e40"
-
-            //anchors.fill: parent
-            //url: "https://doc.qt.io/qt-6/qtquickcontrols-index.html"
-        }*/
-
-        Rectangle {
-            width: parent.width
-            height: 30
-            color: "#3d3948"
+    /*WebEngineView {
+        url: "http://localhost:8888/"
+        anchors {
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+            top: delimeter.bottom
         }
+    }*/
 
+    Component.onCompleted: {
+        console.log("Visualization area loaded");
+        textViz.registerViz("minimal_publisher", visualizerModel);
     }
 
+    Rectangle {
+        id: delimeter
+
+        color: "#3d3948"
+        height: 30
+        width: parent.width
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+        }
+    }
+    GenericTextViz {
+        id: textViz
+
+        height: 200
+        width: 200
+    }
 }

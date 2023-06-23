@@ -11,9 +11,7 @@ Rectangle {
 
     width: 120
     height: parent.height
-    anchors.left: parent.left
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
+
     color: "#3e3949"
 
     Rectangle {

@@ -1,3 +1,5 @@
+extern crate core;
+
 use std::collections::HashMap;
 use std::io::{self, Read, Write};
 use std::ops::Deref;
@@ -8,33 +10,23 @@ use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{UnixStream, UnixListener};
 use tokio::runtime::Runtime;
-use ros2monitor::ros2monitor::{nodes, packages};
-use log::{info, warn, debug};
-use crate::ros2entites::ros2entities::{Ros2Node,Ros2State};
+use ros2monitor::ros2monitor::{explore_nodes, explore_packages};
+use log::{info, warn, debug, error};
+use crate::ros2entites::ros2entities::{Ros2Node, Ros2State};
 pub use serde_json::{json};
 use tokio::net::unix::uid_t;
 use tokio::time;
-use crate::ros2monitor::ros2monitor::{ros2_state};
+use crate::ros2monitor::ros2monitor::{JsonProtocol, kill_node, ros2_hot_state, ros2_state};
 
 mod ros2entites;
 mod ros2monitor;
-
-
-/**
-Possible commands:
-list_nodes ->
- */
-
-/*fn get_node_list() -> Vec<Ros2Node> {
-
-}*/
 
 /**
 Generate json for ros2 state object
  */
 fn ros2_state_json(state: Arc<Mutex<Ros2State>>) -> String {
     let state_obj: &Ros2State = &state.lock().unwrap().to_owned();
-    // Build json
+
     let json_str = json!({
         "packages": state_obj.packages,
         "nodes": state_obj.nodes,
@@ -46,24 +38,24 @@ fn ros2_state_json(state: Arc<Mutex<Ros2State>>) -> String {
 async fn handle_client(mut stream: UnixStream, current_state: Arc<Mutex<Ros2State>>) -> io::Result<()> {
     let mut buffer = [0u8; 1024];
     let nbytes = stream.read(&mut buffer[..]).await?;
-    let mut line: String = str::from_utf8(&buffer).unwrap().trim().to_string();
-    line = line.trim_matches(char::from(0)).parse().unwrap();
-    let mut response: String;
-    if line.eq("node_list") {
-        debug!("Node list request");
-        response = "Response".to_string();
-    } else if line.eq("is_new_entities") {
-        debug!("New entities request");
-        response = "true".to_string();
-    } else if line.eq("state") {
-        debug!("State request");
-        response = ros2_state_json(current_state.clone()).to_string();
-    } else {
-        response = format!("Unknown request: {}", line);
+    let request = str::from_utf8(&buffer).unwrap().trim().trim_matches(char::from(0));
+
+    /// Parse request as json formatted str
+    let mut parsed = JsonProtocol::new();
+    match parsed.parse_struct(request) {
+        Ok(()) => (),
+        Err(msg) => error!("{}", msg)
     }
+
+    let response: String = match parsed.command.as_str() {
+        "state" => ros2_state_json(current_state.clone()).to_string(),
+        "kill_node" => kill_node(parsed.arguments.get("node_name").unwrap().to_string()),
+        _ => "Unknown request".to_string()
+    };
+
     let msg_len: u64 = response.as_bytes().len() as u64;
-    stream.write_u64(msg_len).await?; // Write message header indicated message length
-    stream.write_all(&response.as_bytes()).await?; // Write the rest
+    stream.write_u64(msg_len).await?; // Write message header indicates message length
+    stream.write_all(&response.as_bytes()).await?; // Write the body
     Ok(())
 }
 
@@ -87,7 +79,7 @@ fn main() -> io::Result<()> {
         loop {
             interval.tick().await;
             debug!("Every minute at 00'th and 30'th second");
-            *state_clone.lock().unwrap() = ros2_state();
+            *state_clone.lock().unwrap() = ros2_state(state_clone.clone());
         }
     });
 

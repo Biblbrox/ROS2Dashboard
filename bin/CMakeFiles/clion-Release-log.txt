@@ -1,4 +1,0 @@
-/home/biblbrox/clion-2020.3/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/home/biblbrox/clion-2020.3/bin/ninja/linux/x64/ninja -DCMAKE_TOOLCHAIN_FILE=/home/biblbrox/Projects/ROS2Dashboard/thirdy/vcpkg/scripts/buildsystems/vcpkg.cmake -G Ninja -S /home/biblbrox/Projects/ROS2Dashboard -B /home/biblbrox/Projects/ROS2Dashboard/bin
--- Configuring done
--- Generating done
--- Build files have been written to: /home/biblbrox/Projects/ROS2Dashboard/bin

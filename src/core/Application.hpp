@@ -5,9 +5,10 @@
 #include <memory>
 
 #include "daemon_client/DaemonClient.hpp"
+#include "qml/models/Ros2ConnectionListModel.hpp"
 #include "qml/models/Ros2NodeListModel.hpp"
 #include "qml/models/Ros2PackageListModel.hpp"
-#include "qml/models/Ros2ConnectionListModel.hpp"
+#include "src/qml/models/VisualizerModel.hpp"
 
 namespace ros2monitor {
 class Application  {
@@ -26,5 +27,6 @@ private:
     std::shared_ptr<Ros2NodeListModel> m_nodeListModel;
     std::shared_ptr<Ros2PackageListModel> m_packageListModel;
     std::shared_ptr<Ros2ConnectionListModel> m_connectionListModel;
+    std::shared_ptr<VisualizerModel> m_visualizer_model;
 };
 }

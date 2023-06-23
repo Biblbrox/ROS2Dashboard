@@ -1,24 +1,124 @@
 pub mod ros2monitor {
     use std::collections::HashMap;
-    use std::process::Command;
+    use std::process::{Command, ExitStatus};
     use std::string::String;
     use regex;
 
     use rclrs::Context;
-    use std::{env, fs};
+    use std::{env, fs, io};
     use std::ffi::OsString;
+    use std::fmt::format;
+    use std::panic::resume_unwind;
     use std::path::PathBuf;
-    use log::info;
+    use std::sync::{Arc, Mutex};
+    use log::{error, info, logger};
+    use serde::de::Unexpected::Str;
+    use serde_json::{json, Value, Map};
     use crate::ros2entites::ros2entities::{Ros2State, Ros2Package, Ros2Node, Ros2Subscriber, Ros2Publisher, Ros2ServiceServer, Ros2ServiceClient, Ros2ActionClient, Ros2ActionServer};
+
+    pub struct JsonProtocol {
+        // List of all possible commands
+        pub allowed_commands: Vec<String>,
+        // Map of required arguments for each command
+        pub allowed_arguments: HashMap<String, Vec<String>>,
+
+        pub command: String,
+        pub arguments: HashMap<String, String>,
+    }
+
+    impl JsonProtocol {
+        pub fn new() -> JsonProtocol {
+            let mut commands = Vec::new();
+            let mut arguments: HashMap<String, Vec<String>> = HashMap::new();
+
+            commands.push("state".to_string());
+            arguments.insert("state".to_string(), Vec::new());
+
+            commands.push("kill_node".to_string());
+            let mut kill_node_args = Vec::new();
+            kill_node_args.push("node_name".to_string());
+            arguments.insert("kill_node".to_string(), kill_node_args);
+
+            return JsonProtocol {
+                allowed_commands: commands,
+                allowed_arguments: arguments,
+                command: "".to_string(),
+                arguments: HashMap::new(),
+            };
+        }
+
+        /// Parse json formatted request string. Return nothing on success, error message - on error
+        pub fn parse_struct(&mut self, json_request: &str) -> Result<(), String> {
+            let valid_example = r#"
+            {
+                "command": <command_name>,
+                "arguments": [<argument list>]
+            }
+            "#;
+
+            let trimmed = json_request.trim();
+            let request_parse = serde_json::from_str(trimmed);
+            if !request_parse.is_ok() {
+                let msg = format!("Request must be valid json. Please, use the followed command structure: \n{}", valid_example).to_string();
+                return Err(msg);
+            }
+
+            let request: Map<String, Value> = request_parse.unwrap();
+            if !request.contains_key("command") {
+                let msg = format!("Json request must contain command name. Please, use the followed command structure: \n{}", valid_example).to_string();
+                return Err(msg);
+            }
+
+            let command = request.get("command").unwrap().as_str().unwrap().to_string();
+            if !self.allowed_commands.contains(&command) {
+                let msg = format!("You must use one of the following supported commands: {:?}", self.allowed_commands);
+                return Err(msg);
+            }
+            self.command = request.get("command").unwrap().as_str().unwrap().to_string();
+
+            if !request.contains_key("arguments") {
+                let msg = format!("Json request must contain arguments array. Please, use the followed command structure: \n{}", valid_example).to_string();
+                return Err(msg);
+            }
+
+
+            for argument in request.get("arguments") {
+                let arg_obj = argument.as_object().unwrap();
+                if !arg_obj.contains_key("name") {
+                    let msg = "Each argument object in request must have a name field";
+                    return Err(msg.to_string());
+                }
+
+                if !arg_obj.contains_key("value") {
+                    let msg = "Each argument object in request must have a value field";
+                    return Err(msg.to_string());
+                }
+
+                let arg_name = arg_obj.get("name").unwrap().as_str().unwrap().to_string();
+                let arg_value = arg_obj.get("value").unwrap().as_str().unwrap().to_string();
+
+                if !self.allowed_arguments.get(&command).unwrap().contains(&arg_name) {
+                    let allowed_arguments = self.allowed_arguments.get(self.command.as_str()).unwrap();
+                    let msg = format!("Argument {} is not allowed for command {}. Allowed arguments for this command: {:?}", arg_name, self.command, allowed_arguments);
+                    return Err(msg);
+                }
+
+                self.arguments.insert(arg_name, arg_value);
+            }
+
+            Ok(())
+        }
+    }
 
     pub fn init_ros2() -> Context {
         let context = rclrs::Context::new(env::args());
         return context.unwrap();
     }
 
-    pub fn ros2_state() -> Ros2State {
-        let nodes: Vec<Ros2Node> = nodes();
-        let packages: Vec<Ros2Package> = packages();
+    pub fn ros2_cold_state() -> Ros2State {
+        let nodes: Vec<Ros2Node> = explore_nodes();
+        //let packages: Vec<Ros2Package> = explore_packages();
+        let packages: Vec<Ros2Package> = Vec::new();
 
         let state = Ros2State {
             nodes,
@@ -29,7 +129,38 @@ pub mod ros2monitor {
         return state;
     }
 
-    pub fn nodes() -> Vec<Ros2Node> {
+    pub fn ros2_hot_state() -> Ros2State {
+        let nodes: Vec<Ros2Node> = explore_nodes();
+        //let packages: Vec<Ros2Package> = packages();
+
+        let state = Ros2State {
+            nodes,
+            packages: Vec::new(),
+            executables: Vec::new(),
+        };
+
+        return state;
+    }
+
+    pub fn ros2_state(current_state: Arc<Mutex<Ros2State>>) -> Ros2State {
+        let nodes: Vec<Ros2Node> = explore_nodes();
+        let mut packages: Vec<Ros2Package> = Vec::new();
+        if current_state.lock().unwrap().packages.is_empty() {
+            packages = explore_packages();
+        } else {
+            packages = current_state.lock().unwrap().packages.clone();
+        }
+
+        let state = Ros2State {
+            nodes,
+            packages,
+            executables: Vec::new(),
+        };
+
+        return state;
+    }
+
+    pub fn explore_nodes() -> Vec<Ros2Node> {
         let node_names = ros2_node_names();
         let mut nodes: Vec<Ros2Node> = Vec::new();
         for node_name in node_names {
@@ -101,14 +232,24 @@ pub mod ros2monitor {
         return info;
     }
 
-    pub fn packages() -> Vec<Ros2Package> {
+    pub fn kill_node(node_name: String) -> String {
+        let err_msg = format!("Unable to kill node {}", node_name.clone());
+        let output = Command::new("killall").arg(node_name.clone()).output().expect(format!("Unable to kill node {}", node_name).as_str());
+        return if output.status.success() {
+            err_msg
+        } else {
+            String::new()
+        };
+    }
+
+    pub fn explore_packages() -> Vec<Ros2Package> {
         let package_names = ros2_package_names();
         let packages: Vec<Ros2Package> = package_names.iter().map(|package_name| Ros2Package { name: package_name.to_string(), path: package_path(package_name.to_string()) }).collect();
         return packages;
     }
 
     pub fn package_path(package_name: String) -> String {
-        let prefix = package_prefix(package_name);
+        //let prefix = package_prefix(package_name);
         //let package_path = concat!(prefix, "/lib/", package_name).to_string();
         //return package_path;
         return "a".to_string();

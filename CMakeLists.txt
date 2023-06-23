@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
 
-set(PROJECT_NAME ROS2Dashboard)
+set(CMAKE_C_COMPILER "/usr/bin/gcc-9")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++-9")
+
+
+set(PROJECT_NAME ros2_dashboard)
 project(${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 20)
@@ -11,23 +15,62 @@ find_package(asio CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(QuickQanava REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 qt_standard_project_setup()
+
+install(
+        DIRECTORY config launch maps meshes models params rviz src worlds
+        DESTINATION share/${PROJECT_NAME}
+)
+
+if (BUILD_TESTING)
+    find_package(ament_lint_auto REQUIRED)
+    # the following line skips the linter which checks for copyrights
+    # uncomment the line when a copyright and license is not present in all source files
+    #set(ament_cmake_copyright_FOUND TRUE)
+    # the following line skips cpplint (only works in a git repo)
+    # uncomment the line when this package is not in a git repo
+    #set(ament_cmake_cpplint_FOUND TRUE)
+    ament_lint_auto_find_test_dependencies()
+endif ()
+
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:QT_QML_DEBUG>)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(SOURCES src/main.cpp res.qrc src/ros2_entities/Ros2Node.hpp src/ros2_entities/Ros2Topic.hpp src/ros2_entities/Ros2Entity.hpp src/daemon_client/DaemonClient.hpp src/ros2_entities/Ros2State.hpp src/ros2_entities/Ros2State.cpp src/daemon_client/DaemonClient.cpp src/core/Logger.hpp src/core/Logger.cpp src/core/Application.hpp src/core/Application.cpp src/qml/models/Ros2EntityListModel.hpp src/qml/models/Ros2EntityListModel.cpp src/qml/models/Ros2NodeListModel.hpp src/qml/models/Ros2NodeListModel.cpp src/qml/models/Ros2PackageListModel.hpp src/qml/models/Ros2PackageListModel.cpp src/ros2_entities/Ros2Node.cpp src/ros2_entities/Ros2Topic.cpp src/ros2_entities/Ros2Package.cpp src/network/Bytes.hpp src/network/Bytes.cpp src/core/Platform.hpp src/qml/models/Ros2TopicListModel.hpp src/qml/models/Ros2TopicListModel.cpp src/ros2_entities/Ros2Connection.hpp src/ros2_entities/Ros2Subscriber.hpp src/ros2_entities/Ros2Subscriber.cpp src/ros2_entities/Ros2Publisher.hpp src/ros2_entities/Ros2Publisher.cpp src/qml/models/Ros2ConnectionListModel.hpp src/qml/models/Ros2ConnectionListModel.cpp src/ros2_entities/Ros2Connection.cpp)
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE QuickQanava Qt6::Core Qt6::Gui Qt6::Quick Qt6::Qml)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::WebEngineCore Qt6::WebEngineQuick)
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
-target_link_libraries(${PROJECT_NAME} PRIVATE asio::asio systemd)
-target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
-target_link_libraries(${PROJECT_NAME} PRIVATE Catch2::Catch2 Catch2::Catch2WithMain)
+FILE(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp" "src/*.hpp")
+
+add_executable(${PROJECT_NAME} ${SOURCES} res.qrc)
+target_link_libraries(${PROJECT_NAME} PUBLIC QuickQanava Qt6::Core Qt6::Gui Qt6::Quick Qt6::Qml)
+target_link_libraries(${PROJECT_NAME} PUBLIC Qt6::WebEngineCore Qt6::WebEngineQuick)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PUBLIC asio::asio systemd)
+target_link_libraries(${PROJECT_NAME} PUBLIC nlohmann_json::nlohmann_json)
+
+
+set(QML_CPP_OBJECTS ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/VideoViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/VideoViz.cpp)
+message(${QML_CPP_OBJECTS})
+
+
 #target_link_libraries(${PROJECT_NAME} PRIVATE WebEngineWidgets)
 
 set(QuickQanavaDir ${CMAKE_CURRENT_SOURCE_DIR}/thirdy/QuickQanava/)
 target_include_directories(${PROJECT_NAME} PRIVATE ${QuickQanavaDir}/src ${QuickQanavaDir}/QuickContainers/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/models)
+
+ament_target_dependencies(${PROJECT_NAME} PUBLIC rclcpp sensor_msgs)
+ament_package()
+
+
+qt_add_qml_module(${PROJECT_NAME}
+        URI com.viz.types
+        VERSION 1.0
+        SOURCES
+        ${QML_CPP_OBJECTS}
+        )
