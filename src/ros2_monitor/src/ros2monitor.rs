@@ -1,20 +1,16 @@
 pub mod ros2monitor {
     use std::collections::HashMap;
-    use std::process::{Command, ExitStatus};
+    use std::process::{Command};
     use std::string::String;
     use regex;
 
     use rclrs::Context;
-    use std::{env, fs, io};
-    use std::ffi::OsString;
-    use std::fmt::format;
-    use std::panic::resume_unwind;
-    use std::path::PathBuf;
+    use std::{env};
     use std::sync::{Arc, Mutex};
-    use log::{error, info, logger};
-    use serde::de::Unexpected::Str;
-    use serde_json::{json, Value, Map};
-    use crate::ros2entites::ros2entities::{Ros2State, Ros2Package, Ros2Node, Ros2Subscriber, Ros2Publisher, Ros2ServiceServer, Ros2ServiceClient, Ros2ActionClient, Ros2ActionServer};
+    use log::{debug};
+
+    use serde_json::{Value, Map};
+    use crate::ros2entites::ros2entities::{Ros2State, Ros2Package, Ros2Node, Ros2Subscriber, Ros2Publisher, Ros2ServiceServer, Ros2ServiceClient, Ros2ActionClient, Ros2ActionServer, Ros2Topic};
 
     pub struct JsonProtocol {
         // List of all possible commands
@@ -48,7 +44,8 @@ pub mod ros2monitor {
         }
 
         /// Parse json formatted request string. Return nothing on success, error message - on error
-        pub fn parse_struct(&mut self, json_request: &str) -> Result<(), String> {
+        pub fn parse_request(&mut self, json_request: &str) -> Result<(), String> {
+            debug!("Parsing json request: {}", json_request);
             let valid_example = r#"
             {
                 "command": <command_name>,
@@ -68,21 +65,24 @@ pub mod ros2monitor {
                 let msg = format!("Json request must contain command name. Please, use the followed command structure: \n{}", valid_example).to_string();
                 return Err(msg);
             }
-
             let command = request.get("command").unwrap().as_str().unwrap().to_string();
-            if !self.allowed_commands.contains(&command) {
-                let msg = format!("You must use one of the following supported commands: {:?}", self.allowed_commands);
+            if !self.allowed_commands.contains(&command.clone()) {
+                let msg = format!("You must use one of the following supported commands: {:?}. Command {} is not supported", self.allowed_commands, command.clone());
                 return Err(msg);
             }
-            self.command = request.get("command").unwrap().as_str().unwrap().to_string();
+            self.command = command.clone();
+            debug!("Command: {}", self.command);
 
             if !request.contains_key("arguments") {
                 let msg = format!("Json request must contain arguments array. Please, use the followed command structure: \n{}", valid_example).to_string();
                 return Err(msg);
             }
 
-
             for argument in request.get("arguments") {
+                if argument.as_object().is_none() {
+                    continue;
+                }
+
                 let arg_obj = argument.as_object().unwrap();
                 if !arg_obj.contains_key("name") {
                     let msg = "Each argument object in request must have a name field";
@@ -110,12 +110,9 @@ pub mod ros2monitor {
         }
     }
 
-    pub fn init_ros2() -> Context {
-        let context = rclrs::Context::new(env::args());
-        return context.unwrap();
-    }
 
     pub fn ros2_cold_state() -> Ros2State {
+        // Unsupported for now!!!
         let nodes: Vec<Ros2Node> = explore_nodes();
         //let packages: Vec<Ros2Package> = explore_packages();
         let packages: Vec<Ros2Package> = Vec::new();
@@ -123,6 +120,7 @@ pub mod ros2monitor {
         let state = Ros2State {
             nodes,
             packages,
+            topics: Vec::new(),
             executables: Vec::new(),
         };
 
@@ -130,11 +128,14 @@ pub mod ros2monitor {
     }
 
     pub fn ros2_hot_state() -> Ros2State {
+        // Unsupported for now!!!
         let nodes: Vec<Ros2Node> = explore_nodes();
+        let topics: Vec<Ros2Topic> = explore_topics();
         //let packages: Vec<Ros2Package> = packages();
 
         let state = Ros2State {
             nodes,
+            topics,
             packages: Vec::new(),
             executables: Vec::new(),
         };
@@ -151,9 +152,12 @@ pub mod ros2monitor {
             packages = current_state.lock().unwrap().packages.clone();
         }
 
+        let topics = explore_topics();
+
         let state = Ros2State {
             nodes,
             packages,
+            topics,
             executables: Vec::new(),
         };
 
@@ -184,32 +188,32 @@ pub mod ros2monitor {
 
             for subscriber_info in subscribers_info {
                 let infos: Vec<String> = subscriber_info.split(':').map(|entry| entry.trim().to_string()).collect();
-                subscribers.push(Ros2Subscriber { name: infos[0].clone(), topic_name: infos[1].clone(), node_name: node_name.clone() });
+                subscribers.push(Ros2Subscriber { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
             for publisher_info in publishers_info {
                 let infos: Vec<String> = publisher_info.split(':').map(|entry| entry.trim().to_string()).collect();
-                publishers.push(Ros2Publisher { name: infos[0].clone(), topic_name: infos[1].clone(), node_name: node_name.clone() });
+                publishers.push(Ros2Publisher { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
             for service_server_info in service_servers_info {
                 let infos: Vec<String> = service_server_info.split(':').map(|entry| entry.trim().to_string()).collect();
-                service_servers.push(Ros2ServiceServer { name: infos[0].clone(), topic_name: infos[1].clone(), node_name: node_name.clone() });
+                service_servers.push(Ros2ServiceServer { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
             for service_client_info in service_clients_info {
                 let infos: Vec<String> = service_client_info.split(':').map(|entry| entry.trim().to_string()).collect();
-                service_clients.push(Ros2ServiceClient { name: infos[0].clone(), topic_name: infos[1].clone(), node_name: node_name.clone() });
+                service_clients.push(Ros2ServiceClient { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
             for action_client_info in action_clients_info {
                 let infos: Vec<String> = action_client_info.split(':').map(|entry| entry.trim().to_string()).collect();
-                action_clients.push(Ros2ActionClient { name: infos[0].clone(), topic_name: infos[1].clone(), node_name: node_name.clone() });
+                action_clients.push(Ros2ActionClient { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
             for action_server_info in action_servers_info {
                 let infos: Vec<String> = action_server_info.split(':').map(|entry| entry.trim().to_string()).collect();
-                action_servers.push(Ros2ActionServer { name: infos[0].clone(), topic_name: infos[1].clone(), node_name: node_name.clone() });
+                action_servers.push(Ros2ActionServer { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
             nodes.push(Ros2Node { name: node_name.clone(), package_name: "package".to_string(), subscribers, publishers, action_clients, action_servers, service_clients, service_servers })
@@ -248,6 +252,47 @@ pub mod ros2monitor {
         return packages;
     }
 
+    pub fn explore_topics() -> Vec<Ros2Topic> {
+        let topic_names = ros2_topic_names();
+        let mut topics = Vec::new();
+        for name in topic_names {
+            let info = topic_info(name.clone());
+            let node_name_pattern = "Node name";
+            if !info.contains(node_name_pattern) {
+                continue;
+            }
+            let node_name_line = info.lines().find(|line| line.contains(node_name_pattern)).unwrap();
+            let node_name = node_name_line.split(": ").collect::<Vec<&str>>()[1];
+
+            let topic_type_pattern = "Topic type";
+            if !info.contains(topic_type_pattern) {
+                continue;
+            }
+            let type_line = info.lines().find(|line| line.contains(topic_type_pattern)).unwrap();
+            let topic_type = type_line.split(": ").collect::<Vec<&str>>()[1];
+
+            topics.push(Ros2Topic { name, node_name: node_name.to_string(), topic_type: topic_type.to_string() });
+        }
+
+        return topics;
+    }
+
+    pub fn topic_info(topic_name: String) -> String {
+        let data_bytes = Command::new("ros2")
+            .arg("topic")
+            .arg("info")
+            .arg(topic_name.clone())
+            .arg("--verbose")
+            .output()
+            .expect(format!("Failed to obtain info for topic {}", topic_name).as_str());
+        let info: String = match String::from_utf8(data_bytes.stdout) {
+            Ok(v) => v.to_string(),
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
+
+        return info;
+    }
+
     pub fn package_path(package_name: String) -> String {
         //let prefix = package_prefix(package_name);
         //let package_path = concat!(prefix, "/lib/", package_name).to_string();
@@ -255,6 +300,19 @@ pub mod ros2monitor {
         return "a".to_string();
     }
 
+    /// Find package prefix from for specified package
+    ///
+    /// # Arguments
+    ///
+    /// * `package_name`: package name
+    ///
+    /// returns: String
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
     pub fn package_prefix(package_name: String) -> String {
         let data_bytes = Command::new("ros2")
             .arg("pkg")
@@ -306,7 +364,7 @@ pub mod ros2monitor {
             .arg("list")
             .output()
             .expect("failed to execute process");
-        //String::from_utf8(node_bytes_str.stdout);
+
         let nodes_str = match String::from_utf8(node_bytes_str.stdout) {
             Ok(v) => v.to_string(),
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
@@ -316,13 +374,29 @@ pub mod ros2monitor {
         return node_names;
     }
 
+    pub fn ros2_topic_names() -> Vec<String> {
+        let topics_bytes_str = Command::new("ros2")
+            .arg("topic")
+            .arg("list")
+            .output()
+            .expect("Failed to retrieve topic list from ros2");
+
+        let topics_str = match String::from_utf8(topics_bytes_str.stdout) {
+            Ok(v) => v.to_string(),
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
+        let topics_names = topics_str.lines().map(String::from).collect();
+
+        return topics_names;
+    }
+
     pub fn ros2_package_names() -> Vec<String> {
         let node_bytes_str = Command::new("ros2")
             .arg("pkg")
             .arg("list")
             .output()
             .expect("failed to execute process");
-        //String::from_utf8(node_bytes_str.stdout);
+
         let nodes_str = match String::from_utf8(node_bytes_str.stdout) {
             Ok(v) => v.to_string(),
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
@@ -338,7 +412,7 @@ pub mod ros2monitor {
             .arg("list")
             .output()
             .expect("failed to execute process");
-        //String::from_utf8(node_bytes_str.stdout);
+
         let nodes_str = match String::from_utf8(node_bytes_str.stdout) {
             Ok(v) => v.to_string(),
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
@@ -355,7 +429,7 @@ pub mod ros2monitor {
             .arg(package_name)
             .output()
             .expect("failed to execute process");
-        //String::from_utf8(node_bytes_str.stdout);
+
         let nodes_str = match String::from_utf8(node_bytes_str.stdout) {
             Ok(v) => v.to_string(),
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),

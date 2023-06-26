@@ -28,6 +28,23 @@ Qan.NodeItem {
                 right: parent.right
                 top: parent.top
             }
+            Button {
+                id: killButton
+
+                icon.color: "transparent"
+                icon.source: "qrc:///ui/icons/Close.svg"
+                width: 40
+
+                onClicked: {
+                    console.debug("Kill node " + title.text);
+
+                }
+
+                anchors {
+                    right: parent.right
+                    top: parent.top
+                }
+            }
             Text {
                 id: title
 

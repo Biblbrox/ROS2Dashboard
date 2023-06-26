@@ -17,5 +17,6 @@
         <file alias="Pause.svg">res/icons/Pause.svg</file>
         <file alias="Question.svg">res/icons/Question.svg</file>
         <file alias="Save.svg">res/icons/Save.svg</file>
+        <file alias="Close.svg">res/icons/Close.svg</file>
     </qresource>
 </RCC>

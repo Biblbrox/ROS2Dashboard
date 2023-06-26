@@ -62,6 +62,14 @@ Rectangle {
                     verticalAlignment: TextEdit.AlignVCenter
                     width: parent.width
                 }
+                MouseArea {
+                    acceptedButtons: Qt.LeftButton
+                    anchors.fill: parent
+
+                    onClicked: {
+                        console.debug("Clicked to package " + name);
+                    }
+                }
             }
         }
     }

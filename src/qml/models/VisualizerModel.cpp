@@ -3,6 +3,7 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
 #include <std_msgs/msg/string.hpp>
+#include <utility>
 
 
 #include "VideoViz.hpp"
@@ -19,8 +20,9 @@ using std_msgs::msg::String;
 
 namespace ros2monitor {
 
-VisualizerModel::VisualizerModel(QObject *parent) : QAbstractListModel(parent)
+VisualizerModel::VisualizerModel(int argc, char **argv, std::shared_ptr<DaemonClient> daemon_client, QObject *parent) : QAbstractListModel(parent), m_argc(argc), m_argv(argv)
 {
+    m_daemon_client = std::move(daemon_client);
 }
 
 void VisualizerModel::update(std::vector<Ros2Connection> connections)
@@ -33,31 +35,37 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
     if (m_components.contains(topic_name))
         return;
 
-    std::shared_ptr<rclcpp::SubscriptionBase> subscription;
+    if (m_visualizerNode == nullptr) {
+        rclcpp::init(m_argc, m_argv);
+        const std::string reserved_name = "visualization_node";
+        m_visualizerNode = make_shared<Node>(reserved_name);
+    }
+
     if (type == VisualizationType::image) {
         m_components[topic_name] = item;
-        subscription = m_visualizerNode->create_subscription<Image>(topic_name, 10, [this, topic_name](Image::ConstSharedPtr image) {
+        m_subscribers[topic_name] = m_visualizerNode->create_subscription<Image>(topic_name, 10, [this, topic_name](Image::ConstSharedPtr image) {
             m_components[topic_name]->updateData("asd");
         });
     } else if (type == VisualizationType::point_cloud) {
         m_components[topic_name] = item;
-        auto connection = m_visualizerNode->create_subscription<PointCloud>(topic_name, 10, [this, topic_name](PointCloud::ConstSharedPtr cloud) {
+        m_subscribers[topic_name] = m_visualizerNode->create_subscription<PointCloud>(topic_name, 10, [this, topic_name](PointCloud::ConstSharedPtr cloud) {
             m_components[topic_name]->updateData("asd");
         });
     } else if (type == VisualizationType::text) {
         m_components[topic_name] = item;
 
-        subscription = m_visualizerNode->create_subscription<String>(topic_name, 10, [this, topic_name](const String::SharedPtr str) {
+        m_subscribers[topic_name] = m_visualizerNode->create_subscription<String>(topic_name, 10, [this, topic_name](const String::SharedPtr str) {
             m_components[topic_name]->updateData(str->data.c_str());
         });
     }
 
-    m_subscribers.insert({ topic_name, subscription });
 
     if (!m_nodeFuture.isRunning()) {
+        m_daemon_client->killNode("visualization_node");
         m_nodeFuture = QtConcurrent::run([this]() {
             Logger::debug("Running node");
             rclcpp::spin(m_visualizerNode);
+            rclcpp::shutdown();
         });
     }
 }
@@ -105,16 +113,7 @@ QHash<int, QByteArray> VisualizerModel::roleNames() const
 
 VisualizerModel::~VisualizerModel()
 {
-    rclcpp::shutdown();
     m_nodeFuture.waitForFinished();
+    rclcpp::shutdown();
 }
-
-void VisualizerModel::initROS2(int argc, char **argv)
-{
-    rclcpp::init(argc, argv);
-
-    const std::string reserved_name = "visualization_node";
-    m_visualizerNode = make_shared<Node>(reserved_name);
-}
-
 }

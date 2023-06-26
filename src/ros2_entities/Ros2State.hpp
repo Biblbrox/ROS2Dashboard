@@ -25,9 +25,9 @@ struct Ros2Storage {
 
 class Ros2State {
 public:
-    explicit Ros2State(std::string_view state);
+    explicit Ros2State(std::string state);
 
-    void update(std::string_view new_state);
+    void update(std::string new_state);
 
     /**
          * Get node with name node_name

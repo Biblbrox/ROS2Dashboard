@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
-set(CMAKE_C_COMPILER "/usr/bin/gcc-9")
-set(CMAKE_CXX_COMPILER "/usr/bin/g++-9")
+#set(CMAKE_C_COMPILER "/usr/bin/gcc-9")
+#set(CMAKE_CXX_COMPILER "/usr/bin/g++-9")
 
 
 set(PROJECT_NAME ros2_dashboard)

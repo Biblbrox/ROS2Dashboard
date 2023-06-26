@@ -36,7 +36,6 @@ ApplicationWindow {
         }
     }
 
-
     Sidebar {
         id: sidebar
 
@@ -76,33 +75,76 @@ ApplicationWindow {
                 resizeHandlerColor: Material.accent
 
                 graph: Qan.Graph {
-                    id: graph
+                    id: graphObj
 
                     function createNodes() {
-                        var nodeComponent = Qt.createComponent("qrc:/ui/Node.qml");
-                        for (var i = 0; i < nodeListModel.rowCount(); ++i) {
-                            var node = graph.insertNode(nodeComponent);
+                        let nodeComponent = Qt.createComponent("qrc:/ui/Node.qml");
+                        let nodes = {};
+                        /// Create nodes
+                        for (let i = 0; i < nodeListModel.rowCount(); ++i) {
+                            let node = graphObj.insertNode(nodeComponent);
                             node.item.name = nodeListModel.getRow(i, "name");
                             node.item.x = 50 + i * 10;
                             node.item.y = 50;
+
+                            node["inPorts"] = {};
+                            node["outPorts"] = {};
+
+                            /// Add output ports
+                            for (let j = 0; j < nodeListModel.getRow(i, "publishers").length; ++j) {
+                                let port = graphObj.insertPort(node, Qan.NodeItem.Right);
+                                port.label = nodeListModel.getRow(i, "publishers")[j];
+                                node.outPorts[port.label] = port;
+                                console.log("Out port label: ", port.label);
+                            }
+
+                            /// Add input ports
+                            for (let j = 0; j < nodeListModel.getRow(i, "subscribers").length; ++j) {
+                                let port = graphObj.insertPort(node, Qan.NodeItem.Left);
+                                port.label = nodeListModel.getRow(i, "subscribers")[j];
+                                node.inPorts[port.label] = port;
+                                console.log("In port label: ", port.label);
+                            }
+                            nodes[node.item.name] = node;
                         }
-                    }
-                    function createPorts() {
-                        for (var i = 0; i < connectionListModel.rowCount(); ++i) {
-                            console.log("*******");
+
+                        /// Create connections
+                        for (let i = 0; i < connectionListModel.rowCount(); ++i) {
+                            let outNodeName = connectionListModel.getRow(i, "src_node_name");
+                            let inNodeName = connectionListModel.getRow(i, "dst_node_name");
+                            let topicName = connectionListModel.getRow(i, "topic_name");
+                            console.debug("Create connection from " + outNodeName + " and " + inNodeName + " nodes");
+                            let outNode = nodes[outNodeName];
+                            let inNode = nodes[inNodeName];
+
+                            let outPort = outNode.outPorts[topicName];
+                            let inPort = inNode.inPorts[topicName];
+                            console.log("Topic name: ", topicName);
+                            console.log("Out port: ", outPort);
+                            console.log("In port: ", inPort);
+
+                            // Connect them with edge
+                            let edge = graphObj.insertEdge(inNode, outNode);
+                            defaultEdgeStyle.lineType = Qan.EdgeStyle.Curved;
+                            graphObj.bindEdgeSource(edge, outPort);
+                            graphObj.bindEdgeDestination(edge, inPort);
                         }
                     }
 
                     anchors.fill: parent
-                    connectorColor: Material.accent
-                    connectorEdgeColor: Material.accent
+                    connectorColor: Theme.node.color.edge
+                    connectorEdgeColor: Theme.node.color.edge
+                    connectorEnabled: true
                     objectName: "graph"
                     selectionColor: Material.accent
 
                     Component.onCompleted: {
                         console.log("Creating nodes");
                         createNodes();
-                        createPorts();
+                        defaultEdgeStyle.lineWidth = 3;
+                        defaultEdgeStyle.lineColor = Qt.binding(function () {
+                                return Theme.node.color.edge;
+                            });
                     }
                 }
             }

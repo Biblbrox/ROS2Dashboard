@@ -22,6 +22,8 @@ public:
          */
     void receiveState();
 
+    void killNode(const std::string& node_name);
+
     /*
          * Find Ros2 entities in filesystem
          * It is supposed that user has activated ros2 workspace with .install/setup.sh script
@@ -32,7 +34,10 @@ signals:
     void hotStateUpdated(const QString &jsonState);
 
 private:
-    Ros2State buildState(const std::string &json) const;
+    uint64_t parseHeader() const;
+
+    void stateRequest();
+    void topicsRequest();
 
     std::string m_sock;
     asio::io_service m_IOService;

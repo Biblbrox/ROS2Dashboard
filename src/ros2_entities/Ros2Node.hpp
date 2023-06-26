@@ -1,11 +1,10 @@
 #pragma once
 
+#include <string>
+#include <vector>
 
 #include "Ros2Publisher.hpp"
 #include "Ros2Subscriber.hpp"
-#include "Ros2Topic.hpp"
-#include <string>
-#include <vector>
 
 namespace ros2monitor {
 struct Ros2Node {

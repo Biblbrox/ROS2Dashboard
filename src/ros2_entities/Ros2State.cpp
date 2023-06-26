@@ -1,13 +1,16 @@
+#include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#include <utility>
 
 #include "Ros2State.hpp"
+#include "utils/StrUtils.hpp"
 
 namespace ros2monitor {
 
 using json = nlohmann::json;
 using std::find_if;
 
-void Ros2State::update(std::string_view jsonState)
+void Ros2State::update(std::string jsonState)
 {
     // We received data, which has structure like this:
     /*
@@ -20,15 +23,28 @@ void Ros2State::update(std::string_view jsonState)
          */
     m_hotState.nodes.clear();
     m_hotState.packages.clear();
+    m_hotState.topics.clear();
+    trim(jsonState);
     json state = json::parse(jsonState);
     if (state.contains("packages")) {
         for (const auto &packageJson: state["packages"]) {
+            if (!packageJson.contains("name") || !packageJson.contains("path")) {
+                throw std::invalid_argument(fmt::format("Invalid json response. Package object must include both name and path properties"));
+            }
+
             m_hotState.packages.emplace_back(packageJson["name"], packageJson["path"]);
         }
     }
 
     if (state.contains("nodes")) {
         for (const auto &nodeJson: state["nodes"]) {
+            if (nodeJson["name"] == "/visualization_node")
+                continue;
+
+            if (!nodeJson.contains("name") || !nodeJson.contains("package_name")) {
+                throw std::invalid_argument(fmt::format("Invalid json response. Node object must include both name and package_name properties. Current json: {}", nodeJson.dump()));
+            }
+
             Ros2Node node(nodeJson["name"], nodeJson["package_name"]);
             std::vector<Ros2Subscriber> subscribers;
             std::vector<Ros2Publisher> publishers;
@@ -41,6 +57,17 @@ void Ros2State::update(std::string_view jsonState)
             node.publishers = publishers;
             node.subscribers = subscribers;
             m_hotState.nodes.push_back(node);
+        }
+    }
+
+    /// Update topics
+    if (state.contains("topics")) {
+        for (const auto &topicJson: state["topics"]) {
+            if (!topicJson.contains("name") || !topicJson.contains("node_name") || !topicJson.contains("topic_type")) {
+                throw std::invalid_argument(fmt::format("Invalid json response. Topic object must include name, node_name and topic type properties. Current json: {}", topicJson.dump()));
+            }
+
+            m_hotState.topics.emplace_back(topicJson["name"], topicJson["node_name"], topicJson["topic_type"]);
         }
     }
 
@@ -72,9 +99,9 @@ std::vector<Ros2Package> Ros2State::packages() const
     return m_hotState.packages;
 }
 
-Ros2State::Ros2State(std::string_view state)
+Ros2State::Ros2State(std::string state)
 {
-    update(state);
+    update(std::move(state));
 }
 
 std::vector<Ros2Connection> Ros2State::connections() const

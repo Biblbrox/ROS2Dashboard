@@ -41,6 +41,7 @@ QtObject {
             property color title: darkTheme ? "#4b516b" : "#4b516b"
             property color body: darkTheme ? "#35384b" : "#9d9fb4"
             property color titleFont: darkTheme ? "#FFFFFF" : "#000000"
+            property color edge: darkTheme ? "#FFFFFF" : "#000000"
         }
 
     }

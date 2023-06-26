@@ -6,6 +6,7 @@
 #include <rclcpp/node.hpp>
 
 #include "VizComponent.hpp"
+#include "daemon_client/DaemonClient.hpp"
 #include <QQmlApplicationEngine>
 #include <QQuickPaintedItem>
 #include <tuple>
@@ -30,10 +31,10 @@ class TopicQml : public QObject {
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QString nodeName READ nodeName WRITE setNodeName)
     Q_PROPERTY(QString type READ type WRITE setType)
-    QML_VALUE_TYPE(topic)
+    QML_VALUE_TYPE(Topic)
 
 public:
-    TopicQml(QObject *parent) : QObject(parent)
+    TopicQml(QObject *parent = nullptr) : QObject(parent)
     {
     }
 
@@ -76,8 +77,7 @@ private:
 class VisualizerModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    explicit VisualizerModel(QObject *parent = nullptr);
-    void initROS2(int argc, char **argv);
+    explicit VisualizerModel(int argc, char** argv, std::shared_ptr<DaemonClient> daemon_client, QObject *parent = nullptr);
     ~VisualizerModel() override;
 
     void update(std::vector<Ros2Connection> connections);
@@ -95,6 +95,9 @@ private:
     std::shared_ptr<rclcpp::Node> m_visualizerNode;
     std::unordered_map<std::string, std::shared_ptr<rclcpp::SubscriptionBase>> m_subscribers;
     QFuture<void> m_nodeFuture;
+    std::shared_ptr<DaemonClient> m_daemon_client;
+    int m_argc;
+    char** m_argv;
 };
 
 

@@ -19,10 +19,12 @@ QVariant Ros2TopicListModel::data(const QModelIndex &index, int role) const
     }
     return value;
 }
+
 int Ros2TopicListModel::rowCount(const QModelIndex &parent) const
 {
-    return 0;
+    return m_state->topics().size();
 }
+
 QVariant Ros2TopicListModel::getRowByName(int i, QString role_name, QString entry_name)
 {
     return QVariant();

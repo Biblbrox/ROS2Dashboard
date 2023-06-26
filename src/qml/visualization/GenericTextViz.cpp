@@ -13,7 +13,8 @@ GenericTextViz::GenericTextViz(QQuickItem *parent) : VizComponent(parent)
 void GenericTextViz::updateData(std::any data)
 {
     Logger::debug("Receive new text data");
-    m_text = std::any_cast<std::string>(data);
+    m_text = std::any_cast<const char *>(data);
+    this->update(this->contentsBoundingRect().toRect());
 }
 
 void GenericTextViz::registerViz(QString topic_name, VisualizerModel *model)
@@ -26,7 +27,7 @@ void GenericTextViz::paint(QPainter *painter)
 {
     Logger::debug("GenericTextViz");
     VizComponent::paint(painter);
-    painter->drawText(0, 0, m_text.c_str());
+    painter->drawText(0, 0, 100, 100, 0, m_text.c_str());
 }
 
 

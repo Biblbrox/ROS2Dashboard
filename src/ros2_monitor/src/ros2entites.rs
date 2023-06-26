@@ -1,16 +1,14 @@
 pub mod ros2entities {
-    use std::collections::hash_map::Entry;
-    use std::collections::HashMap;
-    use std::os::linux::raw::stat;
     use std::string::String;
-    use serde::{Deserialize, Serialize, Serializer};
-    use serde_json::Result;
+    use serde::{Deserialize, Serialize};
+
 
     #[derive(Deserialize, Clone)]
     pub struct Ros2State {
         pub packages: Vec<Ros2Package>,
         pub executables: Vec<Ros2Executable>,
         pub nodes: Vec<Ros2Node>,
+        pub topics: Vec<Ros2Topic>,
     }
 
     impl Ros2State {
@@ -19,6 +17,7 @@ pub mod ros2entities {
                 packages: Vec::new(),
                 executables: Vec::new(),
                 nodes: Vec::new(),
+                topics: Vec::new(),
             };
         }
     }
@@ -80,14 +79,14 @@ pub mod ros2entities {
     pub struct Ros2ServiceServer {
         pub name: String,
         pub node_name: String,
-        pub topic_name: String
+        pub topic_name: String,
     }
 
     #[derive(Serialize, Deserialize, Clone)]
     pub struct Ros2ServiceClient {
         pub name: String,
         pub node_name: String,
-        pub topic_name: String
+        pub topic_name: String,
     }
 
     /// I will have done with these entities later...
@@ -102,5 +101,6 @@ pub mod ros2entities {
     pub struct Ros2Topic {
         pub name: String,
         pub node_name: String,
+        pub topic_type: String
     }
 }
