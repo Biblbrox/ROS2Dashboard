@@ -26,3 +26,6 @@ cmake -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_B
 make -j${nproc}
 ./ros2dashboard
 ```
+
+## Documentation
+All documentation can be found here [docs](https://biblbrox.github.io/ROS2Dashboard/html/index.html).
