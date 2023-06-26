@@ -1,4 +1,3 @@
-# Ros2Dashboard
 ## What is ros2dashboard?
 Hi, welcome to the documentation of ros2dashboard!. Firstly, we will explain what is ros2dashboard and what is it for. Then, we will explain how to install it and how to use it. 
 Ros2Dashboard it is tool, which has as the main goal to provide a graphical interface to visualize the status of the ROS2 system and provide capabiblites to edit the parameters of the nodes at runtime.
