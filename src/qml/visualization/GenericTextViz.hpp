@@ -17,7 +17,7 @@ public:
     void paint(QPainter *painter) override;
 
 public slots:
-    void registerViz(QString topic_name, VisualizerModel *model);
+    void registerViz(const QString& topic_name, VisualizerModel *model);
 
 private:
     std::string m_text;

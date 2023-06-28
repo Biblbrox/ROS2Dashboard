@@ -4,11 +4,13 @@
 #include <QQmlApplicationEngine>
 #include <memory>
 
+#include "DaemonClientModel.hpp"
 #include "Ros2TopicListModel.hpp"
 #include "daemon_client/DaemonClient.hpp"
 #include "qml/models/Ros2ConnectionListModel.hpp"
 #include "qml/models/Ros2NodeListModel.hpp"
 #include "qml/models/Ros2PackageListModel.hpp"
+#include "qml/visualization/VideoViz.hpp"
 #include "src/qml/models/VisualizerModel.hpp"
 
 namespace ros2monitor {
@@ -30,5 +32,6 @@ private:
     std::shared_ptr<Ros2ConnectionListModel> m_connectionListModel;
     std::shared_ptr<Ros2TopicListModel> m_topic_model;
     std::shared_ptr<VisualizerModel> m_visualizer_model;
+    std::shared_ptr<DaemonClientModel> m_daemon_client_model;
 };
 }

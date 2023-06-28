@@ -86,7 +86,7 @@ Rectangle {
         GenericTextViz {
             id: textViz
 
-            Layout.fillHeight: true
+            SplitView.fillHeight: true
             SplitView.fillWidth: true
             height: parent.height
         }

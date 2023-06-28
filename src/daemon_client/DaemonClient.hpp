@@ -36,6 +36,7 @@ signals:
 private:
     uint64_t parseHeader() const;
 
+    std::string makeRequest(const std::string& request);
     void stateRequest();
     void topicsRequest();
 

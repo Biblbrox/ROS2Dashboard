@@ -4,7 +4,8 @@
 #include "QuickQanava"
 #include "core/Logger.hpp"
 #include "qml/visualization/GenericTextViz.hpp"
-#include "qml/visualization/VideoViz.hpp"
+
+#include "qml/models/DaemonClientModel.hpp"
 
 using std::make_shared;
 
@@ -20,7 +21,8 @@ ros2monitor::Application::Application(int &argc, char **argv)
     m_connectionListModel = make_shared<Ros2ConnectionListModel>(m_guiApp.get());
     m_topic_model = make_shared<Ros2TopicListModel>(m_guiApp.get());
     m_visualizer_model = make_shared<VisualizerModel>(argc, argv, m_daemonClient, m_guiApp.get());
-
+    m_daemon_client_model = make_shared<DaemonClientModel>(m_guiApp.get());
+    m_daemon_client_model->setDaemonClient(m_daemonClient);
 
     registerModels();
 
@@ -29,6 +31,7 @@ ros2monitor::Application::Application(int &argc, char **argv)
         m_nodeListModel->updateState(state);
         m_packageListModel->updateState(state);
         m_topic_model->updateState(state);
+        m_daemon_client_model->setState(state);
         m_connectionListModel->update(state->connections());
     });
 
@@ -57,4 +60,5 @@ void ros2monitor::Application::registerModels()
     m_qmlEngine->rootContext()->setContextProperty("connectionListModel", m_connectionListModel.get());
     m_qmlEngine->rootContext()->setContextProperty("visualizerModel", m_visualizer_model.get());
     m_qmlEngine->rootContext()->setContextProperty("topicListModel", m_topic_model.get());
+    m_qmlEngine->rootContext()->setContextProperty("daemonClientModel", m_daemon_client_model.get());
 }

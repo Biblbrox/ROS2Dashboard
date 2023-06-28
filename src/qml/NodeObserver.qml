@@ -70,6 +70,7 @@ Rectangle {
 
                         onClicked: {
                             console.debug("Clicked to node " + name);
+
                         }
                     }
                 }

@@ -37,7 +37,7 @@ Qan.NodeItem {
 
                 onClicked: {
                     console.debug("Kill node " + title.text);
-
+                    daemonClientModel.killNode(title.text);
                 }
 
                 anchors {
