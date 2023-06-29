@@ -58,7 +58,7 @@ int Ros2NodeListModel::rowCount(const QModelIndex &parent) const
     return m_state ? m_state->nodes().size() : 0;
 }
 
-QVariant Ros2NodeListModel::getRowByName(int i, QString role_name, QString entry_name)
+QVariant Ros2NodeListModel::getRowByName(int i, const QString& role_name, const QString& entry_name)
 {
     assert(m_string2Role.contains(role_name.toStdString()));
     Ros2NodeRole role = m_string2Role[role_name.toStdString()];
@@ -103,7 +103,7 @@ void Ros2NodeListModel::updateState(std::shared_ptr<Ros2State> state)
     m_state = std::move(state);
 }
 
-QVariant Ros2NodeListModel::getRow(int i, QString role_name)
+QVariant Ros2NodeListModel::getRow(int i, const QString& role_name)
 {
     assert(m_string2Role.contains(role_name.toStdString()));
     return data(index(i, 0), to_underlying(m_string2Role[role_name.toStdString()]));

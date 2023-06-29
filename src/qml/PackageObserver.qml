@@ -25,7 +25,7 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             color: "white"
             font.pixelSize: 18
-            text: "Package obserber"
+            text: "Package observer"
         }
         ToolSeparator {
             id: packageObserverSeparator
@@ -47,7 +47,7 @@ Rectangle {
                 color: Theme.panel.color.elementBackground
                 height: 100
                 radius: 10
-                width: parent.width
+                width: ListView.width
 
                 TextArea {
                     id: label

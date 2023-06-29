@@ -23,8 +23,8 @@ public:
     QHash<int, QByteArray> roleNames() const override;
     void updateState(std::shared_ptr<Ros2State> state);
 public slots:
-    QVariant getRow(int i, QString role_name);
-    QVariant getRowByName(int i, QString role_name, QString entry_name);
+    QVariant getRow(int i, const QString& role_name);
+    QVariant getRowByName(int i, const QString& role_name, const QString& entry_name);
 
 private:
     std::shared_ptr<Ros2State> m_state;

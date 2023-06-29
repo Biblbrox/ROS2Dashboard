@@ -1,6 +1,4 @@
 #include <filesystem>
-#include <nlohmann/json.hpp>
-
 
 #include "DaemonClient.hpp"
 #include "core/DaemonException.hpp"
@@ -19,12 +17,6 @@ DaemonClient::DaemonClient(std::string pid) : m_sock(std::move(pid))
     }
 
     m_socket = make_shared<asio::local::stream_protocol::socket>(m_IOService);
-
-    error_code connectError;
-    m_socket->connect(m_sock, connectError);
-    if (connectError) {
-        Logger::error(fmt::format("Can't connect to daemon socket {}", m_sock));
-    }
 }
 
 void DaemonClient::receiveState()
@@ -55,18 +47,26 @@ DaemonClient::~DaemonClient()
 
 void DaemonClient::killNode(const std::string &node_name)
 {
-    std::string request = R"({ "command": "kill_node", "arguments": [{name: "node_name", value: ")" + node_name + "\"}]}";
+    std::string request = R"({ "command": "kill_node", "arguments": [{"name": "node_name", "value": ")" + node_name + "\"}]}";
     std::string response = makeRequest(request);
     emit hotStateUpdated(QString::fromStdString(response));
 }
 
 std::string DaemonClient::makeRequest(const std::string &request)
 {
+    error_code connectError;
+    if (m_socket->is_open())
+        m_socket->close();
+    m_socket->connect(m_sock, connectError);
+    if (connectError) {
+        Logger::error(fmt::format("Can't connect to daemon socket {}", m_sock));
+    }
+
     std::error_code write_error;
     asio::write(*m_socket, asio::buffer(request), write_error);
-    if (write_error) {
-        throw DaemonException("Unable to write message to daemon");
-    }
+    /*if (write_error) {
+        throw DaemonException(fmt::format("Unable to write message to daemon. Error: {}", write_error.message()));
+    }*/
 
     /// Read header
     uint64_t msg_size = parseHeader();
@@ -76,7 +76,7 @@ std::string DaemonClient::makeRequest(const std::string &request)
     std::vector<char> body(msg_size);
     size_t read = m_socket->read_some(asio::buffer(body), error);
     if (error)
-        throw DaemonException("Unable to read message body data from the deamon");
+        throw DaemonException(fmt::format("Unable to read message body data from the deamon. Error: {}", error.message()));
 
     std::string body_str;
     body_str.resize(body.size());
@@ -92,8 +92,8 @@ uint64_t DaemonClient::parseHeader() const
     std::array<char, header_size> header{};
     asio::read(*m_socket, asio::buffer(header), error, 0);
 
-    if (error)
-        throw DaemonException("Unable to read message header data from the deamon");
+    if (error && error.value() != 2)
+        throw DaemonException(fmt::format("Unable to read message header data from the deamon. Error message: {}. Error code: {}", error.message(), error.value()));
 
     /// Parse header to extract the message length
     const uint64_t msg_size = u64ToLE(*reinterpret_cast<const uint64_t *>(&header[0]));

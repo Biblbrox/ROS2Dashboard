@@ -1,11 +1,9 @@
-pub mod ros2monitor {
+pub mod ros2utils {
     use std::collections::HashMap;
     use std::process::{Command};
     use std::string::String;
     use regex;
 
-    use rclrs::Context;
-    use std::{env};
     use std::sync::{Arc, Mutex};
     use log::{debug};
 
@@ -79,11 +77,11 @@ pub mod ros2monitor {
             }
 
             for argument in request.get("arguments") {
-                if argument.as_object().is_none() {
+                if argument.as_array().is_none() || argument.as_array().unwrap().len() == 0 {
                     continue;
                 }
 
-                let arg_obj = argument.as_object().unwrap();
+                let arg_obj = argument.as_array().unwrap()[0].as_object().unwrap();
                 if !arg_obj.contains_key("name") {
                     let msg = "Each argument object in request must have a name field";
                     return Err(msg.to_string());
@@ -239,11 +237,14 @@ pub mod ros2monitor {
     pub fn kill_node(node_name: String) -> String {
         let err_msg = format!("Unable to kill node {}", node_name.clone());
         let output = Command::new("killall").arg(node_name.clone()).output().expect(format!("Unable to kill node {}", node_name).as_str());
-        return if output.status.success() {
-            err_msg
+
+        let response = if output.status.success() {
+            r#"{"result": "failure", "msg": "#.to_string() + err_msg.as_str() + r#"}"#
         } else {
-            String::new()
+            r#"{"result": "success"}"#.to_string()
         };
+
+        return response;
     }
 
     pub fn explore_packages() -> Vec<Ros2Package> {

@@ -1,62 +1,40 @@
 extern crate core;
 
-
 use std::io::{self};
 
 use std::str;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
+
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{UnixStream, UnixListener};
 use tokio::runtime::Runtime;
-use log::{debug, error};
+use log::{debug};
 use crate::ros2entites::ros2entities::{Ros2State};
 pub use serde_json::{json};
 use tokio::time;
-use crate::ros2monitor::ros2monitor::{JsonProtocol, kill_node, ros2_state};
+use crate::api::api::handle_request;
+use crate::ros2utils::ros2utils::{ros2_state};
 
 mod ros2entites;
-mod ros2monitor;
-
-/**
-Generate json for ros2 state object
- */
-fn ros2_state_json(state: Arc<Mutex<Ros2State>>) -> String {
-    let state_obj: &Ros2State = &state.lock().unwrap().to_owned();
-
-    let json_str = json!({
-        "packages": state_obj.packages,
-        "nodes": state_obj.nodes,
-        "topics": state_obj.topics
-    });
-
-    debug!("Json string for response: {}", json_str.to_string());
-
-    return json_str.to_string();
-}
+mod ros2utils;
+mod api;
 
 /**
 Handle client json request
  */
 async fn handle_client(mut stream: UnixStream, current_state: Arc<Mutex<Ros2State>>) -> io::Result<()> {
+    // Read request from stream
     let mut buffer = [0u8; 1024];
     let _nbytes = stream.read(&mut buffer[..]).await?;
     let request = str::from_utf8(&buffer).unwrap().trim().trim_matches(char::from(0));
 
-    // Parse request as json formatted str
-    let mut parsed = JsonProtocol::new();
-    match parsed.parse_request(request) {
-        Ok(()) => (),
-        Err(msg) => error!("{}", msg)
-    }
+    // Create response
+    let response: String = handle_request(request.to_string(), current_state);
+    debug!("Json string for response: {}", response);
 
-    let response: String = match parsed.command.as_str() {
-        "state" => ros2_state_json(current_state.clone()).to_string(),
-        "kill_node" => kill_node(parsed.arguments.get("node_name").unwrap().to_string()),
-        _ => "Unknown request".to_string()
-    };
-
+    // Write back response to client
     let msg_len: u64 = response.as_bytes().len() as u64;
     stream.write_u64(msg_len).await?; // Write message header indicates message length
     stream.write_all(&response.as_bytes()).await?; // Write the body

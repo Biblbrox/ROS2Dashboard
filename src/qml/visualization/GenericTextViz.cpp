@@ -17,7 +17,7 @@ void GenericTextViz::updateData(std::any data)
     this->update(this->contentsBoundingRect().toRect());
 }
 
-void GenericTextViz::registerViz(const QString& topic_name, VisualizerModel *model)
+void GenericTextViz::registerViz(const QString &topic_name, VisualizerModel *model)
 {
     m_topic_name = topic_name.toStdString();
     model->addTopicViz(VisualizationType::text, m_topic_name, this);
@@ -25,16 +25,16 @@ void GenericTextViz::registerViz(const QString& topic_name, VisualizerModel *mod
 
 void GenericTextViz::paint(QPainter *painter)
 {
-    Logger::debug("GenericTextViz");
     VizComponent::paint(painter);
-    double x = 0;
-    double y = 0;
     QPen pen;
     pen.setColor(QColor::fromRgb(255, 255, 255));
     pen.setWidth(2);
+    QFont font("sans", 22);
+
+    QRect br = painter->boundingRect(0, 0, width(), height(), 0, m_text.c_str());
+    painter->setFont(font);
     painter->setPen(pen);
-    painter->drawText(x, y, width(), height(), 0, m_text.c_str());
-    //painter->drawText(0, 0, 100, 100, 0, m_text.c_str());
+    painter->drawText(width() / 2 - br.width() / 2, height() / 2 - br.height() / 2, width(), height(), 0, m_text.c_str());
 }
 
 
