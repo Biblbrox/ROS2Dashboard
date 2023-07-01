@@ -44,6 +44,7 @@ ApplicationWindow {
         anchors.top: parent.top
         width: 100
     }
+
     SplitView {
         height: parent.height
         orientation: Qt.Vertical
@@ -84,9 +85,9 @@ ApplicationWindow {
                         for (let i = 0; i < nodeListModel.rowCount(); ++i) {
                             let node = graphObj.insertNode(nodeComponent);
                             node.item.name = nodeListModel.getRow(i, "name");
+                            console.log("Create node " + node.item.name);
                             node.item.x = 50 + i * 10;
                             node.item.y = 50;
-
                             node["inPorts"] = {};
                             node["outPorts"] = {};
 
@@ -95,7 +96,6 @@ ApplicationWindow {
                                 let port = graphObj.insertPort(node, Qan.NodeItem.Right);
                                 port.label = nodeListModel.getRow(i, "publishers")[j];
                                 node.outPorts[port.label] = port;
-                                console.log("Out port label: ", port.label);
                             }
 
                             /// Add input ports
@@ -103,7 +103,6 @@ ApplicationWindow {
                                 let port = graphObj.insertPort(node, Qan.NodeItem.Left);
                                 port.label = nodeListModel.getRow(i, "subscribers")[j];
                                 node.inPorts[port.label] = port;
-                                console.log("In port label: ", port.label);
                             }
                             nodes[node.item.name] = node;
                         }
@@ -116,12 +115,8 @@ ApplicationWindow {
                             console.debug("Create connection from " + outNodeName + " and " + inNodeName + " nodes");
                             let outNode = nodes[outNodeName];
                             let inNode = nodes[inNodeName];
-
                             let outPort = outNode.outPorts[topicName];
                             let inPort = inNode.inPorts[topicName];
-                            console.log("Topic name: ", topicName);
-                            console.log("Out port: ", outPort);
-                            console.log("In port: ", inPort);
 
                             // Connect them with edge
                             let edge = graphObj.insertEdge(inNode, outNode);
@@ -150,6 +145,7 @@ ApplicationWindow {
             }
             PackageObserver {
                 Layout.fillHeight: true
+                SplitView.fillWidth: true
                 height: parent.height
                 implicitWidth: 400
                 z: 2

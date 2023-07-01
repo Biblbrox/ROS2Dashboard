@@ -1,4 +1,5 @@
 pub mod ros2utils {
+    use sysinfo::{ProcessExt, System, SystemExt};
     use std::collections::HashMap;
     use std::process::{Command};
     use std::string::String;
@@ -8,7 +9,7 @@ pub mod ros2utils {
     use log::{debug};
 
     use serde_json::{Value, Map};
-    use crate::ros2entites::ros2entities::{Ros2State, Ros2Package, Ros2Node, Ros2Subscriber, Ros2Publisher, Ros2ServiceServer, Ros2ServiceClient, Ros2ActionClient, Ros2ActionServer, Ros2Topic};
+    use crate::ros2entites::ros2entities::{Ros2ActionClient, Ros2ActionServer, Ros2Node, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2State, Ros2Subscriber, Ros2Topic};
 
     pub struct JsonProtocol {
         // List of all possible commands
@@ -247,6 +248,27 @@ pub mod ros2utils {
         return response;
     }
 
+    pub fn run_sample_node() -> String {
+        let node_name = "turtle_teleop_key";
+        let _output = Command::new("ros2")
+            .arg("run")
+            .arg("turtlesim")
+            .arg(node_name)
+            .spawn();
+        //.output().expect(format!("Unable to start node {}", node_name).as_str());
+
+        return node_name.to_string();
+    }
+
+    pub fn is_node_running(node_name: String) -> bool {
+        let s = System::new_all();
+        for _process in s.processes_by_name(node_name.as_str()) {
+            return true;
+        }
+
+        return false;
+    }
+
     pub fn explore_packages() -> Vec<Ros2Package> {
         let package_names = ros2_package_names();
         let packages: Vec<Ros2Package> = package_names.iter().map(|package_name| Ros2Package { name: package_name.to_string(), path: package_path(package_name.to_string()) }).collect();
@@ -443,12 +465,23 @@ pub mod ros2utils {
 
 #[cfg(test)]
 mod tests {
-    //use crate::ros2monitor::ros2monitor::discover_local_filesystem;
+    use std::process::Command;
+    use crate::ros2utils::ros2utils::{is_node_running, kill_node, run_sample_node};
 
     #[test]
-    fn test_ros2_local_discover() {
-        //let state = discover_local_filesystem();
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn test_kill_running_node() {
+        // Run sample node
+        let node_name = run_sample_node();
+        assert_eq!(is_node_running(node_name.clone()), true);
+    }
+
+    #[test]
+    fn test_kill_node_failure() {
+        let node_name = "node_name".to_string();
+        let expected_response = format!("{{\"result\": \"failure\", \"msg\": \"Unable to kill node {}\"}}", node_name);
+        let output = Command::new("killall").arg(node_name.clone()).output().unwrap();
+        //output.status.set_success(false);
+        let response = kill_node(node_name);
+        assert_eq!(response, expected_response);
     }
 }

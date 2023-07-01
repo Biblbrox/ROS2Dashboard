@@ -6,11 +6,46 @@ import com.viz.types 1.0
 Rectangle {
     id: visualizationWindow
 
+    property string textVisualizer: "textVisualizer"
+    property string videoVisualizer: "videoVisualizer"
+
+    function addVisualizer(topicName, type) {
+        if (visualizerModel.hasTopicViz(topicName)) {
+            console.log("Visualizer for topic " + topicName + " already exists");
+            return;
+        }
+
+        if (type === textVisualizer) {
+            let vizComponent = Qt.createComponent("qrc:///ui/GenericTextVizComponent.qml");
+            if (vizComponent.status === Component.Ready) {
+                let vizObject = vizComponent.createObject(vizContainer, {
+                        "topicName": topicName,
+                        //"width": width,
+                        "height": vizContainer.height,
+                        "Layout.fillWidth": true
+                    });
+                console.log("Addedd visualizer for topic " + topicName);
+            }
+        } else if (type === videoVisualizer) {
+            let vizComponent = Qt.createComponent("qrc:///ui/VideoVizComponent.qml");
+            if (vizComponent.status === Component.Ready) {
+                let vizObject = vizComponent.createObject(vizContainer, {
+                        "topicName": topicName,
+                        //"width": width,
+                        "height": vizContainer.height,
+                        "Layout.fillWidth": true
+                    });
+                console.log("Addedd visualizer for topic " + topicName);
+            }
+        }
+    }
+
     color: "#2f2e40"
 
     Component.onCompleted: {
         console.log("Visualization area loaded");
-        textViz.registerViz("minimal_publisher", visualizerModel);
+        addVisualizer("minimal_publisher", textVisualizer);
+        addVisualizer("/image_raw", videoVisualizer);
     }
 
     Rectangle {
@@ -49,6 +84,9 @@ Rectangle {
             model: topicListModel
             spacing: 10
 
+            ScrollBar.vertical: ScrollBar {
+            }
+
             delegate: Item {
                 height: 70
                 width: topicList.width
@@ -83,8 +121,8 @@ Rectangle {
                 }
             }
         }
-        GenericTextViz {
-            id: textViz
+        RowLayout {
+            id: vizContainer
 
             SplitView.fillHeight: true
             SplitView.fillWidth: true

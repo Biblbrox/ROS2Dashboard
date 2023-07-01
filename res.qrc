@@ -10,6 +10,10 @@
         <file alias="Node.qml">src/qml/Node.qml</file>
         <file alias="Theme.qml">src/qml/Theme.qml</file>
         <file alias="SidebarItem.qml">src/qml/Reusable/SidebarItem.qml</file>
+        <file alias="VizControls.qml">src/qml/Reusable/VizControls.qml</file>
+        <file alias="VizControlItem.qml">src/qml/Reusable/VizControlItem.qml</file>
+        <file alias="GenericTextVizComponent.qml">src/qml/GenericTextVizComponent.qml</file>
+        <file alias="VideoVizComponent.qml">src/qml/VideoVizComponent.qml</file>
     </qresource>
     <qresource prefix="/ui/icons">
         <file alias="Download.svg">res/icons/Download.svg</file>

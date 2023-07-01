@@ -5,8 +5,7 @@ import QtQuick.Layouts 1.3
 Rectangle {
     id: nodeObserver
 
-    color: "#2f2e40"
-    height: 500
+    color: Theme.panel.color.background
     visible: true
     width: 800
 
@@ -17,6 +16,7 @@ Rectangle {
         anchors.rightMargin: 20
         anchors.top: parent.top
         anchors.topMargin: 20
+        anchors.bottom: parent.bottom
         spacing: 40
 
         Label {
@@ -25,7 +25,7 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             color: "white"
             font.pixelSize: 18
-            text: "Node obserber"
+            text: "Node observer"
         }
         ToolSeparator {
             id: nodeObserverSeparator
@@ -37,12 +37,15 @@ Rectangle {
             id: nodeListView
 
             Layout.fillWidth: true
+            Layout.fillHeight: true
             clip: true
             height: nodeObserver.height - nodeObserverTitle.height - nodeObserverSeparator.height
             model: nodeListModel
             spacing: 20
             width: parent.width
 
+            ScrollBar.vertical: ScrollBar {
+            }
             delegate: Component {
                 id: childrenRect
 
@@ -58,8 +61,8 @@ Rectangle {
                         color: Theme.font.color.primary
                         font.pointSize: 18
                         height: parent.height
-                        readOnly: true
                         horizontalAlignment: TextEdit.AlignHCenter
+                        readOnly: true
                         text: name
                         verticalAlignment: TextEdit.AlignVCenter
                         width: parent.width
@@ -70,7 +73,6 @@ Rectangle {
 
                         onClicked: {
                             console.debug("Clicked to node " + name);
-
                         }
                     }
                 }

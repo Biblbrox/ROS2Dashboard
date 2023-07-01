@@ -14,13 +14,14 @@ void GenericTextViz::updateData(std::any data)
 {
     Logger::debug("Receive new text data");
     m_text = std::any_cast<const char *>(data);
-    this->update(this->contentsBoundingRect().toRect());
+
+    emit needRedraw();
 }
 
 void GenericTextViz::registerViz(const QString &topic_name, VisualizerModel *model)
 {
     m_topic_name = topic_name.toStdString();
-    model->addTopicViz(VisualizationType::text, m_topic_name, this);
+    model->addTopicViz(VisualizationType::string, "std_msgs/msg/String", m_topic_name, this);
 }
 
 void GenericTextViz::paint(QPainter *painter)
@@ -35,6 +36,8 @@ void GenericTextViz::paint(QPainter *painter)
     painter->setFont(font);
     painter->setPen(pen);
     painter->drawText(width() / 2 - br.width() / 2, height() / 2 - br.height() / 2, width(), height(), 0, m_text.c_str());
+
+    QQuickPaintedItem::update(boundingRect().toRect());
 }
 
 

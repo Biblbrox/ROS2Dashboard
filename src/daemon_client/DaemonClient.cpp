@@ -49,7 +49,7 @@ void DaemonClient::killNode(const std::string &node_name)
 {
     std::string request = R"({ "command": "kill_node", "arguments": [{"name": "node_name", "value": ")" + node_name + "\"}]}";
     std::string response = makeRequest(request);
-    emit hotStateUpdated(QString::fromStdString(response));
+    stateRequest();
 }
 
 std::string DaemonClient::makeRequest(const std::string &request)

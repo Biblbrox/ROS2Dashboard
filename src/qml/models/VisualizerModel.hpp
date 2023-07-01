@@ -1,24 +1,30 @@
 #pragma once
 
-#include "ros2_entities/Ros2Connection.hpp"
 #include <QFuture>
-#include <QtCore>
-#include <rclcpp/node.hpp>
-
-#include "VizComponent.hpp"
-#include "daemon_client/DaemonClient.hpp"
 #include <QQmlApplicationEngine>
 #include <QQuickPaintedItem>
+#include <QtCore>
+#include <rclcpp/node.hpp>
 #include <tuple>
 #include <utility>
 #include <vector>
 
+#include "VizComponent.hpp"
+#include "daemon_client/DaemonClient.hpp"
+#include "ros2_entities/Ros2Connection.hpp"
+
 namespace ros2monitor {
 
 enum class VisualizationType {
-    image,
-    point_cloud,
-    text
+    /**
+     * Raster type can be represented with such message types as std_msgs::msg::Image
+     * Geometry type describe point cloud related types
+     * String type is about simple message structures, which can be easily converted to string
+     */
+
+    raster,
+    geometry,
+    string
 };
 
 enum VisualizerRole {
@@ -77,17 +83,20 @@ private:
 class VisualizerModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    explicit VisualizerModel(int argc, char** argv, std::shared_ptr<DaemonClient> daemon_client, QObject *parent = nullptr);
+    explicit VisualizerModel(int argc, char **argv, std::shared_ptr<DaemonClient> daemon_client, QObject *parent = nullptr);
     ~VisualizerModel() override;
 
     void update(std::vector<Ros2Connection> connections);
 
-    void addTopicViz(VisualizationType type, const std::string &topic_name, VizComponent *item);
+    void addTopicViz(VisualizationType type, const std::string &topic_type, const std::string &topic_name, VizComponent *item);
     void removeViz(const std::string &topic_name);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+public slots:
+    bool hasTopicViz(const QString &topic_name);
 
 private:
     std::vector<Ros2Connection> m_connections;
@@ -96,8 +105,11 @@ private:
     std::unordered_map<std::string, std::shared_ptr<rclcpp::SubscriptionBase>> m_subscribers;
     QFuture<void> m_nodeFuture;
     std::shared_ptr<DaemonClient> m_daemon_client;
+    std::vector<std::string> m_textGroup;
+    std::vector<std::string> m_rasterGroup;
+    std::vector<std::string> m_geometryGroup;
     int m_argc;
-    char** m_argv;
+    char **m_argv;
 };
 
 

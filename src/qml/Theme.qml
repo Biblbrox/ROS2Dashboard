@@ -31,6 +31,7 @@ QtObject {
 
         color: QtObject {
             property color elementBackground: darkTheme ? "#3d3948" : "#c0b8a5"
+            property color background: darkTheme ? "#2f2e40" : "#c0bfcd"
         }
     }
 

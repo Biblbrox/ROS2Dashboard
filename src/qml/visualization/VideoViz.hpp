@@ -21,7 +21,7 @@ public:
     void updateData(std::any data) override;
 
 public slots:
-    void registerViz(QString topic_name, VisualizerModel *model);
+    void registerViz(const QString& topic_name, VisualizerModel *model);
 
 private:
     QImage m_image;//your image

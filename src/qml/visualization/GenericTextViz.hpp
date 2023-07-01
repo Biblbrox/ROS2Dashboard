@@ -11,7 +11,7 @@ class GenericTextViz : public VizComponent {
     Q_OBJECT
     QML_ELEMENT
 public:
-    GenericTextViz(QQuickItem *parent = 0);
+    explicit GenericTextViz(QQuickItem *parent = 0);
 
     void updateData(std::any data) override;
     void paint(QPainter *painter) override;

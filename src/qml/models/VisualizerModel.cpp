@@ -1,12 +1,11 @@
 #include <QtConcurrent/QtConcurrent>
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <utility>
 
-
-#include "VideoViz.hpp"
 #include "VisualizerModel.hpp"
 #include "core/Logger.hpp"
 
@@ -23,6 +22,367 @@ namespace ros2monitor {
 VisualizerModel::VisualizerModel(int argc, char **argv, std::shared_ptr<DaemonClient> daemon_client, QObject *parent) : QAbstractListModel(parent), m_argc(argc), m_argv(argv)
 {
     m_daemon_client = std::move(daemon_client);
+
+    /**
+     * All ros2 messages:
+     * TODO: classify all of these message types to groups
+    cartographer_ros_msgs/msg/HistogramBucket,
+    cartographer_ros_msgs/msg/LandmarkEntry,
+    cartographer_ros_msgs/msg/LandmarkList,
+    cartographer_ros_msgs/msg/Metric,
+    cartographer_ros_msgs/msg/MetricFamily,
+    cartographer_ros_msgs/msg/MetricLabel,
+    cartographer_ros_msgs/msg/StatusCode,
+    cartographer_ros_msgs/msg/StatusResponse,
+    cartographer_ros_msgs/msg/SubmapEntry,
+    cartographer_ros_msgs/msg/SubmapList,
+    cartographer_ros_msgs/msg/SubmapTexture,
+    cartographer_ros_msgs/msg/TrajectoryStates,
+    cascade_lifecycle_msgs/msg/Activation,
+    cascade_lifecycle_msgs/msg/State,
+    control_msgs/msg/AdmittanceControllerState,
+    control_msgs/msg/DynamicJointState,
+    control_msgs/msg/GripperCommand,
+    control_msgs/msg/InterfaceValue,
+    control_msgs/msg/JointComponentTolerance,
+    control_msgs/msg/JointControllerState,
+    control_msgs/msg/JointJog,
+    control_msgs/msg/JointTolerance,
+    control_msgs/msg/JointTrajectoryControllerState,
+    control_msgs/msg/MecanumDriveControllerState,
+    control_msgs/msg/PidState,
+    control_msgs/msg/SteeringControllerStatus,
+    controller_manager_msgs/msg/ChainConnection,
+    controller_manager_msgs/msg/ControllerState,
+    controller_manager_msgs/msg/HardwareComponentState,
+    controller_manager_msgs/msg/HardwareInterface,
+    diagnostic_msgs/msg/DiagnosticArray,
+    diagnostic_msgs/msg/DiagnosticStatus,
+    diagnostic_msgs/msg/KeyValue,
+    dwb_msgs/msg/CriticScore,
+    dwb_msgs/msg/LocalPlanEvaluation,
+    dwb_msgs/msg/Trajectory2D,
+    dwb_msgs/msg/TrajectoryScore,
+
+    gazebo_msgs/msg/ContactState,
+    gazebo_msgs/msg/ContactsState,
+    gazebo_msgs/msg/EntityState,
+    gazebo_msgs/msg/LinkState,
+    gazebo_msgs/msg/LinkStates,
+    gazebo_msgs/msg/ModelState,
+    gazebo_msgs/msg/ModelStates,
+    gazebo_msgs/msg/ODEJointProperties,
+    gazebo_msgs/msg/ODEPhysics,
+    gazebo_msgs/msg/PerformanceMetrics,
+    gazebo_msgs/msg/SensorPerformanceMetric,
+    gazebo_msgs/msg/WheelSlip,
+    gazebo_msgs/msg/WorldState,
+    geographic_msgs/msg/BoundingBox,
+    geographic_msgs/msg/GeoPath,
+    geographic_msgs/msg/GeoPoint,
+    geographic_msgs/msg/GeoPointStamped,
+    geographic_msgs/msg/GeoPose,
+    geographic_msgs/msg/GeoPoseStamped,
+    geographic_msgs/msg/GeoPoseWithCovariance,
+    geographic_msgs/msg/GeoPoseWithCovarianceStamped,
+    geographic_msgs/msg/GeographicMap,
+    geographic_msgs/msg/GeographicMapChanges,
+    geographic_msgs/msg/KeyValue,
+    geographic_msgs/msg/MapFeature,
+    geographic_msgs/msg/RouteNetwork,
+    geographic_msgs/msg/RoutePath,
+    geographic_msgs/msg/RouteSegment,
+    geographic_msgs/msg/WayPoint,
+    geometry_msgs/msg/Accel,
+    geometry_msgs/msg/AccelStamped,
+    geometry_msgs/msg/AccelWithCovariance,
+    geometry_msgs/msg/AccelWithCovarianceStamped,
+    geometry_msgs/msg/Inertia,
+    geometry_msgs/msg/InertiaStamped,
+    geometry_msgs/msg/Point,
+    geometry_msgs/msg/Point32,
+    geometry_msgs/msg/PointStamped,
+    geometry_msgs/msg/Polygon,
+    geometry_msgs/msg/PolygonStamped,
+    geometry_msgs/msg/Pose,
+    geometry_msgs/msg/Pose2D,
+    geometry_msgs/msg/PoseArray,
+    geometry_msgs/msg/PoseStamped,
+    geometry_msgs/msg/PoseWithCovariance,
+    geometry_msgs/msg/PoseWithCovarianceStamped,
+    geometry_msgs/msg/Quaternion,
+    geometry_msgs/msg/QuaternionStamped,
+    geometry_msgs/msg/Transform,
+    geometry_msgs/msg/TransformStamped,
+    geometry_msgs/msg/Twist,
+    geometry_msgs/msg/TwistStamped,
+    geometry_msgs/msg/TwistWithCovariance,
+    geometry_msgs/msg/TwistWithCovarianceStamped,
+    geometry_msgs/msg/Vector3,
+    geometry_msgs/msg/Vector3Stamped,
+    geometry_msgs/msg/Wrench,
+    geometry_msgs/msg/WrenchStamped,
+    lifecycle_msgs/msg/State,
+    lifecycle_msgs/msg/Transition,
+    lifecycle_msgs/msg/TransitionDescription,
+    lifecycle_msgs/msg/TransitionEvent,
+    map_msgs/msg/OccupancyGridUpdate,
+    map_msgs/msg/PointCloud2Update,
+    map_msgs/msg/ProjectedMap,
+    map_msgs/msg/ProjectedMapInfo,
+    moveit_msgs/msg/AllowedCollisionEntry,
+    moveit_msgs/msg/AllowedCollisionMatrix,
+    moveit_msgs/msg/AttachedCollisionObject,
+    moveit_msgs/msg/BoundingVolume,
+    moveit_msgs/msg/CartesianPoint,
+    moveit_msgs/msg/CartesianTrajectory,
+    moveit_msgs/msg/CartesianTrajectoryPoint,
+    moveit_msgs/msg/CollisionObject,
+    moveit_msgs/msg/ConstraintEvalResult,
+    moveit_msgs/msg/Constraints,
+    moveit_msgs/msg/ContactInformation,
+    moveit_msgs/msg/CostSource,
+    moveit_msgs/msg/DisplayRobotState,
+    moveit_msgs/msg/DisplayTrajectory,
+    moveit_msgs/msg/GenericTrajectory,
+    moveit_msgs/msg/Grasp,
+    moveit_msgs/msg/GripperTranslation,
+    moveit_msgs/msg/JointConstraint,
+    moveit_msgs/msg/JointLimits,
+    moveit_msgs/msg/KinematicSolverInfo,
+    moveit_msgs/msg/LinkPadding,
+    moveit_msgs/msg/LinkScale,
+    moveit_msgs/msg/MotionPlanDetailedResponse,
+    moveit_msgs/msg/MotionPlanRequest,
+    moveit_msgs/msg/MotionPlanResponse,
+    moveit_msgs/msg/MotionSequenceItem,
+    moveit_msgs/msg/MotionSequenceRequest,
+    moveit_msgs/msg/MotionSequenceResponse,
+    moveit_msgs/msg/MoveItErrorCodes,
+    moveit_msgs/msg/ObjectColor,
+    moveit_msgs/msg/OrientationConstraint,
+    moveit_msgs/msg/OrientedBoundingBox,
+    moveit_msgs/msg/PlaceLocation,
+    moveit_msgs/msg/PlannerInterfaceDescription,
+    moveit_msgs/msg/PlannerParams,
+    moveit_msgs/msg/PlanningOptions,
+    moveit_msgs/msg/PlanningScene,
+    moveit_msgs/msg/PlanningSceneComponents,
+    moveit_msgs/msg/PlanningSceneWorld,
+    moveit_msgs/msg/PositionConstraint,
+    moveit_msgs/msg/PositionIKRequest,
+    moveit_msgs/msg/RobotState,
+    moveit_msgs/msg/RobotTrajectory,
+    moveit_msgs/msg/TrajectoryConstraints,
+    moveit_msgs/msg/VisibilityConstraint,
+    moveit_msgs/msg/WorkspaceParameters,
+    nav2_msgs/msg/BehaviorTreeLog,
+    nav2_msgs/msg/BehaviorTreeStatusChange,
+    nav2_msgs/msg/Costmap,
+    nav2_msgs/msg/CostmapFilterInfo,
+    nav2_msgs/msg/CostmapMetaData,
+    nav2_msgs/msg/Particle,
+    nav2_msgs/msg/ParticleCloud,
+    nav2_msgs/msg/SpeedLimit,
+    nav2_msgs/msg/VoxelGrid,
+    nav_2d_msgs/msg/Path2D,
+    nav_2d_msgs/msg/Pose2D32,
+    nav_2d_msgs/msg/Pose2DStamped,
+    nav_2d_msgs/msg/Twist2D,
+    nav_2d_msgs/msg/Twist2D32,
+    nav_2d_msgs/msg/Twist2DStamped,
+    nav_msgs/msg/GridCells,
+    nav_msgs/msg/MapMetaData,
+    nav_msgs/msg/OccupancyGrid,
+    nav_msgs/msg/Odometry,
+    nav_msgs/msg/Path,
+    object_recognition_msgs/msg/ObjectInformation,
+    object_recognition_msgs/msg/ObjectType,
+    object_recognition_msgs/msg/RecognizedObject,
+    object_recognition_msgs/msg/RecognizedObjectArray,
+    object_recognition_msgs/msg/Table,
+    object_recognition_msgs/msg/TableArray,
+    octomap_msgs/msg/Octomap,
+    octomap_msgs/msg/OctomapWithPose,
+    pcl_msgs/msg/ModelCoefficients,
+    pcl_msgs/msg/PointIndices,
+    pcl_msgs/msg/PolygonMesh,
+    pcl_msgs/msg/Vertices,
+    rcl_interfaces/msg/FloatingPointRange,
+    rcl_interfaces/msg/IntegerRange,
+    rcl_interfaces/msg/ListParametersResult,
+    rcl_interfaces/msg/Log,
+    rcl_interfaces/msg/Parameter,
+    rcl_interfaces/msg/ParameterDescriptor,
+    rcl_interfaces/msg/ParameterEvent,
+    rcl_interfaces/msg/ParameterEventDescriptors,
+    rcl_interfaces/msg/ParameterType,
+    rcl_interfaces/msg/ParameterValue,
+    rcl_interfaces/msg/SetParametersResult,
+    rclpy_message_converter_msgs/msg/NestedUint8ArrayTestMessage,
+    rclpy_message_converter_msgs/msg/TestArray,
+    rclpy_message_converter_msgs/msg/Uint8Array3TestMessage,
+    rclpy_message_converter_msgs/msg/Uint8ArrayTestMessage,
+    rmw_dds_common/msg/Gid,
+    rmw_dds_common/msg/NodeEntitiesInfo,,
+    rmw_dds_common/msg/ParticipantEntitiesInfo,
+    robot_calibration_msgs/msg/CalibrationData,
+    robot_calibration_msgs/msg/CameraParameter,
+    robot_calibration_msgs/msg/CaptureConfig,
+    robot_calibration_msgs/msg/ExtendedCameraInfo,
+    robot_calibration_msgs/msg/Observation,
+    robot_controllers_msgs/msg/ControllerState,
+    robot_controllers_msgs/msg/DiffDriveLimiterParams,
+    rosbag2_interfaces/msg/ReadSplitEvent,
+    rosbag2_interfaces/msg/WriteSplitEvent,
+    rosgraph_msgs/msg/Clock,
+    sensor_msgs/msg/BatteryState,
+    sensor_msgs/msg/CameraInfo,
+    sensor_msgs/msg/ChannelFloat32,
+    sensor_msgs/msg/CompressedImage,
+    sensor_msgs/msg/FluidPressure,
+    sensor_msgs/msg/Illuminance,
+
+    sensor_msgs/msg/Imu,
+    sensor_msgs/msg/JointState,
+    sensor_msgs/msg/Joy,
+    sensor_msgs/msg/JoyFeedback,
+    sensor_msgs/msg/JoyFeedbackArray,
+    sensor_msgs/msg/LaserEcho,
+    sensor_msgs/msg/MagneticField,
+    sensor_msgs/msg/MultiDOFJointState,
+    sensor_msgs/msg/MultiEchoLaserScan,
+    sensor_msgs/msg/NavSatFix,
+    sensor_msgs/msg/NavSatStatus,
+
+    sensor_msgs/msg/PointField,
+    sensor_msgs/msg/Range,
+    sensor_msgs/msg/RegionOfInterest,
+    sensor_msgs/msg/RelativeHumidity,
+
+    shape_msgs/msg/Mesh,
+    shape_msgs/msg/MeshTriangle,
+    shape_msgs/msg/Plane,
+    shape_msgs/msg/SolidPrimitive,
+    statistics_msgs/msg/MetricsMessage,
+    statistics_msgs/msg/StatisticDataPoint,
+    statistics_msgs/msg/StatisticDataType,
+
+    stereo_msgs/msg/DisparityImage,
+    system_modes_msgs/msg/Mode,
+    system_modes_msgs/msg/ModeEvent,
+    tf2_msgs/msg/TF2Error,
+    tf2_msgs/msg/TFMessage,
+    theora_image_transport/msg/Packet,
+    trajectory_msgs/msg/JointTrajectory,
+    trajectory_msgs/msg/JointTrajectoryPoint,
+    trajectory_msgs/msg/MultiDOFJointTrajectory,
+    trajectory_msgs/msg/MultiDOFJointTrajectoryPoint,
+    turtlebot3_msgs/msg/SensorState,
+    turtlebot3_msgs/msg/Sound,
+    turtlebot3_msgs/msg/VersionInfo,
+    turtlesim/msg/Color,
+    turtlesim/msg/Pose,
+    unique_identifier_msgs/msg/UUID,
+    visualization_msgs/msg/ImageMarker,
+    visualization_msgs/msg/InteractiveMarker,
+    visualization_msgs/msg/InteractiveMarkerControl,
+    visualization_msgs/msg/InteractiveMarkerFeedback,
+    visualization_msgs/msg/InteractiveMarkerInit,
+    visualization_msgs/msg/InteractiveMarkerPose,
+    visualization_msgs/msg/InteractiveMarkerUpdate,
+    visualization_msgs/msg/Marker,
+    visualization_msgs/msg/MarkerArray,
+    visualization_msgs/msg/MenuEntry,
+    visualization_msgs/msg/MeshFile,
+    visualization_msgs/msg/UVCoordinate,
+     */
+
+    // Initialize groups of ros2 messages
+    m_geometryGroup = {
+        "sensor_msgs/msg/LaserScan",
+        "sensor_msgs/msg/PointCloud",
+        "sensor_msgs/msg/PointCloud2",
+    };
+
+    m_rasterGroup = {
+        "sensor_msgs/msg/Image",
+    };
+
+    m_textGroup = {
+        "std_msgs/msg/Bool",
+        "std_msgs/msg/Byte",
+        "std_msgs/msg/ByteMultiArray",
+        "std_msgs/msg/Char",
+        "std_msgs/msg/ColorRGBA",
+        "std_msgs/msg/Empty",
+        "std_msgs/msg/Float32",
+        "std_msgs/msg/Float32MultiArray",
+        "std_msgs/msg/Float64",
+        "std_msgs/msg/Float64MultiArray",
+        "std_msgs/msg/Header",
+        "std_msgs/msg/Int16",
+        "std_msgs/msg/Int16MultiArray",
+        "std_msgs/msg/Int32",
+        "std_msgs/msg/Int32MultiArray",
+        "std_msgs/msg/Int64",
+        "std_msgs/msg/Int64MultiArray",
+        "std_msgs/msg/Int8",
+        "std_msgs/msg/Int8MultiArray",
+        "std_msgs/msg/MultiArrayDimension",
+        "std_msgs/msg/MultiArrayLayout",
+        "std_msgs/msg/String",
+        "std_msgs/msg/UInt16",
+        "std_msgs/msg/UInt16MultiArray",
+        "std_msgs/msg/UInt32",
+        "std_msgs/msg/UInt32MultiArray",
+        "std_msgs/msg/UInt64",
+        "std_msgs/msg/UInt64MultiArray",
+        "std_msgs/msg/UInt8",
+        "std_msgs/msg/UInt8MultiArray",
+        "action_msgs/msg/GoalInfo",
+        "action_msgs/msg/GoalStatus",
+        "action_msgs/msg/GoalStatusArray",
+        "actionlib_msgs/msg/GoalID",
+        "actionlib_msgs/msg/GoalStatus",
+        "actionlib_msgs/msg/GoalStatusArray",
+        "bond/msg/Constants",
+        "bond/msg/Status",
+        "builtin_interfaces/msg/Duration",
+        "builtin_interfaces/msg/Time",
+        "cartographer_ros_msgs/msg/BagfileProgress",
+        "sensor_msgs/msg/Temperature",
+        "sensor_msgs/msg/TimeReference",
+        "example_interfaces/msg/Bool",
+        "example_interfaces/msg/Byte",
+        "example_interfaces/msg/ByteMultiArray",
+        "example_interfaces/msg/Char",
+        "example_interfaces/msg/Empty",
+        "example_interfaces/msg/Float32",
+        "example_interfaces/msg/Float32MultiArray",
+        "example_interfaces/msg/Float64",
+        "example_interfaces/msg/Float64MultiArray",
+        "example_interfaces/msg/Int16",
+        "example_interfaces/msg/Int16MultiArray",
+        "example_interfaces/msg/Int32",
+        "example_interfaces/msg/Int32MultiArray",
+        "example_interfaces/msg/Int64",
+        "example_interfaces/msg/Int64MultiArray",
+        "example_interfaces/msg/Int8",
+        "example_interfaces/msg/Int8MultiArray",
+        "example_interfaces/msg/MultiArrayDimension",
+        "example_interfaces/msg/MultiArrayLayout",
+        "example_interfaces/msg/String",
+        "example_interfaces/msg/UInt16",
+        "example_interfaces/msg/UInt16MultiArray",
+        "example_interfaces/msg/UInt32",
+        "example_interfaces/msg/UInt32MultiArray",
+        "example_interfaces/msg/UInt64",
+        "example_interfaces/msg/UInt64MultiArray",
+        "example_interfaces/msg/UInt8",
+        "example_interfaces/msg/UInt8MultiArray",
+        "example_interfaces/msg/WString",
+    };
 }
 
 void VisualizerModel::update(std::vector<Ros2Connection> connections)
@@ -30,7 +390,7 @@ void VisualizerModel::update(std::vector<Ros2Connection> connections)
     m_connections = std::move(connections);
 }
 
-void VisualizerModel::addTopicViz(VisualizationType type, const std::string &topic_name, VizComponent *item)
+void VisualizerModel::addTopicViz(VisualizationType type, const std::string &topic_type, const std::string &topic_name, VizComponent *item)
 {
     if (m_components.contains(topic_name))
         return;
@@ -41,21 +401,25 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
         m_visualizerNode = make_shared<Node>(reserved_name);
     }
 
-    if (type == VisualizationType::image) {
+    if (type == VisualizationType::raster) {
         m_components[topic_name] = item;
         m_subscribers[topic_name] = m_visualizerNode->create_subscription<Image>(topic_name, 10, [this, topic_name](Image::ConstSharedPtr image) {
-            m_components[topic_name]->updateData("asd");
+            m_components[topic_name]->updateData(*image);
         });
-    } else if (type == VisualizationType::point_cloud) {
+    } else if (type == VisualizationType::geometry) {
         m_components[topic_name] = item;
         m_subscribers[topic_name] = m_visualizerNode->create_subscription<PointCloud>(topic_name, 10, [this, topic_name](PointCloud::ConstSharedPtr cloud) {
             m_components[topic_name]->updateData("asd");
         });
-    } else if (type == VisualizationType::text) {
+    } else if (type == VisualizationType::string) {
+        assert(std::find(m_textGroup.cbegin(), m_textGroup.cend(), topic_type) != m_textGroup.cend());
         m_components[topic_name] = item;
 
-        m_subscribers[topic_name] = m_visualizerNode->create_subscription<String>(topic_name, 10, [this, topic_name](const String::SharedPtr str) {
-            m_components[topic_name]->updateData(str->data.c_str());
+        m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name](std::shared_ptr<rclcpp::SerializedMessage> msg) {
+            // Convert received message to std::string
+            std::string serializedString(reinterpret_cast<const char *>(msg->get_rcl_serialized_message().buffer),
+                                         msg->get_rcl_serialized_message().buffer_length);
+            m_components[topic_name]->updateData(serializedString);
         });
     }
 
@@ -115,5 +479,10 @@ VisualizerModel::~VisualizerModel()
 {
     m_nodeFuture.waitForFinished();
     rclcpp::shutdown();
+}
+
+bool VisualizerModel::hasTopicViz(const QString &topic_name)
+{
+    return m_components.contains(topic_name.toStdString());
 }
 }
