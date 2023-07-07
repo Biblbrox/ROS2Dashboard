@@ -1,6 +1,6 @@
 pub mod ros2utils {
-    use sysinfo::{ProcessExt, System, SystemExt};
     use std::collections::HashMap;
+    use std::ffi::OsStr;
     use std::process::{Command};
     use std::string::String;
     use regex;
@@ -9,7 +9,7 @@ pub mod ros2utils {
     use log::{debug};
 
     use serde_json::{Value, Map};
-    use crate::ros2entites::ros2entities::{Ros2ActionClient, Ros2ActionServer, Ros2Node, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2State, Ros2Subscriber, Ros2Topic};
+    use crate::ros2entites::ros2entities::{Host, Ros2ActionClient, Ros2ActionServer, Ros2Executable, Ros2Node, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2State, Ros2Subscriber, Ros2Topic};
 
     pub struct JsonProtocol {
         // List of all possible commands
@@ -30,9 +30,16 @@ pub mod ros2utils {
             arguments.insert("state".to_string(), Vec::new());
 
             commands.push("kill_node".to_string());
-            let mut kill_node_args = Vec::new();
-            kill_node_args.push("node_name".to_string());
+            let kill_node_args = ["node_name".to_string()].to_vec();
             arguments.insert("kill_node".to_string(), kill_node_args);
+
+            commands.push("rename_topic".to_string());
+            let rename_topic_args = ["node_name".to_string()].to_vec();
+            arguments.insert("rename_topic".to_string(), rename_topic_args);
+
+            commands.push("start_node".to_string());
+            let start_node_args = ["node_name".to_string()].to_vec();
+            arguments.insert("start_node".to_string(), start_node_args);
 
             return JsonProtocol {
                 allowed_commands: commands,
@@ -120,7 +127,6 @@ pub mod ros2utils {
             nodes,
             packages,
             topics: Vec::new(),
-            executables: Vec::new(),
         };
 
         return state;
@@ -136,7 +142,6 @@ pub mod ros2utils {
             nodes,
             topics,
             packages: Vec::new(),
-            executables: Vec::new(),
         };
 
         return state;
@@ -157,7 +162,6 @@ pub mod ros2utils {
             nodes,
             packages,
             topics,
-            executables: Vec::new(),
         };
 
         return state;
@@ -215,7 +219,8 @@ pub mod ros2utils {
                 action_servers.push(Ros2ActionServer { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
-            nodes.push(Ros2Node { name: node_name.clone(), package_name: "package".to_string(), subscribers, publishers, action_clients, action_servers, service_clients, service_servers })
+            // TODO: to know package name of each node
+            nodes.push(Ros2Node { name: node_name.clone(), package_name: "package".to_string(), subscribers, publishers, action_clients, action_servers, service_clients, service_servers, host: Host::new(), is_lifecycle: is_node_lifecycle(node_name) })
         }
 
         return nodes;
@@ -235,17 +240,56 @@ pub mod ros2utils {
         return info;
     }
 
-    pub fn kill_node(node_name: String) -> String {
-        let err_msg = format!("Unable to kill node {}", node_name.clone());
-        let output = Command::new("killall").arg(node_name.clone()).output().expect(format!("Unable to kill node {}", node_name).as_str());
-
-        let response = if output.status.success() {
-            r#"{"result": "failure", "msg": "#.to_string() + err_msg.as_str() + r#"}"#
-        } else {
-            r#"{"result": "success"}"#.to_string()
+    pub fn is_node_lifecycle(node_name: String) -> bool {
+        let data_bytes = Command::new("ros2")
+            .arg("lifecycle")
+            .arg("nodes")
+            .output()
+            .expect("failed to execute process");
+        let lifecycle_nodes_str: String = match String::from_utf8(data_bytes.stdout) {
+            Ok(v) => v.to_string(),
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
         };
+        let lifecycle_nodes: Vec<String> = lifecycle_nodes_str.lines().map(|node| node.to_string()).collect();
+        return lifecycle_nodes.contains(&node_name);
+    }
 
-        return response;
+    ///  This function may be well applied only for lifecycle nodes.
+    ///  If node doesn't support it, `killall` command will be used without any guarantee of success
+    /// # Arguments
+    ///
+    /// * `node_name`: Name of node
+    ///
+    /// returns: String
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
+    pub fn kill_node(node_name: String) -> String {
+        return if is_node_lifecycle(node_name.clone()) { // Perform lifecycle scenario
+            let err_msg_on_shutdown = format!("Unable to set shutdown state for node {}", node_name);
+            // Set shutdown state
+            let output = Command::new("ros2").arg("lifecycle").arg("set").arg(node_name).arg("shutdown").output().expect(err_msg_on_shutdown.as_str());
+
+            let response = if output.status.success() {
+                r#"{"result": "failure", "msg": "#.to_string() + err_msg_on_shutdown.as_str() + r#"}"#
+            } else {
+                r#"{"result": "success"}"#.to_string()
+            };
+
+            response
+        } else { // Perform 'killall' scenario
+            let err_msg = format!("Unable to kill node {}", node_name);
+            let output = Command::new("killall").arg(node_name.clone()).output().unwrap();
+            let response = if output.status.success() {
+                r#"{"result": "failure", "msg": "#.to_string() + err_msg.as_str() + r#"}"#
+            } else {
+                r#"{"result": "success"}"#.to_string()
+            };
+            response
+        };
     }
 
     pub fn run_sample_node() -> String {
@@ -255,23 +299,56 @@ pub mod ros2utils {
             .arg("turtlesim")
             .arg(node_name)
             .spawn();
-        //.output().expect(format!("Unable to start node {}", node_name).as_str());
 
         return node_name.to_string();
     }
 
     pub fn is_node_running(node_name: String) -> bool {
-        let s = System::new_all();
-        for _process in s.processes_by_name(node_name.as_str()) {
-            return true;
-        }
+        return ros2_node_names().contains(&node_name);
+    }
 
-        return false;
+    pub fn run_node<I, S>(node_name: String, args: I) -> String
+        where
+            I: IntoIterator<Item=S>,
+            S: AsRef<OsStr>
+    {
+        let _output = Command::new("ros2")
+            .arg("run")
+            .arg(node_name.clone())
+            .args(args)
+            .spawn();
+
+        return node_name.to_string();
     }
 
     pub fn explore_packages() -> Vec<Ros2Package> {
         let package_names = ros2_package_names();
-        let packages: Vec<Ros2Package> = package_names.iter().map(|package_name| Ros2Package { name: package_name.to_string(), path: package_path(package_name.to_string()) }).collect();
+        let mut packages: Vec<Ros2Package> = Vec::new();
+        let packages =
+        for package_name in package_names.iter() {
+            // TODO: look at this code. Something is strange here
+            let executable_info: String = Command::new("ros2")
+                .arg("pkg")
+                .arg("executables")
+                .arg(package_name.clone())
+                .arg("--full-path")
+                .output()
+                .expect("failed to execute process")
+                .stdout
+                .iter()
+                .map(|byte| *byte as char)
+                .collect();
+            let mut executables: Vec<Ros2Executable> = Vec::new();
+            for executable_line in executable_info.lines() {
+                let name = executable_line.split('/').collect::<Vec<&str>>().last().unwrap().to_string();
+                let path = executable_line.to_string();
+                executables.push(Ros2Executable { name, package_name: package_name.to_string(), path });
+            }
+
+            let package = Ros2Package { name: package_name.to_string(), path: package_path(package_name.to_string()), executables };
+            packages.push(package);
+        }
+
         return packages;
     }
 
@@ -317,10 +394,8 @@ pub mod ros2utils {
     }
 
     pub fn package_path(package_name: String) -> String {
-        //let prefix = package_prefix(package_name);
-        //let package_path = concat!(prefix, "/lib/", package_name).to_string();
-        //return package_path;
-        return "a".to_string();
+        let prefix = package_prefix(package_name);
+        return prefix;
     }
 
     /// Find package prefix from for specified package
@@ -341,6 +416,7 @@ pub mod ros2utils {
             .arg("pkg")
             .arg("prefix")
             .arg(package_name)
+            .arg("--share")
             .output()
             .expect("failed to execute process");
         //String::from_utf8(node_bytes_str.stdout);

@@ -15,7 +15,7 @@ QVariant Ros2TopicListModel::data(const QModelIndex &index, int role) const
     } else if (role == NameRole) {
         value = QString(m_state->topics()[index.row()].name.c_str());
     } else if (role == TypeRole) {
-        value = QString("topic");
+        value = QString(m_state->topics()[index.row()].type.c_str());
     }
     return value;
 }

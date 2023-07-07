@@ -6,7 +6,6 @@ pub mod ros2entities {
     #[derive(Deserialize, Clone)]
     pub struct Ros2State {
         pub packages: Vec<Ros2Package>,
-        pub executables: Vec<Ros2Executable>,
         pub nodes: Vec<Ros2Node>,
         pub topics: Vec<Ros2Topic>,
     }
@@ -15,7 +14,6 @@ pub mod ros2entities {
         pub fn new() -> Ros2State {
             return Ros2State {
                 packages: Vec::new(),
-                executables: Vec::new(),
                 nodes: Vec::new(),
                 topics: Vec::new(),
             };
@@ -27,12 +25,26 @@ pub mod ros2entities {
     pub struct Ros2Package {
         pub name: String,
         pub path: String,
+        pub executables: Vec<Ros2Executable>
     }
 
     #[derive(Serialize, Deserialize, Clone)]
     pub struct Ros2Executable {
         pub name: String,
         pub package_name: String,
+        pub path: String
+    }
+
+    #[derive(Serialize, Deserialize, Clone)]
+    pub struct Host {
+        pub ip: String,
+        pub name: String,
+    }
+
+    impl Host {
+        pub fn new() -> Host {
+            return Host { ip: "127.0.0.1".to_string(), name: "localhost".to_string() };
+        }
     }
 
     #[derive(Serialize, Deserialize, Clone)]
@@ -45,6 +57,8 @@ pub mod ros2entities {
         pub service_clients: Vec<Ros2ServiceClient>,
         pub action_servers: Vec<Ros2ActionServer>,
         pub action_clients: Vec<Ros2ActionClient>,
+        pub host: Host,
+        pub is_lifecycle: bool
     }
 
     #[derive(Serialize, Deserialize, Clone)]
@@ -101,6 +115,6 @@ pub mod ros2entities {
     pub struct Ros2Topic {
         pub name: String,
         pub node_name: String,
-        pub topic_type: String
+        pub topic_type: String,
     }
 }

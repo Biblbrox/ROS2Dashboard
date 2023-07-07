@@ -10,7 +10,7 @@
 #include "qml/models/Ros2ConnectionListModel.hpp"
 #include "qml/models/Ros2NodeListModel.hpp"
 #include "qml/models/Ros2PackageListModel.hpp"
-#include "qml/visualization/VideoViz.hpp"
+#include "qml/visualization/RasterViz.hpp"
 #include "src/qml/models/VisualizerModel.hpp"
 
 namespace ros2monitor {

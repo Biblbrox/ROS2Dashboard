@@ -2,14 +2,14 @@
 <RCC version="1.0">
     <qresource prefix="ui">
         <file alias="Main.qml">src/qml/Main.qml</file>
-        <file alias="NodeObserver.qml">src/qml/NodeObserver.qml</file>
-        <file alias="PackageObserver.qml">src/qml/PackageObserver.qml</file>
         <file alias="VisualizationWindow.qml">src/qml/VisualizationWindow.qml</file>
         <file alias="StartupDialog.qml">src/qml/StartupDialog.qml</file>
         <file alias="Sidebar.qml">src/qml/Reusable/Sidebar.qml</file>
         <file alias="Node.qml">src/qml/Node.qml</file>
         <file alias="Theme.qml">src/qml/Theme.qml</file>
         <file alias="SidebarItem.qml">src/qml/Reusable/SidebarItem.qml</file>
+        <file alias="RDButton.qml">src/qml/Reusable/RDButton.qml</file>
+        <file alias="RDPanel.qml">src/qml/Reusable/RDPanel.qml</file>
         <file alias="VizControls.qml">src/qml/Reusable/VizControls.qml</file>
         <file alias="VizControlItem.qml">src/qml/Reusable/VizControlItem.qml</file>
         <file alias="GenericTextVizComponent.qml">src/qml/GenericTextVizComponent.qml</file>
@@ -18,7 +18,10 @@
     <qresource prefix="/ui/icons">
         <file alias="Download.svg">res/icons/Download.svg</file>
         <file alias="Launch.svg">res/icons/Launch.svg</file>
+        <file alias="Info.svg">res/icons/Info.svg</file>
+        <file alias="ExpandMore.svg">res/icons/ExpandMore.svg</file>
         <file alias="Pause.svg">res/icons/Pause.svg</file>
+        <file alias="Add.svg">res/icons/Add.svg</file>
         <file alias="Question.svg">res/icons/Question.svg</file>
         <file alias="Save.svg">res/icons/Save.svg</file>
         <file alias="Close.svg">res/icons/Close.svg</file>

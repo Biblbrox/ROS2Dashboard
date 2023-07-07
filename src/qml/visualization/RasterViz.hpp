@@ -8,11 +8,11 @@
 namespace ros2monitor {
 
 
-class VideoViz : public VizComponent {
+class RasterViz : public VizComponent {
     Q_OBJECT
     QML_ELEMENT
 public:
-    explicit VideoViz(QQuickItem *parent = 0);
+    explicit RasterViz(QQuickItem *parent = 0);
 
     void paint(QPainter *painter) override;
     //the paint method is already implemented in QQuickPaintedItem
@@ -21,7 +21,7 @@ public:
     void updateData(std::any data) override;
 
 public slots:
-    void registerViz(const QString& topic_name, VisualizerModel *model);
+    void registerViz(VisualizerModel *model, const QString &topic_name, const QString &topic_type);
 
 private:
     QImage m_image;//your image

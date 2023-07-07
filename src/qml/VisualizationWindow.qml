@@ -6,37 +6,34 @@ import com.viz.types 1.0
 Rectangle {
     id: visualizationWindow
 
-    property string textVisualizer: "textVisualizer"
-    property string videoVisualizer: "videoVisualizer"
-
-    function addVisualizer(topicName, type) {
+    function addVisualizer(topicName, topicType) {
         if (visualizerModel.hasTopicViz(topicName)) {
             console.log("Visualizer for topic " + topicName + " already exists");
             return;
         }
-
-        if (type === textVisualizer) {
-            let vizComponent = Qt.createComponent("qrc:///ui/GenericTextVizComponent.qml");
-            if (vizComponent.status === Component.Ready) {
-                let vizObject = vizComponent.createObject(vizContainer, {
-                        "topicName": topicName,
-                        //"width": width,
-                        "height": vizContainer.height,
-                        "Layout.fillWidth": true
-                    });
-                console.log("Addedd visualizer for topic " + topicName);
-            }
-        } else if (type === videoVisualizer) {
-            let vizComponent = Qt.createComponent("qrc:///ui/VideoVizComponent.qml");
-            if (vizComponent.status === Component.Ready) {
-                let vizObject = vizComponent.createObject(vizContainer, {
-                        "topicName": topicName,
-                        //"width": width,
-                        "height": vizContainer.height,
-                        "Layout.fillWidth": true
-                    });
-                console.log("Addedd visualizer for topic " + topicName);
-            }
+        let topicGroup = visualizerModel.getTopicCategory(topicType);
+        if (topicGroup === "unknown") {
+            console.error("The topic with type " + topicType + " is unknown");
+            return;
+        }
+        let componentFile = "";
+        if (topicGroup === "text") {
+            componentFile = "qrc:///ui/GenericTextVizComponent.qml";
+        } else if (topicGroup === "raster") {
+            componentFile = "qrc:///ui/VideoVizComponent.qml";
+        }
+        if (componentFile === "")
+            return;
+        let vizComponent = Qt.createComponent(componentFile);
+        if (vizComponent.status === Component.Ready) {
+            let vizObject = vizComponent.createObject(vizContainer, {
+                    "topicName": topicName,
+                    "topicType": topicType,
+                    //"width": width,
+                    "height": vizContainer.height,
+                    "Layout.fillWidth": true
+                });
+            console.log("Addedd visualizer for topic " + topicName);
         }
     }
 
@@ -44,8 +41,6 @@ Rectangle {
 
     Component.onCompleted: {
         console.log("Visualization area loaded");
-        addVisualizer("minimal_publisher", textVisualizer);
-        addVisualizer("/image_raw", videoVisualizer);
     }
 
     Rectangle {
@@ -86,7 +81,6 @@ Rectangle {
 
             ScrollBar.vertical: ScrollBar {
             }
-
             delegate: Item {
                 height: 70
                 width: topicList.width
@@ -101,6 +95,10 @@ Rectangle {
                     TextArea {
                         id: topicName
 
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: addVizIcon.left
+                        anchors.top: parent.top
                         color: Theme.font.color.primary
                         font.pointSize: 18
                         height: parent.height
@@ -108,25 +106,36 @@ Rectangle {
                         readOnly: true
                         text: name
                         verticalAlignment: TextEdit.AlignVCenter
-                        width: parent.width
+                        width: parent.width - addVizIcon.width
                     }
-                    MouseArea {
-                        acceptedButtons: Qt.LeftButton
-                        anchors.fill: parent
+                    Image {
+                        id: addVizIcon
 
-                        onClicked: {
-                            console.debug("Clicked to element " + name);
-                        }
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        source: "qrc:///ui/icons/Add.svg"
+                        //width: 20
+                    }
+                }
+                MouseArea {
+                    acceptedButtons: Qt.LeftButton
+                    anchors.fill: parent
+
+                    onClicked: {
+                        console.debug("Clicked to element " + name);
+                        addVisualizer(name, type);
                     }
                 }
             }
         }
-        RowLayout {
+        SplitView {
             id: vizContainer
 
             SplitView.fillHeight: true
             SplitView.fillWidth: true
             height: parent.height
+            orientation: Qt.Horizontal
         }
     }
 }

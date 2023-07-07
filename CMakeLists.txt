@@ -20,6 +20,8 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 qt_standard_project_setup()
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdy/dynamic_message_introspection/dynmsg)
+
 install(
         DIRECTORY config launch maps meshes models params rviz src worlds
         DESTINATION share/${PROJECT_NAME}
@@ -50,10 +52,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Qt6::WebEngineCore Qt6::WebEngineQu
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
 target_link_libraries(${PROJECT_NAME} PUBLIC asio::asio systemd)
 target_link_libraries(${PROJECT_NAME} PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PUBLIC dynmsg)
 
 
 set(QML_CPP_OBJECTS ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/VideoViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/VideoViz.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/RasterViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/RasterViz.cpp)
 message(${QML_CPP_OBJECTS})
 
 
@@ -63,6 +66,7 @@ set(QuickQanavaDir ${CMAKE_CURRENT_SOURCE_DIR}/thirdy/QuickQanava/)
 target_include_directories(${PROJECT_NAME} PRIVATE ${QuickQanavaDir}/src ${QuickQanavaDir}/QuickContainers/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/models)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdy/dynamic_message_introspection/dynmsg/include)
 
 ament_target_dependencies(${PROJECT_NAME} PUBLIC rclcpp sensor_msgs)
 ament_package()

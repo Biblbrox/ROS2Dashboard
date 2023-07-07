@@ -8,6 +8,7 @@ namespace ros2monitor {
 enum class Ros2NodeRole {
     NameRole = Qt::UserRole + 1,
     PackageNameRole,
+    DetailInfoRole,
     SubscribersNameRole,
     PublishersNameRole
 };

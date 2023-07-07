@@ -10,3 +10,6 @@
 [submodule "thirdy/rosboard"]
 	path = thirdy/rosboard
 	url = https://github.com/dheera/rosboard.git
+[submodule "thirdy/dynamic_message_introspection"]
+	path = thirdy/dynamic_message_introspection
+	url = https://github.com/osrf/dynamic_message_introspection.git

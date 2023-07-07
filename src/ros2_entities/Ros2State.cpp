@@ -24,6 +24,8 @@ void Ros2State::update(std::string jsonState)
     m_hotState.nodes.clear();
     m_hotState.packages.clear();
     m_hotState.topics.clear();
+    m_hotState.connections.clear();
+    m_hotState.executables.clear();
     trim(jsonState);
     json state = json::parse(jsonState);
     if (state.contains("packages")) {
@@ -71,8 +73,17 @@ void Ros2State::update(std::string jsonState)
         }
     }
 
+    if (state.contains("executables")) {
+        for (const auto &executableJson: state["executables"]) {
+            if (!executableJson.contains("name") || !executableJson.contains("path") || !executableJson.contains("package_name")) {
+                throw std::invalid_argument(fmt::format("Invalid json response. Executable object must include name, path and package_name properties. Current json: {}", executableJson.dump()));
+            }
+
+            m_hotState.executables.emplace_back(executableJson["name"], executableJson["path"], executableJson["package_name"]);
+        }
+    }
+
     /// Next, we need to update our connections
-    m_hotState.connections.clear();
     for (const auto &node1: m_hotState.nodes) {
         for (const auto &node2: m_hotState.nodes) {
             if (node1.name == node2.name)
@@ -127,6 +138,10 @@ Ros2Package Ros2State::package(std::string_view package_name) const
     return *find_if(m_hotState.packages.cbegin(), m_hotState.packages.cend(), [package_name](const auto &package) {
         return package.name == package_name;
     });
+}
+
+std::vector<Ros2Executable> Ros2State::executables() const
+{
 }
 
 

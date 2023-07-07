@@ -19,11 +19,13 @@ Ros2NodeListModel::Ros2NodeListModel(QObject *parent) : QAbstractListModel(paren
     m_role2String[Ros2NodeRole::PackageNameRole] = "package_name";
     m_role2String[Ros2NodeRole::SubscribersNameRole] = "subscribers";
     m_role2String[Ros2NodeRole::PublishersNameRole] = "publishers";
+    m_role2String[Ros2NodeRole::DetailInfoRole] = "detail_info";
 
     m_string2Role["name"] = Ros2NodeRole::NameRole;
     m_string2Role["package_name"] = Ros2NodeRole::PackageNameRole;
     m_string2Role["subscribers"] = Ros2NodeRole::SubscribersNameRole;
     m_string2Role["publishers"] = Ros2NodeRole::PublishersNameRole;
+    m_string2Role["detail_info"] = Ros2NodeRole::DetailInfoRole;
 }
 
 QVariant Ros2NodeListModel::data(const QModelIndex &index, int role) const
@@ -58,7 +60,7 @@ int Ros2NodeListModel::rowCount(const QModelIndex &parent) const
     return m_state ? m_state->nodes().size() : 0;
 }
 
-QVariant Ros2NodeListModel::getRowByName(int i, const QString& role_name, const QString& entry_name)
+QVariant Ros2NodeListModel::getRowByName(int i, const QString &role_name, const QString &entry_name)
 {
     assert(m_string2Role.contains(role_name.toStdString()));
     Ros2NodeRole role = m_string2Role[role_name.toStdString()];
@@ -83,6 +85,14 @@ QVariant Ros2NodeListModel::getRowByName(int i, const QString& role_name, const 
             q_publishers.emplace_back(publisher.topic_name.c_str());
         }
         value = q_publishers;
+    } else if (role == Ros2NodeRole::DetailInfoRole) {
+        Ros2Node node = m_state->node(entry_name.toLocal8Bit().constData());
+        // TODO: generate detail info from node object
+        QString package_name = "Package name: " + QString(node.package_name.c_str());
+        QString subscribers_count = "Subscribers count: " + QString::number(node.subscribers.size());
+        QString publishers_count = "Publishers count: " + QString::number(node.publishers.size());
+        QString detail_info = package_name + "\n" + subscribers_count + "\n" + publishers_count;
+        value = detail_info;
     }
 
     return value;
@@ -95,6 +105,7 @@ QHash<int, QByteArray> Ros2NodeListModel::roleNames() const
     roles[to_underlying(Ros2NodeRole::PackageNameRole)] = "package_name";
     roles[to_underlying(Ros2NodeRole::SubscribersNameRole)] = "subscribers";
     roles[to_underlying(Ros2NodeRole::PublishersNameRole)] = "publishers";
+    roles[to_underlying(Ros2NodeRole::DetailInfoRole)] = "detail_info";
     return roles;
 }
 
@@ -103,7 +114,7 @@ void Ros2NodeListModel::updateState(std::shared_ptr<Ros2State> state)
     m_state = std::move(state);
 }
 
-QVariant Ros2NodeListModel::getRow(int i, const QString& role_name)
+QVariant Ros2NodeListModel::getRow(int i, const QString &role_name)
 {
     assert(m_string2Role.contains(role_name.toStdString()));
     return data(index(i, 0), to_underlying(m_string2Role[role_name.toStdString()]));

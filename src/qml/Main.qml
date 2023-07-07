@@ -44,7 +44,6 @@ ApplicationWindow {
         anchors.top: parent.top
         width: 100
     }
-
     SplitView {
         height: parent.height
         orientation: Qt.Vertical
@@ -62,10 +61,14 @@ ApplicationWindow {
             orientation: Qt.Horizontal
             width: parent.width
 
-            NodeObserver {
+            RDPanel {
+                id: nodeObserver
                 Layout.fillHeight: true
                 height: parent.height
+                listModel: nodeListModel
+                title: qsTr("Node observer")
                 implicitWidth: 400
+                width: 800
                 z: 2
             }
             Qan.GraphView {
@@ -143,12 +146,15 @@ ApplicationWindow {
                     }
                 }
             }
-            PackageObserver {
+            RDPanel {
+                id: packageObserver
                 Layout.fillHeight: true
                 SplitView.fillWidth: true
                 height: parent.height
                 implicitWidth: 400
-                z: 2
+                listModel: packageListModel
+                width: 800
+                title: qsTr("Package observer")
             }
         }
         VisualizationWindow {

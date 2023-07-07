@@ -8,10 +8,12 @@ namespace ros2monitor {
         m_role2String[NameRole] = "name";
         m_role2String[ParentNameRole] = "parent_name";
         m_role2String[TypeRole] = "type";
+        m_role2String[DetailInfoRole] = "detail_info";
 
         m_string2Role["name"] = NameRole;
         m_string2Role["parent_name"] = ParentNameRole;
         m_string2Role["type"] = TypeRole;
+        m_string2Role["detail_info"] = DetailInfoRole;
     }
 
     QHash<int, QByteArray> Ros2EntityListModel::roleNames() const {
@@ -19,6 +21,7 @@ namespace ros2monitor {
         roles[NameRole] = "name";
         roles[ParentNameRole] = "parent_name";
         roles[TypeRole] = "type";
+        roles[DetailInfoRole] = "detail_info";
         return roles;
     }
 

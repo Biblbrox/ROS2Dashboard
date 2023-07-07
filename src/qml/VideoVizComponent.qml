@@ -3,6 +3,7 @@ import com.viz.types 1.0
 
 Item {
     property string topicName
+    property string topicType
 
     VideoViz {
         id: videoViz
@@ -12,8 +13,8 @@ Item {
         width: parent.width
 
         Component.onCompleted: {
-            console.log("VideoViz created for topic " + topicName);
-            videoViz.registerViz(topicName, visualizerModel);
+            console.log("VideoViz created for topic " + topicName + " with type " + topicType);
+            videoViz.registerViz(visualizerModel, topicName, topicType);
         }
     }
 }

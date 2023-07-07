@@ -90,6 +90,9 @@ public:
 
     void addTopicViz(VisualizationType type, const std::string &topic_type, const std::string &topic_name, VizComponent *item);
     void removeViz(const std::string &topic_name);
+    bool inTextGroup(const std::string &topic_type);
+    bool inRasterGroup(const std::string &topic_type);
+    bool inGeometryGroup(const std::string &topic_type);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -97,12 +100,13 @@ public:
 
 public slots:
     bool hasTopicViz(const QString &topic_name);
+    QString getTopicCategory(const QString& topic_type);
 
 private:
     std::vector<Ros2Connection> m_connections;
     std::unordered_map<std::string, VizComponent *> m_components;
     std::shared_ptr<rclcpp::Node> m_visualizerNode;
-    std::unordered_map<std::string, std::shared_ptr<rclcpp::SubscriptionBase>> m_subscribers;
+    std::unordered_map<std::string, std::shared_ptr<rclcpp::GenericSubscription>> m_subscribers;
     QFuture<void> m_nodeFuture;
     std::shared_ptr<DaemonClient> m_daemon_client;
     std::vector<std::string> m_textGroup;

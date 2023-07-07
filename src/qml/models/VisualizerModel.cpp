@@ -5,9 +5,14 @@
 #include <sensor_msgs/msg/point_cloud.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <utility>
+#include <yaml-cpp/node/node.h>
 
 #include "VisualizerModel.hpp"
 #include "core/Logger.hpp"
+#include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/message_reading.hpp"
+#include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/typesupport.hpp"
+#include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/yaml_utils.hpp"
+#include "utils/StrUtils.hpp"
 
 using rclcpp::Node;
 using sensor_msgs::msg::Image;
@@ -208,17 +213,6 @@ VisualizerModel::VisualizerModel(int argc, char **argv, std::shared_ptr<DaemonCl
     pcl_msgs/msg/PointIndices,
     pcl_msgs/msg/PolygonMesh,
     pcl_msgs/msg/Vertices,
-    rcl_interfaces/msg/FloatingPointRange,
-    rcl_interfaces/msg/IntegerRange,
-    rcl_interfaces/msg/ListParametersResult,
-    rcl_interfaces/msg/Log,
-    rcl_interfaces/msg/Parameter,
-    rcl_interfaces/msg/ParameterDescriptor,
-    rcl_interfaces/msg/ParameterEvent,
-    rcl_interfaces/msg/ParameterEventDescriptors,
-    rcl_interfaces/msg/ParameterType,
-    rcl_interfaces/msg/ParameterValue,
-    rcl_interfaces/msg/SetParametersResult,
     rclpy_message_converter_msgs/msg/NestedUint8ArrayTestMessage,
     rclpy_message_converter_msgs/msg/TestArray,
     rclpy_message_converter_msgs/msg/Uint8Array3TestMessage,
@@ -382,6 +376,17 @@ VisualizerModel::VisualizerModel(int argc, char **argv, std::shared_ptr<DaemonCl
         "example_interfaces/msg/UInt8",
         "example_interfaces/msg/UInt8MultiArray",
         "example_interfaces/msg/WString",
+        "rcl_interfaces/msg/FloatingPointRange",
+        "rcl_interfaces/msg/IntegerRange",
+        "rcl_interfaces/msg/ListParametersResult",
+        "rcl_interfaces/msg/Log",
+        "rcl_interfaces/msg/Parameter",
+        "rcl_interfaces/msg/ParameterDescriptor",
+        "rcl_interfaces/msg/ParameterEvent",
+        "rcl_interfaces/msg/ParameterEventDescriptors",
+        "rcl_interfaces/msg/ParameterType",
+        "rcl_interfaces/msg/ParameterValue",
+        "rcl_interfaces/msg/SetParametersResult",
     };
 }
 
@@ -399,30 +404,39 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
         rclcpp::init(m_argc, m_argv);
         const std::string reserved_name = "visualization_node";
         m_visualizerNode = make_shared<Node>(reserved_name);
+
+        m_subscribers["reserver_dummy_topic"] = m_visualizerNode->create_generic_subscription("reserver_dummy_topic", "std_msgs/msg/String", 10, [](auto _) {});
     }
+
 
     if (type == VisualizationType::raster) {
         m_components[topic_name] = item;
-        m_subscribers[topic_name] = m_visualizerNode->create_subscription<Image>(topic_name, 10, [this, topic_name](Image::ConstSharedPtr image) {
-            m_components[topic_name]->updateData(*image);
+        m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name](std::shared_ptr<rclcpp::SerializedMessage> image_serialized) {
+            m_components[topic_name]->updateData(*image_serialized);
         });
     } else if (type == VisualizationType::geometry) {
-        m_components[topic_name] = item;
+        /*m_components[topic_name] = item;
         m_subscribers[topic_name] = m_visualizerNode->create_subscription<PointCloud>(topic_name, 10, [this, topic_name](PointCloud::ConstSharedPtr cloud) {
             m_components[topic_name]->updateData("asd");
-        });
+        });*/
     } else if (type == VisualizationType::string) {
         assert(std::find(m_textGroup.cbegin(), m_textGroup.cend(), topic_type) != m_textGroup.cend());
         m_components[topic_name] = item;
 
-        m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name](std::shared_ptr<rclcpp::SerializedMessage> msg) {
-            // Convert received message to std::string
-            std::string serializedString(reinterpret_cast<const char *>(msg->get_rcl_serialized_message().buffer),
-                                         msg->get_rcl_serialized_message().buffer_length);
-            m_components[topic_name]->updateData(serializedString);
+        m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name, topic_type](std::shared_ptr<rclcpp::SerializedMessage> msg) {
+            // Convert received message to YAML format
+            RosMessage_Cpp ros_msg;
+            InterfaceTypeName interface {
+                "std_msgs", "Header"
+            };
+            ros_msg.type_info = dynmsg::cpp::get_type_info(interface);
+            ros_msg.data = reinterpret_cast<uint8_t *>(msg.get());
+            YAML::Node yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
+            const std::string yaml_string = dynmsg::yaml_to_string(yaml_msg);
+
+            m_components[topic_name]->updateData(yaml_string);
         });
     }
-
 
     if (!m_nodeFuture.isRunning()) {
         m_daemon_client->killNode("visualization_node");
@@ -484,5 +498,39 @@ VisualizerModel::~VisualizerModel()
 bool VisualizerModel::hasTopicViz(const QString &topic_name)
 {
     return m_components.contains(topic_name.toStdString());
+}
+
+QString VisualizerModel::getTopicCategory(const QString &topic_type)
+{
+    bool isText = inTextGroup(topic_type.toStdString());
+    bool isGeometry = inGeometryGroup(topic_type.toStdString());
+    bool isRaster = inRasterGroup(topic_type.toStdString());
+
+    if (!isText && !isGeometry && !isRaster)
+        return "unknown";
+
+    if (isText)
+        return "text";
+
+    if (isGeometry)
+        return "geometry";
+
+    if (isRaster)
+        return "raster";
+}
+
+bool VisualizerModel::inTextGroup(const std::string &topic_type)
+{
+    return (std::find(m_textGroup.cbegin(), m_textGroup.cend(), topic_type) != m_textGroup.cend());
+}
+
+bool VisualizerModel::inGeometryGroup(const std::string &topic_type)
+{
+    return (std::find(m_geometryGroup.cbegin(), m_geometryGroup.cend(), topic_type) != m_geometryGroup.cend());
+}
+
+bool VisualizerModel::inRasterGroup(const std::string &topic_type)
+{
+    return (std::find(m_rasterGroup.cbegin(), m_rasterGroup.cend(), topic_type) != m_rasterGroup.cend());
 }
 }

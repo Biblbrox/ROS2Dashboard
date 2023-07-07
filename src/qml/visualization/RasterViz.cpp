@@ -2,7 +2,7 @@
 #include <QQuickItem>
 #include <sensor_msgs/msg/image.hpp>
 
-#include "VideoViz.hpp"
+#include "RasterViz.hpp"
 #include "core/Logger.hpp"
 #include "src/qml/models/VisualizerModel.hpp"
 
@@ -10,16 +10,16 @@ namespace ros2monitor {
 
 using sensor_msgs::msg::Image;
 
-VideoViz::VideoViz(QQuickItem *parent) : VizComponent(parent)
+RasterViz::RasterViz(QQuickItem *parent) : VizComponent(parent)
 {
 }
 
-void VideoViz::paint(QPainter *painter)
+void RasterViz::paint(QPainter *painter)
 {
     painter->drawImage(QPoint(0, 0), m_image);
 }
 
-void VideoViz::updateData(std::any data)
+void RasterViz::updateData(std::any data)
 {
     Logger::debug("Receive new image data");
 
@@ -42,7 +42,7 @@ void VideoViz::updateData(std::any data)
     emit needRedraw();
 }
 
-void VideoViz::registerViz(const QString &topic_name, VisualizerModel *model)
+void RasterViz::registerViz(VisualizerModel *model, const QString &topic_name, const QString &topic_type)
 {
     m_topic_name = topic_name.toStdString();
     model->addTopicViz(VisualizationType::raster, "sensor_msgs/msg/Image", m_topic_name, this);

@@ -1,19 +1,18 @@
 import QtQuick
 import com.viz.types 1.0
 
-Item {
+GenericTextViz {
+    id: textViz
+
     property string topicName
+    property string topicType
 
-    GenericTextViz {
-        id: textViz
+    //anchors.fill: parent
+    height: parent.height
+    width: parent.width
 
-        anchors.fill: parent
-        height: parent.height
-        width: parent.width
-
-        Component.onCompleted: {
-            console.log("GenericTextViz created for topic " + topicName);
-            textViz.registerViz(topicName, visualizerModel);
-        }
+    Component.onCompleted: {
+        console.log("GenericTextViz created for topic " + topicName + " with type " + topicType);
+        textViz.registerViz(visualizerModel, topicName, topicType);
     }
 }

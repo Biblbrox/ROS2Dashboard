@@ -12,13 +12,13 @@ using uncstring = std::u16string;
 inline void ltrim(std::string &s)
 {
     s.erase(s.begin(),
-            std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+            std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch) || ch == '\0'; }));
 }
 
 // trim from end (in place)
 inline void rtrim(std::string &s)
 {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); })
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !(std::isspace(ch) || ch == '\0'); })
                     .base(),
             s.end());
 }

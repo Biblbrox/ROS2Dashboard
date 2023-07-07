@@ -4,6 +4,7 @@ import QtQuick
 QtObject {
     property var darkTheme: true
     property QtObject font
+    property QtObject button
     property QtObject background
     property QtObject node
     property QtObject panel
@@ -32,6 +33,15 @@ QtObject {
         color: QtObject {
             property color elementBackground: darkTheme ? "#3d3948" : "#c0b8a5"
             property color background: darkTheme ? "#2f2e40" : "#c0bfcd"
+        }
+    }
+
+    button: QtObject {
+        property QtObject color
+
+        color: QtObject {
+            //property color primary: darkTheme ? "white": "black"
+            property color primary: "transparent"
         }
     }
 

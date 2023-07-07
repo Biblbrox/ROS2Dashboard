@@ -47,7 +47,7 @@ std::string readFile(const std::string &file)
 }
 
 std::size_t replaceAll(std::string &inout, std::string_view what,
-                                           std::string_view with)
+                       std::string_view with)
 {
     std::size_t count{};
     for (std::string::size_type pos{};

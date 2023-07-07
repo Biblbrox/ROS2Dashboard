@@ -15,6 +15,12 @@ namespace ros2monitor {
             value = m_state->packages()[index.row()].name.c_str();
         } else if (role == TypeRole) {
             value = "package";
+        } else if (role == DetailInfoRole) {
+            auto package = m_state->packages()[index.row()];
+            QString path = "Path to package" + QString::fromStdString(package.path);
+            
+
+
         }
 
         return value;
