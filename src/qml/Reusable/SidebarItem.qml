@@ -7,7 +7,12 @@ Rectangle {
 
     property var handler
     property string name: ""
-    property alias iconSource: btn.icon.source
+    property string iconSource
+
+    RDIcon {
+        id: icon
+        source: sidebarItem.iconSource
+    }
 
     width: parent.width
     height: 100
@@ -21,10 +26,11 @@ Rectangle {
         width: parent.width
         height: parent.height
 
+        icon.source: icon.getSource()
+
         icon.width: width
         icon.height: height
         onClicked: {
-            console.log("adasd");
             anim.start();
             handler();
         }

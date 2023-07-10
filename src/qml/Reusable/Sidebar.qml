@@ -9,63 +9,58 @@ Rectangle {
 
     signal sidebarClicked(string elementName)
 
-    width: 120
-    height: parent.height
-
     color: "#3e3949"
+    height: parent.height
+    width: 120
 
     Rectangle {
         id: borderRight
 
-        width: 1
-        height: parent.height
         anchors.right: parent.right
         color: "#000000"
+        height: parent.height
+        width: 1
         z: 2
     }
-
     ColumnLayout {
-        width: parent.width
+        id: sidebarLayout
         spacing: 0
+        width: parent.width
 
         anchors {
             left: parent.left
             right: parent.right
             top: parent.top
         }
-
         SidebarItem {
-
-            iconSource: "qrc:///ui/icons/Launch.svg"
-            handler: function() {
+            handler: function () {
                 sidebarClicked("Launch");
             }
+            iconSource: "Launch"
         }
-
         SidebarItem {
-
-            iconSource: "qrc:///ui/icons/Pause.svg"
-            handler: function() {
+            handler: function () {
                 sidebarClicked("Pause");
             }
+            iconSource: "Pause"
         }
-
         SidebarItem {
-
-            iconSource: "qrc:///ui/icons/Save.svg"
-            handler: function() {
+            handler: function () {
                 sidebarClicked("Save");
             }
+            iconSource: "Save"
         }
-
-        SidebarItem {
-
-            iconSource: "qrc:///ui/icons/Question.svg"
-            handler: function() {
-                sidebarClicked("Question");
-            }
-        }
-
     }
 
+    SidebarItem {
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+        }
+        handler: function () {
+            sidebarClicked("Question");
+        }
+        iconSource: "Question"
+    }
 }

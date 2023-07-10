@@ -324,22 +324,27 @@ pub mod ros2utils {
     pub fn explore_packages() -> Vec<Ros2Package> {
         let package_names = ros2_package_names();
         let mut packages: Vec<Ros2Package> = Vec::new();
-        let packages =
+
+        let executables_info_bytes = Command::new("ros2")
+            .arg("pkg")
+            .arg("executables")
+            .arg("--full-path")
+            .output()
+            .expect("failed to execute process");
+        let executables_info: Vec<String> = match String::from_utf8(executables_info_bytes.stdout) {
+            Ok(v) => v.lines().map(|line| line.to_string()).collect(),
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
+
         for package_name in package_names.iter() {
-            // TODO: look at this code. Something is strange here
-            let executable_info: String = Command::new("ros2")
-                .arg("pkg")
-                .arg("executables")
-                .arg(package_name.clone())
-                .arg("--full-path")
-                .output()
-                .expect("failed to execute process")
-                .stdout
-                .iter()
-                .map(|byte| *byte as char)
-                .collect();
+            // Find executables for current package
+            let executable_info_lines: Vec<&str> = executables_info.iter().filter(|line| line.contains(package_name)).map(|line| line.as_str()).collect();
+            if executable_info_lines.is_empty() {
+                continue;
+            }
+
             let mut executables: Vec<Ros2Executable> = Vec::new();
-            for executable_line in executable_info.lines() {
+            for executable_line in executable_info_lines {
                 let name = executable_line.split('/').collect::<Vec<&str>>().last().unwrap().to_string();
                 let path = executable_line.to_string();
                 executables.push(Ros2Executable { name, package_name: package_name.to_string(), path });
@@ -347,7 +352,7 @@ pub mod ros2utils {
 
             let package = Ros2Package { name: package_name.to_string(), path: package_path(package_name.to_string()), executables };
             packages.push(package);
-        }
+        };
 
         return packages;
     }

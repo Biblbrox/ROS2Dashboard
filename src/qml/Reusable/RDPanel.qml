@@ -28,7 +28,7 @@ Rectangle {
 
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             color: "white"
-            font.pixelSize: 18
+            font.pixelSize: Theme.font.pointSize.normal
             text: title
         }
         ToolSeparator {
@@ -51,67 +51,80 @@ Rectangle {
             ScrollBar.vertical: ScrollBar {
             }
             delegate: Rectangle {
+                id: elementItem
+
                 color: Theme.panel.color.elementBackground
                 height: 100
                 radius: 10
                 width: listView.width
 
-                TextArea {
-                    id: label
+                ColumnLayout {
+                    id: elementLayout
 
-                    anchors.centerIn: parent
-                    color: Theme.font.color.primary
-                    font.pointSize: 18
-                    height: parent.height
-                    horizontalAlignment: TextEdit.AlignHCenter
-                    readOnly: true
-                    text: name
-                    verticalAlignment: TextEdit.AlignVCenter
-                    width: parent.width
-                }
-                RDButton {
-                    id: expandMore
+                    anchors.fill: parent
 
-                    anchors.bottom: parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    icon.color: Theme.font.color.primary
-                    icon.height: 30
-                    icon.source: "qrc:///ui/icons/ExpandMore.svg"
-                    icon.width: 30
+                    TextEdit {
+                        id: header
 
-                    onClicked: {
-                        hiddenContent.active = !hiddenContent.active;
-                        hiddenContent.detailInfo = detailInfo;
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        color: Theme.font.color.primary
+                        font.pixelSize: Theme.font.pointSize.normal
+                        horizontalAlignment: TextEdit.AlignHCenter
+                        readOnly: true
+                        selectByMouse: true
+                        text: headerMetrics.elidedText
+                        verticalAlignment: TextEdit.AlignVCenter
+                        wrapMode: Text.ElideRight
+
+                        TextMetrics {
+                            id: headerMetrics
+
+                            elide: Text.ElideRight
+                            elideWidth: header.width - 10
+                            font: header.font
+                            text: name
+                        }
                     }
-                }
-                Loader {
-                    id: hiddenContent
+                    RDButton {
+                        id: expandMore
 
-                    //property alias detailInfo: sourceComponent.detailInfo.text
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        icon.color: Theme.font.color.primary
+                        icon.height: 30
+                        icon.source: "qrc:///ui/icons/ExpandMore.svg"
+                        icon.width: 30
 
-                    active: false
+                        onClicked: {
+                            detailInfo.visible = !detailInfo.visible;
+                            detailInfoMetrics.text = detail_info;
+                            if (detailInfo.visible) {
+                                elementItem.height += detailInfo.height;
+                            } else {
+                                elementItem.height -= detailInfo.height;
+                            }
+                        }
+                    }
+                    TextArea {
+                        id: detailInfo
 
-                    sourceComponent: Item {
-                        id: hiddenContentComponent
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        selectByMouse: true
+                        text: detailInfoMetrics.elidedText
+                        visible: false
+                        wrapMode: Text.ElideRight
 
-                        //property string infoSource
+                        TextMetrics {
+                            id: detailInfoMetrics
 
-                        Label {
-                            id: detailInfo
-
-                            anchors.fill: parent
-                            text: infoSource
+                            //elide: Text.ElideRight
+                            elideWidth: elementLayout.width - 5
+                            font: detailInfo.font
                         }
                     }
                 }
-                /*MouseArea {
-                    acceptedButtons: Qt.LeftButton
-                    anchors.fill: parent
-
-                    onClicked: {
-                        console.debug("Clicked to element " + name);
-                    }
-                }*/
             }
         }
     }

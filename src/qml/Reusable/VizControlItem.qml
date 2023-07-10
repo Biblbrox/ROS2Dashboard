@@ -3,9 +3,15 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 Item {
-    property alias icon: btn.icon.source
-    Button {
+    id: vizControlItem
+    property alias iconSource: btn.icon.source
+    property var userCallback: function() {}
+
+    RDButton {
         id: btn
 
+        onClicked: {
+            vizControlItem.userCallback();
+        }
     }
 }

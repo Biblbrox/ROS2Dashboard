@@ -8,10 +8,26 @@ Qan.NodeItem {
 
     property alias name: title.text
 
+    // TODO: adapt to count of ports
     height: 180
     width: 160
     x: 150
     y: 15
+
+    /*leftDock: Qan.VerticalDock {
+        id: leftDockVert
+        Label {
+            Layout.preferredWidth: height
+            font.bold: true
+            rotation: -90
+            text: "Custom Dock"
+        }
+    }*/
+
+    /*rightDock: Qan.VerticalDock {
+        id: rightDockVert
+
+    }*/
 
     Item {
         anchors.fill: parent
@@ -28,12 +44,12 @@ Qan.NodeItem {
                 right: parent.right
                 top: parent.top
             }
-            Button {
+            RDButton {
                 id: killButton
 
                 icon.color: "transparent"
                 icon.source: "qrc:///ui/icons/Close.svg"
-                width: 40
+                width: 50
 
                 onClicked: {
                     console.debug("Kill node " + title.text);

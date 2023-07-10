@@ -5,6 +5,10 @@ Item {
     property string topicName
     property string topicType
 
+    height: parent.height
+    width: parent.width
+
+
     VideoViz {
         id: videoViz
 

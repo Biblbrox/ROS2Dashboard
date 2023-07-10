@@ -4,18 +4,18 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Shapes
 import QtQuick.Window
-import QtQuick.Controls.Material
 import QuickQanava 2.0 as Qan
 import "qrc:/QuickQanava" as Qan
 
 ApplicationWindow {
     id: application
 
-    Material.theme: Material.Dark
     height: 1080
     title: qsTr("ROS2 Dashboard")
     visible: true
     width: 1920
+
+    color: Theme.background.color.field
 
     header: ToolBar {
         background: Rectangle {
@@ -28,10 +28,10 @@ ApplicationWindow {
             height: parent.height
 
             ToolButton {
-                text: "File"
+                text: qsTr("File")
             }
             ToolButton {
-                text: "Help"
+                text: qsTr("Help")
             }
         }
     }
@@ -63,25 +63,36 @@ ApplicationWindow {
 
             RDPanel {
                 id: nodeObserver
+
                 Layout.fillHeight: true
                 height: parent.height
+                implicitWidth: 400
                 listModel: nodeListModel
                 title: qsTr("Node observer")
-                implicitWidth: 400
                 width: 800
                 z: 2
             }
             Qan.GraphView {
+                id: graphView
+
+                property int portHeight: 16
+                property int portWidth: 16
+
                 Layout.fillHeight: true
-                gridThickColor: Theme.background.color.primary
+                gridThickColor: Theme.background.color.field
                 height: parent.height
                 implicitWidth: 1000
-                resizeHandlerColor: Material.accent
+                resizeHandlerColor: Theme.background.color.primary
+
+                grid: Qan.AbstractLineGrid {
+
+                    }
 
                 graph: Qan.Graph {
                     id: graphObj
 
-                    function createNodes() {
+                    function updateNodes() {
+                        graphObj.clearGraph();
                         let nodeComponent = Qt.createComponent("qrc:/ui/Node.qml");
                         let nodes = {};
                         /// Create nodes
@@ -91,22 +102,29 @@ ApplicationWindow {
                             console.log("Create node " + node.item.name);
                             node.item.x = 50 + i * 10;
                             node.item.y = 50;
-                            node["inPorts"] = {};
-                            node["outPorts"] = {};
 
                             /// Add output ports
+                            let outPorts = {};
+                            let inPorts = {};
                             for (let j = 0; j < nodeListModel.getRow(i, "publishers").length; ++j) {
-                                let port = graphObj.insertPort(node, Qan.NodeItem.Right);
-                                port.label = nodeListModel.getRow(i, "publishers")[j];
-                                node.outPorts[port.label] = port;
+                                let port = graphObj.insertPort(node, Qan.NodeItem.Right, Qan.PortItem.Out, nodeListModel.getRow(i, "publishers")[j]);
+                                port.setPortType("out");
+                                port.setPortLabel(nodeListModel.getRow(i, "publishers")[j]);
+                                outPorts[port.label] = port;
                             }
 
                             /// Add input ports
                             for (let j = 0; j < nodeListModel.getRow(i, "subscribers").length; ++j) {
-                                let port = graphObj.insertPort(node, Qan.NodeItem.Left);
-                                port.label = nodeListModel.getRow(i, "subscribers")[j];
-                                node.inPorts[port.label] = port;
+                                let port = graphObj.insertPort(node, Qan.NodeItem.Left, Qan.PortItem.In, nodeListModel.getRow(i, "subscribers")[j]);
+                                port.setPortType("in");
+                                port.setPortLabel(nodeListModel.getRow(i, "subscribers")[j]);
+                                inPorts[port.label] = port;
                             }
+                            let maxPortCount = Math.max(Object.keys(inPorts).length, Object.keys(outPorts).length);
+                            node.item.width = 500;
+                            node.item.height = maxPortCount * 50;
+                            node.inPorts = inPorts;
+                            node.outPorts = outPorts;
                             nodes[node.item.name] = node;
                         }
 
@@ -134,11 +152,45 @@ ApplicationWindow {
                     connectorEdgeColor: Theme.node.color.edge
                     connectorEnabled: true
                     objectName: "graph"
-                    selectionColor: Material.accent
+                    selectionColor: Theme.background.color.secondary
+
+                    portDelegate: Component {
+                        id: youpi
+
+                        Qan.PortItem {
+                            id: port
+
+                            property string portLabel
+                            property string portType
+
+                            function setPortLabel(label_) {
+                                port.portLabel = label_;
+                            }
+                            function setPortType(type_) {
+                                port.portType = type_;
+                            }
+
+                            height: graphView.portHeight
+
+                            RowLayout {
+                                anchors.fill: parent
+                                layoutDirection: port.portType === "in" ? Qt.LeftToRight : Qt.RightToLeft
+
+                                Image {
+                                    Layout.fillHeight: true
+                                    source: port.portType === "in" ? "qrc:///ui/icons/InputSquare.svg" : "qrc:///ui/icons/OutputSquare.svg"
+                                    width: graphView.portWidth
+                                }
+                                Label {
+                                    text: port.portLabel
+                                }
+                            }
+                        }
+                    }
 
                     Component.onCompleted: {
                         console.log("Creating nodes");
-                        createNodes();
+                        updateNodes();
                         defaultEdgeStyle.lineWidth = 3;
                         defaultEdgeStyle.lineColor = Qt.binding(function () {
                                 return Theme.node.color.edge;
@@ -148,13 +200,14 @@ ApplicationWindow {
             }
             RDPanel {
                 id: packageObserver
+
                 Layout.fillHeight: true
                 SplitView.fillWidth: true
                 height: parent.height
                 implicitWidth: 400
                 listModel: packageListModel
-                width: 800
                 title: qsTr("Package observer")
+                width: 800
             }
         }
         VisualizationWindow {

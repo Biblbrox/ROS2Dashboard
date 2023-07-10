@@ -8,6 +8,15 @@ QtObject {
     property QtObject background
     property QtObject node
     property QtObject panel
+    property QtObject vizControls
+
+    vizControls: QtObject {
+        property QtObject color
+
+        color: QtObject {
+            property color background: darkTheme ? "#3d3948" : "black"
+        }
+    }
 
     font: QtObject {
         property QtObject pointSize
@@ -15,7 +24,7 @@ QtObject {
 
         pointSize: QtObject {
             property int menu: 10
-            property int normal: 12
+            property int normal: 16
             property int subTitle: 18
             property int title: 24
         }
@@ -63,6 +72,7 @@ QtObject {
         color: QtObject {
             property color primary: darkTheme ? "#4e4e4e" : "white"
             property color secondary: darkTheme ? "white" : "#333333"
+            property color field: darkTheme ? "#1d1d27" : "#eeedff"
         }
 
     }

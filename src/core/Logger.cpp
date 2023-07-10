@@ -4,6 +4,7 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/systemd_sink.h>
+#include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/spdlog.h>
 #include <vector>
 
@@ -15,8 +16,10 @@ namespace ros2monitor {
     void Logger::init(Category level, const std::string &fileName)
     {
         std::vector<spdlog::sink_ptr> sinks;
-        if (level == Category::debug)
-            sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+        if (level == Category::debug) {
+            //sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+            sinks.push_back(std::make_shared<spdlog::sinks::ansicolor_stdout_sink_st>());
+        }
         sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_st>(fileName, 23, 59));
         sinks.push_back(std::make_shared<spdlog::sinks::systemd_sink_st>());
         m_logger = std::make_shared<spdlog::logger>("logger", begin(sinks), end(sinks));

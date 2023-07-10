@@ -13,6 +13,7 @@ ros2monitor::Application::Application(int &argc, char **argv)
 {
     QtWebEngineQuick::initialize();
     m_guiApp = make_shared<QGuiApplication>(argc, argv);
+    m_guiApp->setWindowIcon(QIcon(":/ui/icons/logo.jpeg"));
     m_qmlEngine = make_shared<QQmlApplicationEngine>();
     m_daemonClient = make_shared<DaemonClient>("/tmp/ros2monitor.sock");
 

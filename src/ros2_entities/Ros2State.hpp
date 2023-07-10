@@ -22,7 +22,6 @@ struct Ros2Storage {
     std::vector<Ros2Node> nodes;
     std::vector<Ros2Connection> connections;
     std::vector<Ros2Topic> topics;
-    std::vector<Ros2Executable> executables;
 };
 
 class Ros2State {
@@ -48,7 +47,7 @@ public:
     std::vector<Ros2Package> packages() const;
     std::vector<Ros2Connection> connections() const;
     std::vector<Ros2Topic> topics() const;
-    std::vector<Ros2Executable> executables() const;
+
 
 private:
     Ros2Storage m_coldState;// All packages, nodes, executables and so on

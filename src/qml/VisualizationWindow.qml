@@ -11,6 +11,7 @@ Rectangle {
             console.log("Visualizer for topic " + topicName + " already exists");
             return;
         }
+
         let topicGroup = visualizerModel.getTopicCategory(topicType);
         if (topicGroup === "unknown") {
             console.error("The topic with type " + topicType + " is unknown");
@@ -24,16 +25,20 @@ Rectangle {
         }
         if (componentFile === "")
             return;
-        let vizComponent = Qt.createComponent(componentFile);
-        if (vizComponent.status === Component.Ready) {
-            let vizObject = vizComponent.createObject(vizContainer, {
+
+        let vizItemComponent = Qt.createComponent("qrc:///ui/VizItemContainer.qml");
+        if (vizItemComponent.status === Component.Ready) {
+            let vizObject = vizItemComponent.createObject(vizContainer, {
                     "topicName": topicName,
                     "topicType": topicType,
+                    "componentItemFile": componentFile,
                     //"width": width,
                     "height": vizContainer.height,
                     "Layout.fillWidth": true
                 });
-            console.log("Addedd visualizer for topic " + topicName);
+            console.debug("Added visualizer for topic " + topicName);
+        } else {
+            console.log(vizItemComponent.errorString());
         }
     }
 
@@ -100,7 +105,7 @@ Rectangle {
                         anchors.right: addVizIcon.left
                         anchors.top: parent.top
                         color: Theme.font.color.primary
-                        font.pointSize: 18
+                        font.pixelSize: Theme.font.pointSize.normal
                         height: parent.height
                         horizontalAlignment: TextEdit.AlignHCenter
                         readOnly: true
@@ -108,13 +113,19 @@ Rectangle {
                         verticalAlignment: TextEdit.AlignVCenter
                         width: parent.width - addVizIcon.width
                     }
+
+                    RDIcon {
+                        id: addIcon
+                        source: "Add"
+                    }
+
                     Image {
                         id: addVizIcon
 
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
                         anchors.top: parent.top
-                        source: "qrc:///ui/icons/Add.svg"
+                        source: addIcon.getSource()
                         //width: 20
                     }
                 }
