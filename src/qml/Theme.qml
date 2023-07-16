@@ -9,6 +9,25 @@ QtObject {
     property QtObject node
     property QtObject panel
     property QtObject vizControls
+    property QtObject vizArea
+    property QtObject sideBar
+
+    sideBar: QtObject {
+        property QtObject color
+
+        color: QtObject {
+            property color background: darkTheme ? "#3e3949" : "#c0bfce"
+        }
+    }
+
+    vizArea: QtObject {
+        property QtObject color
+
+        color: QtObject {
+            property color background: darkTheme ? "#1d1d28" : "#eeedff"
+            property color topicTitle: darkTheme ? "#2f2e40" : "#c0bfcd"
+        }
+    }
 
     vizControls: QtObject {
         property QtObject color
@@ -51,6 +70,8 @@ QtObject {
         color: QtObject {
             //property color primary: darkTheme ? "white": "black"
             property color primary: "transparent"
+            property color selected: darkTheme ? "#21232f" : "#808293"
+            property color hovered: darkTheme ? "#35384b" : "#9d9fb4"
         }
     }
 

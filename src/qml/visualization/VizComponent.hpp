@@ -4,7 +4,7 @@
 #include <any>
 
 #include "core/Logger.hpp"
-namespace ros2monitor {
+namespace ros2monitor::viz {
 
 
 class VizComponent : public QQuickPaintedItem {
@@ -15,7 +15,6 @@ public:
     {
         connect(this, &VizComponent::needRedraw, this, [this]() {
             auto rect = boundingRect().toRect();
-            Logger::debug(fmt::format("Update area with width = {}, height = {}", rect.width(), rect.height()));
             update(rect);
         });
     }

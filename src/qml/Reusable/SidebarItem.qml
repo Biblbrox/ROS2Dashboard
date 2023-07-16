@@ -6,54 +6,46 @@ Rectangle {
     id: sidebarItem
 
     property var handler
+    property alias iconSource: btn.iconSource
     property string name: ""
-    property string iconSource
 
-    RDIcon {
-        id: icon
-        source: sidebarItem.iconSource
-    }
-
-    width: parent.width
+    color: "transparent"
     height: 100
-    color: "#3e3949"
+    width: parent.width
 
-    Button {
+    RDButton {
         id: btn
+
         anchors.horizontalCenter: parent.horizontalCenter
-        padding: 20
-
-        width: parent.width
         height: parent.height
-
-        icon.source: icon.getSource()
-
-        icon.width: width
         icon.height: height
+        icon.width: width
+        padding: 20
+        width: parent.width
         onClicked: {
-            anim.start();
+            //anim.start();
             handler();
-        }
+        }/*
 
         SequentialAnimation {
             id: anim
 
             // Expand the button
             PropertyAnimation {
-                target: btn
-                property: "scale"
-                to: 1.2
                 duration: 200
                 easing.type: Easing.InOutQuad
+                property: "scale"
+                target: btn
+                to: 1.2
             }
 
             // Shrink back to normal
             PropertyAnimation {
-                target: btn
-                property: "scale"
-                to: 1
                 duration: 200
                 easing.type: Easing.InOutQuad
+                property: "scale"
+                target: btn
+                to: 1
             }
 
         }
@@ -64,7 +56,7 @@ Rectangle {
 
         background: Rectangle {
             color: sidebarItem.color
-        }
+        }*/
 
     }
 

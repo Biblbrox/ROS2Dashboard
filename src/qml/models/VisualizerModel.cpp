@@ -1,18 +1,22 @@
 #include <QtConcurrent/QtConcurrent>
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/camera_info.hpp>
+#include <rclcpp/serialization.hpp>
+#include <rosbag2_storage/serialized_bag_message.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <utility>
 #include <yaml-cpp/node/node.h>
 
+#include "GenericTextViz.hpp"
+#include "GeometryViz.hpp"
+#include "RasterViz.hpp"
 #include "VisualizerModel.hpp"
 #include "core/Logger.hpp"
 #include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/message_reading.hpp"
 #include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/typesupport.hpp"
 #include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/yaml_utils.hpp"
-#include "utils/StrUtils.hpp"
 
 using rclcpp::Node;
 using sensor_msgs::msg::Image;
@@ -395,7 +399,7 @@ void VisualizerModel::update(std::vector<Ros2Connection> connections)
     m_connections = std::move(connections);
 }
 
-void VisualizerModel::addTopicViz(VisualizationType type, const std::string &topic_type, const std::string &topic_name, VizComponent *item)
+void VisualizerModel::addTopicViz(VisualizationType type, const std::string &topic_type, const std::string &topic_name, QQuickItem *item)
 {
     if (m_components.contains(topic_name))
         return;
@@ -408,22 +412,43 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
         m_subscribers["reserver_dummy_topic"] = m_visualizerNode->create_generic_subscription("reserver_dummy_topic", "std_msgs/msg/String", 10, [](auto _) {});
     }
 
-
     if (type == VisualizationType::raster) {
         m_components[topic_name] = item;
-        m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name](std::shared_ptr<rclcpp::SerializedMessage> image_serialized) {
-            m_components[topic_name]->updateData(*image_serialized);
+        m_visualizer_states[topic_name] = VisualizerState::running;
+        m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name, topic_type](std::shared_ptr<rclcpp::SerializedMessage> image_serialized) {
+            if (m_visualizer_states[topic_name] == VisualizerState::paused)
+                return;
+            using MessageT = Image;
+            MessageT serialized;
+            auto serializer = rclcpp::Serialization<MessageT>();
+            serializer.deserialize_message(image_serialized.get(), &serialized);
+            // Finally print the ROS 2 message data
+            auto component = reinterpret_cast<viz::RasterViz *>(m_components[topic_name]);
+            component->updateData(serialized);
         });
     } else if (type == VisualizationType::geometry) {
-        /*m_components[topic_name] = item;
-        m_subscribers[topic_name] = m_visualizerNode->create_subscription<PointCloud>(topic_name, 10, [this, topic_name](PointCloud::ConstSharedPtr cloud) {
-            m_components[topic_name]->updateData("asd");
-        });*/
+        m_components[topic_name] = item;
+        m_visualizer_states[topic_name] = VisualizerState::running;
+        m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name](std::shared_ptr<rclcpp::SerializedMessage> msg) {
+            if (m_visualizer_states[topic_name] == VisualizerState::paused)
+                return;
+            using MessageT = sensor_msgs::msg::PointCloud2;
+            MessageT serialized;
+            auto serializer = rclcpp::Serialization<MessageT>();
+            serializer.deserialize_message(msg.get(), &serialized);
+            // Finally print the ROS 2 message data
+            auto component = reinterpret_cast<viz::GeometryViz *>(m_components[topic_name]);
+            component->updateData(serialized);
+        });
     } else if (type == VisualizationType::string) {
         assert(std::find(m_textGroup.cbegin(), m_textGroup.cend(), topic_type) != m_textGroup.cend());
         m_components[topic_name] = item;
 
+        m_visualizer_states[topic_name] = VisualizerState::running;
         m_subscribers[topic_name] = m_visualizerNode->create_generic_subscription(topic_name, topic_type, 10, [this, topic_name, topic_type](std::shared_ptr<rclcpp::SerializedMessage> msg) {
+            if (m_visualizer_states[topic_name] == VisualizerState::paused)
+                return;
+
             // Convert received message to YAML format
             RosMessage_Cpp ros_msg;
             InterfaceTypeName interface {
@@ -434,12 +459,13 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
             YAML::Node yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
             const std::string yaml_string = dynmsg::yaml_to_string(yaml_msg);
 
-            m_components[topic_name]->updateData(yaml_string);
+            auto component = reinterpret_cast<viz::GenericTextViz *>(m_components[topic_name]);
+            component->updateData(yaml_string);
         });
     }
 
     if (!m_nodeFuture.isRunning()) {
-        m_daemon_client->killNode("visualization_node");
+        m_daemon_client->killNodeRequest("visualization_node");
         m_nodeFuture = QtConcurrent::run([this]() {
             Logger::debug("Running node");
             rclcpp::spin(m_visualizerNode);
@@ -448,17 +474,9 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
     }
 }
 
-void VisualizerModel::removeViz(const std::string &topic_name)
-{
-    if (!m_components.contains(topic_name))
-        return;
-
-    auto it = m_components.find(topic_name);
-    m_components.erase(it);
-}
-
 QVariant VisualizerModel::data(const QModelIndex &index, int role) const
 {
+    // TODO: deprecated. I have the separate topic list mode for this purpose
     if (!index.isValid())
         return QVariant{};
 
@@ -491,8 +509,8 @@ QHash<int, QByteArray> VisualizerModel::roleNames() const
 
 VisualizerModel::~VisualizerModel()
 {
-    m_nodeFuture.waitForFinished();
     rclcpp::shutdown();
+    m_nodeFuture.waitForFinished();
 }
 
 bool VisualizerModel::hasTopicViz(const QString &topic_name)
@@ -506,9 +524,6 @@ QString VisualizerModel::getTopicCategory(const QString &topic_type)
     bool isGeometry = inGeometryGroup(topic_type.toStdString());
     bool isRaster = inRasterGroup(topic_type.toStdString());
 
-    if (!isText && !isGeometry && !isRaster)
-        return "unknown";
-
     if (isText)
         return "text";
 
@@ -517,6 +532,8 @@ QString VisualizerModel::getTopicCategory(const QString &topic_type)
 
     if (isRaster)
         return "raster";
+
+    return "unknown";
 }
 
 bool VisualizerModel::inTextGroup(const std::string &topic_type)
@@ -532,5 +549,41 @@ bool VisualizerModel::inGeometryGroup(const std::string &topic_type)
 bool VisualizerModel::inRasterGroup(const std::string &topic_type)
 {
     return (std::find(m_rasterGroup.cbegin(), m_rasterGroup.cend(), topic_type) != m_rasterGroup.cend());
+}
+
+void VisualizerModel::pauseViz(const QString &topic_name)
+{
+    if (!m_components.contains(topic_name.toStdString()))
+        return;
+
+    m_visualizer_states[topic_name.toStdString()] = VisualizerState::paused;
+}
+
+void VisualizerModel::resumeViz(const QString &topic_name)
+{
+    if (!m_components.contains(topic_name.toStdString()))
+        return;
+
+    m_visualizer_states[topic_name.toStdString()] = VisualizerState::running;
+}
+
+void VisualizerModel::removeViz(const QString &topic_name)
+{
+    std::string topic_name_std = topic_name.toStdString();
+
+    if (!m_components.contains(topic_name_std))
+        return;
+
+    auto comp_it = m_components.find(topic_name_std);
+    m_components.erase(comp_it);
+
+    auto viz_state_it = m_visualizer_states.find(topic_name_std);
+    m_visualizer_states.erase(viz_state_it);
+
+    auto viz_sub_it = m_subscribers.find(topic_name_std);
+    viz_sub_it->second.reset();// TODO: I am not sure yet if it is necessary to explicitly call reset
+    m_subscribers.erase(viz_sub_it);
+
+    emit topicVizRemoved(topic_name);
 }
 }

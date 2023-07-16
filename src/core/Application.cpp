@@ -1,19 +1,23 @@
-#include <QtWebEngineQuick/QtWebEngineQuick>
+#include <QIcon>
+#include <QQuickVTKItem.h>
+#include <QQuickVTKRenderWindow.h>
 
 #include "Application.hpp"
 #include "QuickQanava"
 #include "core/Logger.hpp"
 #include "qml/visualization/GenericTextViz.hpp"
 
+#include "GeometryViz.hpp"
 #include "qml/models/DaemonClientModel.hpp"
 
 using std::make_shared;
 
 ros2monitor::Application::Application(int &argc, char **argv)
 {
-    QtWebEngineQuick::initialize();
+    QQuickVTKItem::setGraphicsApi();
+    //QtWebEngineQuick::initialize();
     m_guiApp = make_shared<QGuiApplication>(argc, argv);
-    m_guiApp->setWindowIcon(QIcon(":/ui/icons/logo.jpeg"));
+    m_guiApp->setWindowIcon(QIcon(":/ui/icons/ROS2Dashboard.svg"));
     m_qmlEngine = make_shared<QQmlApplicationEngine>();
     m_daemonClient = make_shared<DaemonClient>("/tmp/ros2monitor.sock");
 
@@ -27,16 +31,25 @@ ros2monitor::Application::Application(int &argc, char **argv)
 
     registerModels();
 
-    QObject::connect(m_daemonClient.get(), &DaemonClient::hotStateUpdated, [this](const QString &data) {
+    auto update_entities = [this](const QString &data) {
         auto state = make_shared<Ros2State>(data.toStdString());
         m_nodeListModel->updateState(state);
         m_packageListModel->updateState(state);
         m_topic_model->updateState(state);
         m_daemon_client_model->setState(state);
         m_connectionListModel->update(state->connections());
+    };
+
+    QObject::connect(this, &Application::hotStateUpdated, [update_entities](const QString &data) {
+        update_entities(data);
+    });
+    QObject::connect(m_daemon_client_model.get(), &DaemonClientModel::hotStateUpdated, [update_entities](const QString &data) {
+        update_entities(data);
     });
 
-    m_daemonClient->receiveState();
+    std::future<std::string> state_future = m_daemonClient->stateRequestAsync();
+    std::string response = state_future.get();
+    emit hotStateUpdated(QString::fromStdString(response));
 }
 
 int ros2monitor::Application::run()
@@ -45,6 +58,7 @@ int ros2monitor::Application::run()
         //QQuickStyle::setStyle("Material");
         QuickQanava::initialize(m_qmlEngine.get());
         qmlRegisterSingletonType(QUrl("qrc:///ui/Theme.qml"), "Theme", 1, 0, "Theme");
+        qmlRegisterType<viz::GeometryViz>("com.vtk.types", 1, 0, "GeometryViz");
         m_qmlEngine->load("qrc:///ui/Main.qml");
     } catch (std::exception &e) {
         Logger::error(fmt::format("Unable to initialize application. Error: {}", e.what()));

@@ -51,11 +51,11 @@ void Ros2State::update(std::string jsonState)
             if (nodeJson["name"] == "/visualization_node")
                 continue;
 
-            if (!nodeJson.contains("name") || !nodeJson.contains("package_name")) {
+            if (!nodeJson.contains("name") || !nodeJson.contains("package_name") || !nodeJson.contains("host")) {
                 throw std::invalid_argument(fmt::format("Invalid json response. Node object must include both name and package_name properties. Current json: {}", nodeJson.dump()));
             }
 
-            Ros2Node node(nodeJson["name"], nodeJson["package_name"]);
+            Ros2Node node(nodeJson["name"], nodeJson["package_name"], Host(nodeJson["host"]["name"], nodeJson["host"]["ip"]));
             std::vector<Ros2Subscriber> subscribers;
             std::vector<Ros2Publisher> publishers;
             // Extract subscribers

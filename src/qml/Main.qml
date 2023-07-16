@@ -4,22 +4,22 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Shapes
 import QtQuick.Window
+import com.viz.types 1.0
 import QuickQanava 2.0 as Qan
 import "qrc:/QuickQanava" as Qan
 
 ApplicationWindow {
     id: application
 
+    color: Theme.background.color.field
     height: 1080
     title: qsTr("ROS2 Dashboard")
     visible: true
     width: 1920
 
-    color: Theme.background.color.field
-
     header: ToolBar {
         background: Rectangle {
-            color: "#3d3948"
+            color: Theme.sideBar.color.background
             height: parent.height
             width: parent.width
         }
@@ -28,10 +28,20 @@ ApplicationWindow {
             height: parent.height
 
             ToolButton {
-                text: qsTr("File")
+                id: fileButton
+
+                contentItem: Label {
+                    color: Theme.font.color.primary
+                    text: qsTr("File")
+                }
             }
             ToolButton {
-                text: qsTr("Help")
+                id: helpButton
+
+                contentItem: Label {
+                    color: Theme.font.color.primary
+                    text: qsTr("Help")
+                }
             }
         }
     }
@@ -43,15 +53,16 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.top: parent.top
         width: 100
+        z: 2
     }
     SplitView {
         height: parent.height
         orientation: Qt.Vertical
-        width: parent.width - sidebar.width - rightSidebar.width
+        width: parent.width - sidebar.width// - rightSidebar.width
 
         anchors {
             left: sidebar.right
-            right: rightSidebar.left
+            right: parent.right
             top: application.top
         }
         SplitView {
@@ -84,10 +95,6 @@ ApplicationWindow {
                 implicitWidth: 1000
                 resizeHandlerColor: Theme.background.color.primary
 
-                grid: Qan.AbstractLineGrid {
-
-                    }
-
                 graph: Qan.Graph {
                     id: graphObj
 
@@ -99,7 +106,7 @@ ApplicationWindow {
                         for (let i = 0; i < nodeListModel.rowCount(); ++i) {
                             let node = graphObj.insertNode(nodeComponent);
                             node.item.name = nodeListModel.getRow(i, "name");
-                            console.log("Create node " + node.item.name);
+                            Logger.debug("Create node " + node.item.name);
                             node.item.x = 50 + i * 10;
                             node.item.y = 50;
 
@@ -133,7 +140,7 @@ ApplicationWindow {
                             let outNodeName = connectionListModel.getRow(i, "src_node_name");
                             let inNodeName = connectionListModel.getRow(i, "dst_node_name");
                             let topicName = connectionListModel.getRow(i, "topic_name");
-                            console.debug("Create connection from " + outNodeName + " and " + inNodeName + " nodes");
+                            Logger.debug("Create connection from " + outNodeName + " and " + inNodeName + " nodes");
                             let outNode = nodes[outNodeName];
                             let inNode = nodes[inNodeName];
                             let outPort = outNode.outPorts[topicName];
@@ -147,7 +154,7 @@ ApplicationWindow {
                         }
                     }
 
-                    anchors.fill: parent
+                    //anchors.fill: graphView
                     connectorColor: Theme.node.color.edge
                     connectorEdgeColor: Theme.node.color.edge
                     connectorEnabled: true
@@ -189,7 +196,7 @@ ApplicationWindow {
                     }
 
                     Component.onCompleted: {
-                        console.log("Creating nodes");
+                        Logger.debug("Creating nodes");
                         updateNodes();
                         defaultEdgeStyle.lineWidth = 3;
                         defaultEdgeStyle.lineColor = Qt.binding(function () {
@@ -197,17 +204,57 @@ ApplicationWindow {
                             });
                     }
                 }
+                grid: Qan.AbstractLineGrid {
+                }
+
+                /*TapHandler {
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    target: graphView
+
+                    onSingleTapped: {
+                        console.log("onSingleTapped called...");
+                        graphView.grabToImage(function (result) {
+                                minimap.source = result.url;
+                            });
+                    }
+                    onTapped: {
+                        console.log("onTapped called...");
+                    }
+                }*/
+
+                //z: -30
+
+                /*Rectangle {
+                    anchors.margins: 10
+                    height: 200
+                    width: 200
+                    color: Theme.background.color.field
+                    opacity: 0.5
+                    border.color: Theme.background.color.primary
+
+                    anchors {
+                        right: parent.right
+                        top: parent.top
+                    }
+                    Image {
+                        id: minimap
+
+                        height: parent.height
+                        width: parent.width
+                    }
+                }*/
             }
             RDPanel {
                 id: packageObserver
 
                 Layout.fillHeight: true
-                SplitView.fillWidth: true
+                //SplitView.fillWidth: true
                 height: parent.height
                 implicitWidth: 400
                 listModel: packageListModel
                 title: qsTr("Package observer")
                 width: 800
+                z: 2
             }
         }
         VisualizationWindow {
@@ -215,17 +262,27 @@ ApplicationWindow {
             implicitHeight: 400
         }
     }
-    Sidebar {
+    /*Sidebar {
         id: rightSidebar
 
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.top: parent.top
         width: 100
-    }
+        z: 2
+    }*/
     Connections {
         function onSidebarClicked(itemName) {
-            console.log("Clicked on ", itemName);
+            Logger.debug("Clicked on " + itemName);
+            if (itemName === "Update") {
+                // Make DaemonClient update request
+                Logger.debug("Update request");
+                daemonClientModel.update();
+                graphObj.updateNodes();
+            } else if (itemName === "Start")
+            // Make DaemonClient start request
+            {
+            }
         }
 
         target: sidebar

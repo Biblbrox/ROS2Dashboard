@@ -5,7 +5,7 @@
 #include <QImage>
 #include <QtQml/qqmlregistration.h>
 
-namespace ros2monitor {
+namespace ros2monitor::viz {
 
 
 class RasterViz : public VizComponent {
@@ -15,8 +15,6 @@ public:
     explicit RasterViz(QQuickItem *parent = 0);
 
     void paint(QPainter *painter) override;
-    //the paint method is already implemented in QQuickPaintedItem
-    //you just override ite
 
     void updateData(std::any data) override;
 

@@ -1,7 +1,7 @@
 #include <QPainter>
 
 #include "VizComponent.hpp"
-namespace ros2monitor {
+namespace ros2monitor::viz {
 
 void VizComponent::paint(QPainter *painter)
 {

@@ -2,7 +2,7 @@
 <module classpath="CMake" type="CPP_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Python" name="Python facet">
-      <configuration sdkName="$USER_HOME$/mambaforge/envs/ros2dashboard" />
+      <configuration sdkName="Pipenv (ROS2Dashboard)" />
     </facet>
   </component>
 </module>

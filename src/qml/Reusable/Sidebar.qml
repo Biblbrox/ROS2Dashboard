@@ -9,7 +9,7 @@ Rectangle {
 
     signal sidebarClicked(string elementName)
 
-    color: "#3e3949"
+    color: Theme.sideBar.color.background
     height: parent.height
     width: 120
 
@@ -49,6 +49,12 @@ Rectangle {
                 sidebarClicked("Save");
             }
             iconSource: "Save"
+        }
+        SidebarItem {
+            handler: function () {
+                sidebarClicked("Update");
+            }
+            iconSource: "Update"
         }
     }
 

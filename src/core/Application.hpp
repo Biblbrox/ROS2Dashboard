@@ -6,21 +6,24 @@
 
 #include "DaemonClientModel.hpp"
 #include "Ros2TopicListModel.hpp"
-#include "daemon_client/DaemonClient.hpp"
 #include "qml/models/Ros2ConnectionListModel.hpp"
 #include "qml/models/Ros2NodeListModel.hpp"
 #include "qml/models/Ros2PackageListModel.hpp"
 #include "qml/visualization/RasterViz.hpp"
+#include "src/network/DaemonClient.hpp"
 #include "src/qml/models/VisualizerModel.hpp"
 
 namespace ros2monitor {
-class Application  {
+class Application : public QObject {
+    Q_OBJECT
 public:
-    explicit Application(int& argc, char **argv);
+    explicit Application(int &argc, char **argv);
 
     void registerModels();
 
     int run();
+signals:
+    void hotStateUpdated(const QString &jsonState);
 
 private:
     std::shared_ptr<DaemonClient> m_daemonClient;

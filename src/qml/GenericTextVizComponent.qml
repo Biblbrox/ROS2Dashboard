@@ -12,7 +12,7 @@ GenericTextViz {
     width: parent.width
 
     Component.onCompleted: {
-        console.log("GenericTextViz created for topic " + topicName + " with type " + topicType);
+        Logger.debug("GenericTextViz created for topic " + topicName + " with type " + topicType);
         textViz.registerViz(visualizerModel, topicName, topicType);
     }
 }

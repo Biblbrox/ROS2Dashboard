@@ -6,46 +6,49 @@ import com.viz.types 1.0
 Rectangle {
     id: visualizationWindow
 
+    property var vizItems: {"dummy": 0}
+
     function addVisualizer(topicName, topicType) {
         if (visualizerModel.hasTopicViz(topicName)) {
-            console.log("Visualizer for topic " + topicName + " already exists");
+            Logger.warn("Visualizer for topic " + topicName + " already exists");
             return;
         }
-
         let topicGroup = visualizerModel.getTopicCategory(topicType);
         if (topicGroup === "unknown") {
-            console.error("The topic with type " + topicType + " is unknown");
+            Logger.error("The topic with type " + topicType + " is unknown");
             return;
         }
         let componentFile = "";
-        if (topicGroup === "text") {
+        if (topicGroup === "text")
             componentFile = "qrc:///ui/GenericTextVizComponent.qml";
-        } else if (topicGroup === "raster") {
-            componentFile = "qrc:///ui/VideoVizComponent.qml";
-        }
-        if (componentFile === "")
+        else if (topicGroup === "raster")
+            componentFile = "qrc:///ui/RasterVizComponent.qml";
+        else if (topicGroup === "geometry")
+            componentFile = "qrc:///ui/GeometryVizComponent.qml";
+        if (componentFile === "") {
+            Logger.error("Unknown topic group " + topicGroup);
             return;
-
+        }
         let vizItemComponent = Qt.createComponent("qrc:///ui/VizItemContainer.qml");
         if (vizItemComponent.status === Component.Ready) {
             let vizObject = vizItemComponent.createObject(vizContainer, {
                     "topicName": topicName,
                     "topicType": topicType,
                     "componentItemFile": componentFile,
-                    //"width": width,
                     "height": vizContainer.height,
                     "Layout.fillWidth": true
                 });
-            console.debug("Added visualizer for topic " + topicName);
+            visualizationWindow.vizItems[topicName] = vizObject;
+            Logger.debug("Added visualizer for topic " + topicName);
         } else {
-            console.log(vizItemComponent.errorString());
+            Logger.error(vizItemComponent.errorString());
         }
     }
 
-    color: "#2f2e40"
+    color: Theme.vizArea.color.background
 
     Component.onCompleted: {
-        console.log("Visualization area loaded");
+        Logger.debug("Visualization area loaded");
     }
 
     Rectangle {
@@ -114,19 +117,16 @@ Rectangle {
                         width: parent.width - addVizIcon.width
                     }
 
-                    RDIcon {
-                        id: addIcon
-                        source: "Add"
-                    }
+                    RDButton {
+                        iconSource: "Add"
+                        width: 40
+                        height: 40
 
-                    Image {
                         id: addVizIcon
 
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
                         anchors.top: parent.top
-                        source: addIcon.getSource()
-                        //width: 20
                     }
                 }
                 MouseArea {
@@ -134,7 +134,7 @@ Rectangle {
                     anchors.fill: parent
 
                     onClicked: {
-                        console.debug("Clicked to element " + name);
+                        Logger.debug("Clicked to element " + name);
                         addVisualizer(name, type);
                     }
                 }
@@ -148,5 +148,16 @@ Rectangle {
             height: parent.height
             orientation: Qt.Horizontal
         }
+    }
+    Connections {
+        id: vizConnections
+        function onTopicVizRemoved(topicName) {
+            Logger.debug("vizContainer.children.length " + vizContainer.children.length);
+            Logger.debug("vizItems.length " + visualizationWindow.vizItems.length);
+            vizContainer.removeItem(visualizationWindow.vizItems[topicName]);
+            Logger.debug("Topic " + topicName + " removed");
+        }
+
+        target: visualizerModel
     }
 }

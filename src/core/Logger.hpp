@@ -31,14 +31,12 @@ public:
     template<typename... Args>
     static void error(std::string_view fmt_str, Args &&...args)
     {
-
         m_logger->template error(fmt_str, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     static void warn(std::string_view fmt_str, Args &&...args)
     {
-
         m_logger->template warn(fmt_str, std::forward<Args>(args)...);
     }
 

@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "VizComponent.hpp"
-#include "daemon_client/DaemonClient.hpp"
 #include "ros2_entities/Ros2Connection.hpp"
+#include "src/network/DaemonClient.hpp"
 
 namespace ros2monitor {
 
@@ -25,6 +25,11 @@ enum class VisualizationType {
     raster,
     geometry,
     string
+};
+
+enum class VisualizerState {
+    running,
+    paused
 };
 
 enum VisualizerRole {
@@ -88,8 +93,7 @@ public:
 
     void update(std::vector<Ros2Connection> connections);
 
-    void addTopicViz(VisualizationType type, const std::string &topic_type, const std::string &topic_name, VizComponent *item);
-    void removeViz(const std::string &topic_name);
+    void addTopicViz(VisualizationType type, const std::string &topic_type, const std::string &topic_name, QQuickItem *item);
     bool inTextGroup(const std::string &topic_type);
     bool inRasterGroup(const std::string &topic_type);
     bool inGeometryGroup(const std::string &topic_type);
@@ -100,13 +104,20 @@ public:
 
 public slots:
     bool hasTopicViz(const QString &topic_name);
-    QString getTopicCategory(const QString& topic_type);
+    QString getTopicCategory(const QString &topic_type);
+    void pauseViz(const QString &topic_name);
+    void resumeViz(const QString &topic_name);
+    void removeViz(const QString &topic_name);
+
+signals:
+    void topicVizRemoved(const QString &topic_name);
 
 private:
     std::vector<Ros2Connection> m_connections;
-    std::unordered_map<std::string, VizComponent *> m_components;
+    std::unordered_map<std::string, QQuickItem *> m_components;
     std::shared_ptr<rclcpp::Node> m_visualizerNode;
     std::unordered_map<std::string, std::shared_ptr<rclcpp::GenericSubscription>> m_subscribers;
+    std::unordered_map<std::string, VisualizerState> m_visualizer_states;
     QFuture<void> m_nodeFuture;
     std::shared_ptr<DaemonClient> m_daemon_client;
     std::vector<std::string> m_textGroup;

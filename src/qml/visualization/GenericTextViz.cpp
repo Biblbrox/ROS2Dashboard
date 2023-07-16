@@ -4,7 +4,7 @@
 #include "GenericTextViz.hpp"
 #include "core/Logger.hpp"
 
-namespace ros2monitor {
+namespace ros2monitor::viz {
 
 GenericTextViz::GenericTextViz(QQuickItem *parent) : VizComponent(parent)
 {
@@ -13,7 +13,6 @@ GenericTextViz::GenericTextViz(QQuickItem *parent) : VizComponent(parent)
 void GenericTextViz::updateData(std::any data)
 {
     m_text = std::any_cast<std::string>(data);
-    Logger::debug(fmt::format("Receive new text data: ", m_text));
 
     emit needRedraw();
 }

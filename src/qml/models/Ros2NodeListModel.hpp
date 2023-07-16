@@ -28,6 +28,8 @@ public slots:
     QVariant getRowByName(int i, const QString& role_name, const QString& entry_name);
 
 private:
+    QString genDetailInfo(const Ros2Node& node) const;
+
     std::shared_ptr<Ros2State> m_state;
     std::unordered_map<Ros2NodeRole, std::string> m_role2String;
     std::unordered_map<std::string, Ros2NodeRole> m_string2Role;

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import com.viz.types 1.0
 
 Rectangle {
     id: vizItemContainer
@@ -14,6 +15,7 @@ Rectangle {
     color: "transparent"
 
     Component.onCompleted: {
+        Logger.debug("Loading vizualizer from " + componentItemFile + " for topicName: " + topicName);
         var component = Qt.createComponent(componentItemFile);
         if (component.status === Component.Ready) {
             var vizItem = component.createObject(vizItemContainer, {
@@ -26,33 +28,57 @@ Rectangle {
                     "anchors.bottom": vizItemContainer.bottom,
                     "anchors.top": topicNameLabel.bottom
                 });
+        } else {
+            Logger.error(component.errorString());
         }
     }
 
-    Label {
+    Rectangle {
         id: topicNameLabel
-
-        anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: Theme.font.pointSize.normal
-        text: topicName
-        //width: parent.width
+        color: Theme.sideBar.color.background
+        Label {
+            font.underline: true
+            //font.capitalization: Font.AllUppercase
+            anchors.centerIn: parent
+            font.pixelSize: Theme.font.pointSize.normal
+            //width: parent.width
+            //height: parent.height
+            text: topicName
+        }
         height: 50
+        width: parent.width
+        //anchors.horizontalCenter: parent.horizontalCenter
         anchors {
             //right: parent.right
             top: parent.top
             //left: parent.left
         }
     }
-    VizControls {
+
+    RDControls {
         id: vizControls
 
         height: parent.height
-        width: 40
+        width: 50
 
         anchors {
             bottom: parent.bottom
             right: parent.right
-            top: topicNameLabel.top
+            top: topicNameLabel.bottom
+        }
+    }
+    Connections {
+        target: vizControls
+
+        function onVizControlClicked(action) {
+            Logger.debug("VizControls clicked. Action: " + action + " Topic: " + topicName);
+            if (action === "pause") {
+                visualizerModel.pauseViz(topicName);
+            } else if (action === "close") {
+                visualizerModel.removeViz(topicName);
+            } else if (action === "resume") {
+                visualizerModel.resumeViz(topicName);
+            }
         }
     }
 }

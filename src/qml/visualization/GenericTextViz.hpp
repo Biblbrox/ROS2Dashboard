@@ -5,7 +5,7 @@
 #include <QQuickPaintedItem>
 #include <QtQml/qqmlregistration.h>
 
-namespace ros2monitor {
+namespace ros2monitor::viz {
 
 class GenericTextViz : public VizComponent {
     Q_OBJECT

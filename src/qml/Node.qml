@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import com.viz.types 1.0
 import QuickQanava 2.0 as Qan
 
 Qan.NodeItem {
@@ -11,23 +12,19 @@ Qan.NodeItem {
     // TODO: adapt to count of ports
     height: 180
     width: 160
-    x: 150
-    y: 15
+    //x: 150
+    //y: 15
 
-    /*leftDock: Qan.VerticalDock {
+    leftDock: Qan.VerticalDock {
         id: leftDockVert
-        Label {
-            Layout.preferredWidth: height
-            font.bold: true
-            rotation: -90
-            text: "Custom Dock"
-        }
-    }*/
 
-    /*rightDock: Qan.VerticalDock {
+        y: 100
+    }
+    rightDock: Qan.VerticalDock {
         id: rightDockVert
 
-    }*/
+        y: 100
+    }
 
     Item {
         anchors.fill: parent
@@ -48,11 +45,11 @@ Qan.NodeItem {
                 id: killButton
 
                 icon.color: "transparent"
-                icon.source: "qrc:///ui/icons/Close.svg"
+                iconSource: "Close"
                 width: 50
 
                 onClicked: {
-                    console.debug("Kill node " + title.text);
+                    Logger.debug("Kill node " + title.text);
                     daemonClientModel.killNode(title.text);
                 }
 
@@ -67,14 +64,11 @@ Qan.NodeItem {
                 anchors.centerIn: parent
                 anchors.fill: parent
                 anchors.margins: 5
-                color: Theme.node.color.titleFont
+                color: Theme.font.color.primary
                 horizontalAlignment: Text.AlignHCenter
-                //text: "Custom Node"
                 verticalAlignment: Text.AlignVCenter
             }
         }
-        // Body
-
         Rectangle {
             id: body
 

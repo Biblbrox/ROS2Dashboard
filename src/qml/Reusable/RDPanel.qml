@@ -27,15 +27,23 @@ Rectangle {
             id: panelTitle
 
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            color: "white"
+            color: Theme.font.color.primary
+            elide: Text.ElideRight
+            font.underline: true
+            font.capitalization: Font.AllUppercase
             font.pixelSize: Theme.font.pointSize.normal
             text: title
+            width: parent.width
+            wrapMode: Label.WordWrap
         }
-        ToolSeparator {
+        Rectangle {
             id: panelSeparator
 
             Layout.fillWidth: true
-            orientation: Qt.Horizontal
+            //orientation: Qt.Horizontal
+            width: parent.width
+            height: 2
+            color: Theme.font.color.primary
         }
         ListView {
             id: listView
@@ -47,6 +55,7 @@ Rectangle {
             model: listModel
             spacing: 20
             width: parent.width
+
 
             ScrollBar.vertical: ScrollBar {
             }

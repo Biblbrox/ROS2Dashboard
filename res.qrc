@@ -12,13 +12,16 @@
         <file alias="RDButton.qml">src/qml/Reusable/RDButton.qml</file>
         <file alias="RDPanel.qml">src/qml/Reusable/RDPanel.qml</file>
         <file alias="VizItemContainer.qml">src/qml/Reusable/VizItemContainer.qml</file>
-        <file alias="VizControls.qml">src/qml/Reusable/VizControls.qml</file>
+        <file alias="RDControls.qml">src/qml/Reusable/RDControls.qml</file>
         <file alias="VizControlItem.qml">src/qml/Reusable/VizControlItem.qml</file>
         <file alias="GenericTextVizComponent.qml">src/qml/GenericTextVizComponent.qml</file>
-        <file alias="VideoVizComponent.qml">src/qml/VideoVizComponent.qml</file>
+        <file alias="RasterVizComponent.qml">src/qml/RasterVizComponent.qml</file>
+        <file alias="GeometryVizComponent.qml">src/qml/GeometryVizComponent.qml</file>
     </qresource>
     <qresource prefix="/ui/icons">
         <file alias="Download.svg">res/icons/Download.svg</file>
+        <file alias="OpenNew.svg">res/icons/OpenNew.svg</file>
+        <file alias="OpenNewDark.svg">res/icons/OpenNewDark.svg</file>
         <file alias="Launch.svg">res/icons/Launch.svg</file>
         <file alias="Info.svg">res/icons/Info.svg</file>
         <file alias="ExpandMore.svg">res/icons/ExpandMore.svg</file>
@@ -36,13 +39,15 @@
         <file alias="QuestionDark.svg">res/icons/QuestionDark.svg</file>
         <file alias="SaveDark.svg">res/icons/SaveDark.svg</file>
         <file alias="CloseDark.svg">res/icons/CloseDark.svg</file>
+        <file alias="ROS2Dashboard.svg">res/icons/ROS2Dashboard.svg</file>
+        <file alias="UpdateDark.svg">res/icons/UpdateDark.svg</file>
         <file alias="InputCircle.svg">res/icons/input/InputCircle.svg</file>
         <file alias="InputSquare.svg">res/icons/input/InputSquare.svg</file>
         <file alias="InputTriangle.svg">res/icons/input/InputTriangle.svg</file>
         <file alias="OutputCircle.svg">res/icons/output/OutputCircle.svg</file>
         <file alias="OutputSquare.svg">res/icons/output/OutputSquare.svg</file>
         <file alias="OutputTriangle.svg">res/icons/output/OutputTriangle.svg</file>
-        <file alias="logo.jpeg">res/logo.jpeg</file>
+        <!--<file alias="logo.jpeg">res/logo.jpeg</file>-->
 
     </qresource>
 </RCC>
