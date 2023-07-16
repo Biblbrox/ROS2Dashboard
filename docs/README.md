@@ -1,4 +1,4 @@
-![alt text](../res/icons/Logo.svg "Logo")
+![alt text](../res/icons/ROS2Dashboard.svg "Logo")
 
 ## What is ros2dashboard?
 Hi, welcome to the documentation of ros2dashboard!. Firstly, we will explain what is ros2dashboard and what is it for. Then, we will explain how to install it and how to use it. 
