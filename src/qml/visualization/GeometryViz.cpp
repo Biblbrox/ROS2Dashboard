@@ -1,4 +1,5 @@
 #include "GeometryViz.hpp"
+#include <vtkTextProperty.h>
 
 namespace ros2monitor::viz {
 
@@ -6,7 +7,9 @@ vtkStandardNewMacro(GeometryViz::Data);
 
 void GeometryViz::updateData(std::any data)
 {
-    m_cloud = std::any_cast<sensor_msgs::msg::PointCloud2>(data);
+    auto pair = std::any_cast<std::pair<sensor_msgs::msg::PointCloud2, PointCloudSensorInfo>>(data);
+    m_cloud = pair.first;
+    m_sensor_data = pair.second;
     m_render_schedule = true;
     emit needRedraw();
 }
@@ -16,9 +19,20 @@ QQuickVTKItem::vtkUserData GeometryViz::initializeVTK(vtkRenderWindow *renderWin
     vtkNew<Data> vtk;
     // Create actor
     vtk->actor->SetMapper(vtk->mapper);
+    vtk->text_actor->SetInput(m_sensor_data.to_string().c_str());
+    //vtk->text_actor->SetWidth(800);
+    vtkTextProperty *text_property = vtk->text_actor->GetTextProperty();
+    text_property->SetFontFamily(VTK_FONT_FILE);
+    text_property->BoldOff();
+    text_property->ItalicOff();
+    text_property->ShadowOff();
+    text_property->SetLineSpacing(1.5);
+    text_property->SetFontSize(20);
+    text_property->SetColor(0.1, 1.0, 0.1);
 
     // Create renderer
     vtk->renderer->AddActor(vtk->actor);
+    vtk->renderer->AddActor(vtk->text_actor);
     vtk->renderer->SetBackground(0, 0, 0);
     //vtk->renderer->SetBackground2(0.7, 0.7, 0.7);
     vtk->renderer->SetGradientBackground(false);
@@ -104,37 +118,37 @@ void GeometryViz::resetCamera()
 void GeometryViz::updatePointCloud(vtkUserData userData)
 {
     //dispatch_async([this](vtkRenderWindow *renderWindow, vtkUserData userData) {
-        // Set points from point cloud to polyData
-        vtkNew<vtkPoints> points;
-        vtkNew<vtkCellArray> vertices;
-        // Fill points with data from m_cloud
+    // Set points from point cloud to polyData
+    vtkNew<vtkPoints> points;
+    vtkNew<vtkCellArray> vertices;
+    // Fill points with data from m_cloud
 
-        const uint8_t *data = m_cloud.data.data();
-        uint32_t point_step = m_cloud.point_step;
-        uint32_t width = m_cloud.width;
-        for (uint32_t col = 0; col < width; ++col) {
-            // Calculate the offset for the current point
-            uint32_t index = col * point_step;
+    const uint8_t *data = m_cloud.data.data();
+    uint32_t point_step = m_cloud.point_step;
+    uint32_t width = m_cloud.width;
+    for (uint32_t col = 0; col < width; ++col) {
+        // Calculate the offset for the current point
+        uint32_t index = col * point_step;
 
-            // Access the X, Y, Z coordinates (assuming float32 data type)
-            float x = *reinterpret_cast<const float *>(data + index);
-            float y = *reinterpret_cast<const float *>(data + index + 4);
-            float z = *reinterpret_cast<const float *>(data + index + 8);
+        // Access the X, Y, Z coordinates (assuming float32 data type)
+        float x = *reinterpret_cast<const float *>(data + index);
+        float y = *reinterpret_cast<const float *>(data + index + 4);
+        float z = *reinterpret_cast<const float *>(data + index + 8);
 
-            auto pointId = points->InsertNextPoint(x, y, z);
-            vertices->InsertNextCell(1);
-            vertices->InsertCellPoint(pointId);
-        }
+        auto pointId = points->InsertNextPoint(x, y, z);
+        vertices->InsertNextCell(1);
+        vertices->InsertCellPoint(pointId);
+    }
 
-        auto *vtk = Data::SafeDownCast(userData);
+    auto *vtk = Data::SafeDownCast(userData);
 
-        vtk->poly_data->SetPoints(points);
-        vtk->poly_data->SetVerts(vertices);
-        vtk->mapper->SetInputData(vtk->poly_data);
-        vtk->mapper->SetColorModeToDefault();
-        //vtk->mapper->SetScalarRange(zMin, zMax);
-        vtk->mapper->SetScalarVisibility(1);
-        //resetCamera();
+    vtk->poly_data->SetPoints(points);
+    vtk->poly_data->SetVerts(vertices);
+    vtk->mapper->SetInputData(vtk->poly_data);
+    vtk->mapper->SetColorModeToDefault();
+    //vtk->mapper->SetScalarRange(zMin, zMax);
+    vtk->mapper->SetScalarVisibility(1);
+    //resetCamera();
     //});
 }
 
@@ -148,6 +162,8 @@ QSGNode *GeometryViz::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
     if (m_render_schedule) {
         m_render_schedule = false;
         dispatch_async([this](vtkRenderWindow *renderWindow, vtkUserData userData) {
+            auto *vtk = Data::SafeDownCast(userData);
+            vtk->text_actor->SetInput(m_sensor_data.to_string().c_str());
             updatePointCloud(userData);
             scheduleRender();
         });

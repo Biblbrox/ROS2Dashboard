@@ -105,8 +105,10 @@ ApplicationWindow {
                         /// Create nodes
                         for (let i = 0; i < nodeListModel.rowCount(); ++i) {
                             let node = graphObj.insertNode(nodeComponent);
+                            node.item.state = nodeListModel.getRow(i, "state");
                             node.item.name = nodeListModel.getRow(i, "name");
-                            Logger.debug("Create node " + node.item.name);
+                            node.item.host = nodeListModel.getRow(i, "host_ip");
+                            Logger.debug("Create node " + node.item.name + " with state " + node.item.state);
                             node.item.x = 50 + i * 10;
                             node.item.y = 50;
 

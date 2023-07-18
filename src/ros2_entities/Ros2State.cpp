@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "Ros2State.hpp"
+#include "core/Logger.hpp"
 #include "utils/StrUtils.hpp"
 
 namespace ros2monitor {
@@ -46,16 +47,18 @@ void Ros2State::update(std::string jsonState)
         }
     }
 
+    std::string ignored_node = "/visualization_node";
     if (state.contains("nodes")) {
         for (const auto &nodeJson: state["nodes"]) {
-            if (nodeJson["name"] == "/visualization_node")
+            if (nodeJson["name"] == ignored_node)
                 continue;
 
-            if (!nodeJson.contains("name") || !nodeJson.contains("package_name") || !nodeJson.contains("host")) {
-                throw std::invalid_argument(fmt::format("Invalid json response. Node object must include both name and package_name properties. Current json: {}", nodeJson.dump()));
+            if (!nodeJson.contains("name") || !nodeJson.contains("package_name") || !nodeJson.contains("host") || !nodeJson.contains("state")) {
+                throw std::invalid_argument(fmt::format("Invalid json response. Node object must include name, package_name, host and state properties. Current json: {}", nodeJson.dump()));
             }
 
-            Ros2Node node(nodeJson["name"], nodeJson["package_name"], Host(nodeJson["host"]["name"], nodeJson["host"]["ip"]));
+            Logger::debug(fmt::format("nodeJson dump: {}", nodeJson.dump()));
+            Ros2Node node(nodeJson["name"], nodeJson["package_name"], Host(nodeJson["host"]["name"], nodeJson["host"]["ip"]), str2NodeStatus(nodeJson["state"]));
             std::vector<Ros2Subscriber> subscribers;
             std::vector<Ros2Publisher> publishers;
             // Extract subscribers
@@ -77,6 +80,9 @@ void Ros2State::update(std::string jsonState)
                 throw std::invalid_argument(fmt::format("Invalid json response. Topic object must include name, node_name and topic type properties. Current json: {}", topicJson.dump()));
             }
 
+            if (topicJson["node_name"] == ignored_node)
+                continue;
+
             m_hotState.topics.emplace_back(topicJson["name"], topicJson["node_name"], topicJson["topic_type"]);
         }
     }
@@ -85,6 +91,9 @@ void Ros2State::update(std::string jsonState)
     for (const auto &node1: m_hotState.nodes) {
         for (const auto &node2: m_hotState.nodes) {
             if (node1.name == node2.name)
+                continue;
+
+            if (node1.name == ignored_node || node2.name == ignored_node)
                 continue;
 
             for (const auto &subscriber: node1.subscribers) {

@@ -19,7 +19,18 @@ signals:
     void hotStateUpdated(const QString &jsonState);
 
 public slots:
-    void killNode(const QString &node_name);
+
+    /**
+     * Actions for lifecycled nodes
+     * @param node_name
+     */
+    // Deprecated
+    [[deprecated]] void killNode(const QString &node_name);
+    void shutdownNode(const QString &node_name);
+    void cleanupNode(const QString &node_name);
+    void startNode(const QString &node_name);
+    void configureNode(const QString &node_name);
+
     void update();
 
 private:

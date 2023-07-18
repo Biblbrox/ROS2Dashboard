@@ -14,6 +14,7 @@
 #include "RasterViz.hpp"
 #include "VisualizerModel.hpp"
 #include "core/Logger.hpp"
+#include "core/SensorInfo.hpp"
 #include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/message_reading.hpp"
 #include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/typesupport.hpp"
 #include "thirdy/dynamic_message_introspection/dynmsg/include/dynmsg/yaml_utils.hpp"
@@ -438,7 +439,23 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
             serializer.deserialize_message(msg.get(), &serialized);
             // Finally print the ROS 2 message data
             auto component = reinterpret_cast<viz::GeometryViz *>(m_components[topic_name]);
-            component->updateData(serialized);
+
+            // Extract sender info from message
+            size_t points_num = serialized.width * serialized.height;
+            PointCloudSensorInfo sensor_info = {
+                serialized.header.frame_id,
+                serialized.header.stamp.sec,
+                serialized.header.stamp.nanosec,
+                serialized.width,
+                serialized.height,
+                serialized.point_step,
+                serialized.row_step,
+                points_num,
+                serialized.is_bigendian,
+                serialized.is_dense,
+            };
+
+            component->updateData(std::pair(serialized, sensor_info));
         });
     } else if (type == VisualizationType::string) {
         assert(std::find(m_textGroup.cbegin(), m_textGroup.cend(), topic_type) != m_textGroup.cend());
@@ -585,5 +602,10 @@ void VisualizerModel::removeViz(const QString &topic_name)
     m_subscribers.erase(viz_sub_it);
 
     emit topicVizRemoved(topic_name);
+}
+void VisualizerModel::openFloatingWindow(const QString &component_file, const QString &topic_name, const QString &topic_type)
+{
+    removeViz(topic_name);
+    emit topicVizFloatingWindowOpened(component_file, topic_name, topic_type);
 }
 }

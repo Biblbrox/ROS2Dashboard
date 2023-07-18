@@ -7,13 +7,13 @@ import QuickQanava 2.0 as Qan
 Qan.NodeItem {
     id: customNode
 
+    property alias host: hostText.text
     property alias name: title.text
+    property alias state: stateText.text
 
     // TODO: adapt to count of ports
     height: 180
     width: 160
-    //x: 150
-    //y: 15
 
     leftDock: Qan.VerticalDock {
         id: leftDockVert
@@ -41,17 +41,8 @@ Qan.NodeItem {
                 right: parent.right
                 top: parent.top
             }
-            RDButton {
-                id: killButton
-
-                icon.color: "transparent"
-                iconSource: "Close"
-                width: 50
-
-                onClicked: {
-                    Logger.debug("Kill node " + title.text);
-                    daemonClientModel.killNode(title.text);
-                }
+            NodeControls {
+                id: nodeControls
 
                 anchors {
                     right: parent.right
@@ -59,10 +50,38 @@ Qan.NodeItem {
                 }
             }
             Text {
+                id: stateText
+
+                anchors.margins: 5
+                //height: 60
+                //width: 120
+                color: Theme.node.color.titleFont
+                font.pointSize: Theme.font.pointSize.nodeTitle
+
+                anchors {
+                    left: parent.left
+                    top: parent.top
+                }
+            }
+            Text {
+                id: hostText
+
+                anchors.margins: 5
+                //height: 60
+                //width: 120
+                color: Theme.node.color.titleFont
+                font.pointSize: Theme.font.pointSize.nodeTitle
+
+                anchors {
+                    left: parent.left
+                    top: stateText.bottom
+                }
+            }
+            Text {
                 id: title
 
                 anchors.centerIn: parent
-                anchors.fill: parent
+                //anchors.fill: parent
                 anchors.margins: 5
                 color: Theme.font.color.primary
                 horizontalAlignment: Text.AlignHCenter

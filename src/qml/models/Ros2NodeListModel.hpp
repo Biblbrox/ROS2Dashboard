@@ -10,7 +10,9 @@ enum class Ros2NodeRole {
     PackageNameRole,
     DetailInfoRole,
     SubscribersNameRole,
-    PublishersNameRole
+    PublishersNameRole,
+    StateNameRole,
+    HostNameRole,
 };
 
 class Ros2NodeListModel : public QAbstractListModel {
@@ -29,6 +31,7 @@ public slots:
 
 private:
     QString genDetailInfo(const Ros2Node& node) const;
+    QVariant getRoleData(const Ros2Node& node, const Ros2NodeRole& role) const;
 
     std::shared_ptr<Ros2State> m_state;
     std::unordered_map<Ros2NodeRole, std::string> m_role2String;

@@ -16,6 +16,8 @@ find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(PCL 1.3 REQUIRED)
+find_package(tomlplusplus CONFIG REQUIRED)
+
 qt_standard_project_setup()
 
 if (NOT DEFINED VTK_DIR)
@@ -57,12 +59,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 # Add quick module
 target_link_libraries(${PROJECT_NAME} PUBLIC VTK::CommonCore VTK::RenderingCore VTK::GUISupportQt VTK::GUISupportQtQuick)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PCL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE tomlplusplus::tomlplusplus)
 
 
 set(QML_CPP_OBJECTS ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/RasterViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/RasterViz.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/models/LoggerModel.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/models/LoggerModel.cpp)
-        #${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GeometryViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GeometryViz.cpp)
+#${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GeometryViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GeometryViz.cpp)
 
 set(QuickQanavaDir ${CMAKE_CURRENT_SOURCE_DIR}/thirdy/QuickQanava/)
 target_include_directories(${PROJECT_NAME} PRIVATE ${QuickQanavaDir}/src ${QuickQanavaDir}/QuickContainers/include)
@@ -83,6 +86,6 @@ qt_add_qml_module(${PROJECT_NAME}
         ${QML_CPP_OBJECTS}
         )
 
-vtk_module_autoinit( TARGETS ${PROJECT_NAME} MODULES ${VTK_LIBRARIES} )
+vtk_module_autoinit(TARGETS ${PROJECT_NAME} MODULES ${VTK_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME})

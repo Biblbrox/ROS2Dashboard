@@ -35,18 +35,20 @@ Rectangle {
 
     Rectangle {
         id: topicNameLabel
+
         color: Theme.sideBar.color.background
+        height: 50
+        width: parent.width
+
         Label {
-            font.underline: true
             //font.capitalization: Font.AllUppercase
             anchors.centerIn: parent
             font.pixelSize: Theme.font.pointSize.normal
+            font.underline: true
             //width: parent.width
             //height: parent.height
             text: topicName
         }
-        height: 50
-        width: parent.width
         //anchors.horizontalCenter: parent.horizontalCenter
         anchors {
             //right: parent.right
@@ -54,7 +56,6 @@ Rectangle {
             //left: parent.left
         }
     }
-
     RDControls {
         id: vizControls
 
@@ -68,8 +69,6 @@ Rectangle {
         }
     }
     Connections {
-        target: vizControls
-
         function onVizControlClicked(action) {
             Logger.debug("VizControls clicked. Action: " + action + " Topic: " + topicName);
             if (action === "pause") {
@@ -78,7 +77,11 @@ Rectangle {
                 visualizerModel.removeViz(topicName);
             } else if (action === "resume") {
                 visualizerModel.resumeViz(topicName);
+            } else if (action === "OpenNew") {
+                visualizerModel.openFloatingWindow(componentItemFile, topicName, topicType);
             }
         }
+
+        target: vizControls
     }
 }

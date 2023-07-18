@@ -5,6 +5,7 @@ import QtQuick.Layouts
 Button {
     id: button
 
+    property string backgroundColor: ""
     property string iconSource
 
     height: parent.height
@@ -21,7 +22,10 @@ Button {
             } else if (button.hovered) {
                 return Theme.button.color.hovered;
             } else {
-                return Theme.button.color.primary;
+                if (backgroundColor != "")
+                    return backgroundColor;
+                else
+                    return Theme.button.color.primary;
             }
         }()
         height: parent.height

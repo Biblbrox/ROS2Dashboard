@@ -11,6 +11,8 @@
         <file alias="SidebarItem.qml">src/qml/Reusable/SidebarItem.qml</file>
         <file alias="RDButton.qml">src/qml/Reusable/RDButton.qml</file>
         <file alias="RDPanel.qml">src/qml/Reusable/RDPanel.qml</file>
+        <file alias="RDWindow.qml">src/qml/Reusable/RDWindow.qml</file>
+        <file alias="NodeControls.qml">src/qml/Reusable/NodeControls.qml</file>
         <file alias="VizItemContainer.qml">src/qml/Reusable/VizItemContainer.qml</file>
         <file alias="RDControls.qml">src/qml/Reusable/RDControls.qml</file>
         <file alias="VizControlItem.qml">src/qml/Reusable/VizControlItem.qml</file>
@@ -27,9 +29,15 @@
         <file alias="ExpandMore.svg">res/icons/ExpandMore.svg</file>
         <file alias="Pause.svg">res/icons/Pause.svg</file>
         <file alias="Add.svg">res/icons/Add.svg</file>
+        <file alias="Settings.svg">res/icons/Settings.svg</file>
+        <file alias="SettingsDark.svg">res/icons/SettingsDark.svg</file>
         <file alias="Question.svg">res/icons/Question.svg</file>
         <file alias="Save.svg">res/icons/Save.svg</file>
         <file alias="Close.svg">res/icons/Close.svg</file>
+        <file alias="CleaningUp.svg">res/icons/CleaningUp.svg</file>
+        <file alias="CleaningUpDark.svg">res/icons/CleaningUpDark.svg</file>
+        <file alias="Configure.svg">res/icons/Configure.svg</file>
+        <file alias="ConfigureDark.svg">res/icons/ConfigureDark.svg</file>
         <file alias="DownloadDark.svg">res/icons/DownloadDark.svg</file>
         <file alias="LaunchDark.svg">res/icons/LaunchDark.svg</file>
         <file alias="InfoDark.svg">res/icons/InfoDark.svg</file>

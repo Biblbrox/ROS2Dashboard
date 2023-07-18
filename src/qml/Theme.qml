@@ -46,6 +46,7 @@ QtObject {
             property int normal: 16
             property int subTitle: 18
             property int title: 24
+            property int nodeTitle: 14
         }
 
         color: QtObject {
@@ -83,6 +84,12 @@ QtObject {
             property color body: darkTheme ? "#35384b" : "#9d9fb4"
             property color titleFont: darkTheme ? "#FFFFFF" : "#000000"
             property color edge: darkTheme ? "#FFFFFF" : "#000000"
+
+            property color configureButton: darkTheme ? "#35384b" : "#9d9fb4"
+            property color activateButton: darkTheme ? "#35384b" : "#9d9fb4"
+            property color deactivateButton: darkTheme ? "#35384b" : "#9d9fb4"
+            property color cleanUpButton: darkTheme ? "#35384b" : "#9d9fb4"
+            property color shutdownButton: darkTheme ? "#35384b" : "#9d9fb4"
         }
 
     }

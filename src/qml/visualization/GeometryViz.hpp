@@ -2,6 +2,7 @@
 
 #include "VizComponent.hpp"
 #include "qml/models/VisualizerModel.hpp"
+#include "core/SensorInfo.hpp"
 
 #include <QQuickVTKItem.h>
 #include <QVTKRenderWindowAdapter.h>
@@ -22,6 +23,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkTextActor.h>
 #include <vtkTransform.h>
 
 namespace ros2monitor::viz {
@@ -44,6 +46,7 @@ public:
         vtkTypeMacro(Data, vtkObject);
 
         vtkNew<vtkActor> actor;
+        vtkNew<vtkTextActor> text_actor;
         vtkNew<vtkRenderer> renderer;
         vtkNew<vtkPolyDataMapper> mapper;
         vtkNew<vtkPolyData> poly_data;
@@ -53,6 +56,7 @@ public:
 
 public slots:
     void registerViz(ros2monitor::VisualizerModel *model, const QString &topic_name, const QString &topic_type);
+
 
 signals:
     void needRedraw();
@@ -65,5 +69,6 @@ private:
     QScopedPointer<QMouseEvent> m_click;
 
     std::atomic<bool> m_render_schedule;
+    PointCloudSensorInfo m_sensor_data;
 };
 }

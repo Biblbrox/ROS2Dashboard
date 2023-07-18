@@ -39,9 +39,7 @@ pushd "$BUILD_DIR"
 
 # configure build files with CMake
 # we need to explicitly set the install prefix, as CMake's default is /usr/local for some reason...
-# cmake "$REPO_ROOT" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_TOOLCHAIN_FILE=/home/biblbrox/Tesis/ROS2Dashboard/thirdy/vcpkg/scripts/buildsystems/vcpkg.cmake
 VCPKG_TOOLCHAIN=/home/biblbrox/Tesis/ROS2Dashboard/thirdy/vcpkg/scripts/buildsystems/vcpkg.cmake
-#cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${VCPKG_TOOLCHAIN} -G Ninja -S ${REPO_ROOT} -B /home/biblbrox/Tesis/ROS2Dashboard/bin_debug
 cmake --build /home/biblbrox/Tesis/ROS2Dashboard/bin_debug --target ROS2Dashboard # -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${VCPKG_TOOLCHAIN} -G Ninja -S ${REPO_ROOT}
 
 cmake --install /home/biblbrox/Tesis/ROS2Dashboard/bin_debug --prefix=AppDir

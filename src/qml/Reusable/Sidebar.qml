@@ -24,6 +24,7 @@ Rectangle {
     }
     ColumnLayout {
         id: sidebarLayout
+
         spacing: 0
         width: parent.width
 
@@ -56,17 +57,23 @@ Rectangle {
             }
             iconSource: "Update"
         }
-    }
-
-    SidebarItem {
-        anchors {
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
+        SidebarItem {
+            handler: function () {
+                sidebarClicked("Settings");
+            }
+            iconSource: "Settings"
         }
+    }
+    SidebarItem {
         handler: function () {
             sidebarClicked("Question");
         }
         iconSource: "Question"
+
+        anchors {
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+        }
     }
 }

@@ -13,6 +13,8 @@ GenericTextViz {
 
     Component.onCompleted: {
         Logger.debug("GenericTextViz created for topic " + topicName + " with type " + topicType);
-        textViz.registerViz(visualizerModel, topicName, topicType);
+        //if (!visualizerModel.hasTopicViz(topicName)) {
+            textViz.registerViz(visualizerModel, topicName, topicType);
+        //}
     }
 }

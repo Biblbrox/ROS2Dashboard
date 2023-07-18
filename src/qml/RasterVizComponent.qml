@@ -13,6 +13,8 @@ RasterViz {
 
     Component.onCompleted: {
         Logger.debug("VideoViz created for topic " + topicName + " with type " + topicType);
-        videoViz.registerViz(visualizerModel, topicName, topicType);
+        //if (!visualizerModel.hasTopicViz(topicName)) {
+            videoViz.registerViz(visualizerModel, topicName, topicType);
+        //}
     }
 }

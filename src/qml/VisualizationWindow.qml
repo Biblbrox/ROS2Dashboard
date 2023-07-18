@@ -6,8 +6,9 @@ import com.viz.types 1.0
 Rectangle {
     id: visualizationWindow
 
-    property var vizItems: {"dummy": 0}
-
+    property var vizItems: {
+        "dummy": 0
+    }
     function addVisualizer(topicName, topicType) {
         if (visualizerModel.hasTopicViz(topicName)) {
             Logger.warn("Visualizer for topic " + topicName + " already exists");
@@ -116,17 +117,15 @@ Rectangle {
                         verticalAlignment: TextEdit.AlignVCenter
                         width: parent.width - addVizIcon.width
                     }
-
                     RDButton {
-                        iconSource: "Add"
-                        width: 40
-                        height: 40
-
                         id: addVizIcon
 
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
                         anchors.top: parent.top
+                        height: 40
+                        iconSource: "Add"
+                        width: 40
                     }
                 }
                 MouseArea {
@@ -151,6 +150,23 @@ Rectangle {
     }
     Connections {
         id: vizConnections
+
+        function onTopicVizFloatingWindowOpened(componentItemFile, topicName, topicType) {
+            var component = Qt.createComponent("qrc:///ui/RDWindow.qml");
+            if (component.status === Component.Ready) {
+                var window = component.createObject(visualizationWindow, {
+                        "width": visualizationWindow.width / 2,
+                        "height": visualizationWindow.height / 2
+                    });
+                window.load(componentItemFile, topicName, topicType);
+                window.closing.connect(function (event) {
+                        visualizerModel.removeViz(topicName);
+                    });
+                window.show();
+            } else {
+                Logger.error(component.errorString());
+            }
+        }
         function onTopicVizRemoved(topicName) {
             Logger.debug("vizContainer.children.length " + vizContainer.children.length);
             Logger.debug("vizItems.length " + visualizationWindow.vizItems.length);

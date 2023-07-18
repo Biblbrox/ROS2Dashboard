@@ -108,9 +108,11 @@ public slots:
     void pauseViz(const QString &topic_name);
     void resumeViz(const QString &topic_name);
     void removeViz(const QString &topic_name);
+    void openFloatingWindow(const QString& component_file, const QString& topic_name, const QString& topic_type);
 
 signals:
     void topicVizRemoved(const QString &topic_name);
+    void topicVizFloatingWindowOpened(const QString& component_file, const QString& topic_name, const QString& topic_type);
 
 private:
     std::vector<Ros2Connection> m_connections;
