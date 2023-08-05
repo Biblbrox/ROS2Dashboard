@@ -5,13 +5,10 @@
 #include <QQuickPaintedItem>
 #include <QtCore>
 #include <rclcpp/node.hpp>
-#include <tuple>
-#include <utility>
 #include <vector>
 
 #include "VizComponent.hpp"
 #include "ros2_entities/Ros2Connection.hpp"
-#include "src/network/DaemonClient.hpp"
 
 namespace ros2monitor {
 
@@ -88,7 +85,7 @@ private:
 class VisualizerModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    explicit VisualizerModel(int argc, char **argv, std::shared_ptr<DaemonClient> daemon_client, QObject *parent = nullptr);
+    explicit VisualizerModel(int argc, char **argv, QObject *parent = nullptr);
     ~VisualizerModel() override;
 
     void update(std::vector<Ros2Connection> connections);
@@ -121,7 +118,6 @@ private:
     std::unordered_map<std::string, std::shared_ptr<rclcpp::GenericSubscription>> m_subscribers;
     std::unordered_map<std::string, VisualizerState> m_visualizer_states;
     QFuture<void> m_nodeFuture;
-    std::shared_ptr<DaemonClient> m_daemon_client;
     std::vector<std::string> m_textGroup;
     std::vector<std::string> m_rasterGroup;
     std::vector<std::string> m_geometryGroup;

@@ -39,5 +39,17 @@ void DaemonClientModel::update()
     std::string response = state_future.get();
     emit hotStateUpdated(QString::fromStdString(response));
 }
+void DaemonClientModel::shutdownNode(const QString &node_name)
+{
+}
+void DaemonClientModel::cleanupNode(const QString &node_name)
+{
+}
+void DaemonClientModel::configureNode(const QString &node_name)
+{
+}
+void DaemonClientModel::startNode(const QString &node_name)
+{
+}
 
 }

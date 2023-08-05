@@ -29,10 +29,8 @@ using std_msgs::msg::String;
 
 namespace ros2monitor {
 
-VisualizerModel::VisualizerModel(int argc, char **argv, std::shared_ptr<DaemonClient> daemon_client, QObject *parent) : QAbstractListModel(parent), m_argc(argc), m_argv(argv)
+VisualizerModel::VisualizerModel(int argc, char **argv, QObject *parent) : QAbstractListModel(parent), m_argc(argc), m_argv(argv)
 {
-    m_daemon_client = std::move(daemon_client);
-
     /**
      * All ros2 messages:
      * TODO: classify all of these message types to groups
@@ -482,7 +480,6 @@ void VisualizerModel::addTopicViz(VisualizationType type, const std::string &top
     }
 
     if (!m_nodeFuture.isRunning()) {
-        m_daemon_client->killNodeRequest("visualization_node");
         m_nodeFuture = QtConcurrent::run([this]() {
             Logger::debug("Running node");
             rclcpp::spin(m_visualizerNode);

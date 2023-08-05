@@ -15,10 +15,11 @@
         <file alias="NodeControls.qml">src/qml/Reusable/NodeControls.qml</file>
         <file alias="VizItemContainer.qml">src/qml/Reusable/VizItemContainer.qml</file>
         <file alias="RDControls.qml">src/qml/Reusable/RDControls.qml</file>
+        <file alias="RDSettingsWindow.qml">src/qml/RDSettingsWindow.qml</file>
         <file alias="VizControlItem.qml">src/qml/Reusable/VizControlItem.qml</file>
-        <file alias="GenericTextVizComponent.qml">src/qml/GenericTextVizComponent.qml</file>
-        <file alias="RasterVizComponent.qml">src/qml/RasterVizComponent.qml</file>
-        <file alias="GeometryVizComponent.qml">src/qml/GeometryVizComponent.qml</file>
+        <file alias="GenericTextVizComponent.qml">src/qml/visualization/GenericTextVizComponent.qml</file>
+        <file alias="RasterVizComponent.qml">src/qml/visualization/RasterVizComponent.qml</file>
+        <file alias="GeometryVizComponent.qml">src/qml/visualization/GeometryVizComponent.qml</file>
     </qresource>
     <qresource prefix="/ui/icons">
         <file alias="Download.svg">res/icons/Download.svg</file>

@@ -17,8 +17,8 @@ RasterViz::RasterViz(QQuickItem *parent) : VizComponent(parent)
 void RasterViz::paint(QPainter *painter)
 {
     VizComponent::paint(painter);
-    QImage resized = m_image.scaled(width(), height(), Qt::KeepAspectRatio);
-    painter->drawImage(QPoint(0, 0), resized);
+    //QImage resized = m_image.scaled(width(), height(), Qt::KeepAspectRatio);
+    painter->drawImage(QPoint(0, 0), m_image);
 }
 
 void RasterViz::updateData(std::any data)
@@ -32,12 +32,15 @@ void RasterViz::updateData(std::any data)
         format = QImage::Format_BGR888;
     else if (image.encoding == "rgb8")
         format = QImage::Format_RGB888;
-    else {
+    else if (image.encoding == "rgba8") {
+        format = QImage::Format_RGBA8888;
+    } else {
         Logger::error("Image pixel format not supported!");
         return;
     }
 
-    m_image = QImage(&image.data[0], static_cast<int>(image.width), static_cast<int>(image.height), format);
+    QImage tmp = QImage(&image.data[0], static_cast<int>(image.width), static_cast<int>(image.height), format);
+    m_image = tmp.scaled(width(), height(), Qt::KeepAspectRatio);
     emit needRedraw();
 }
 

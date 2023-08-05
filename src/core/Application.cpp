@@ -19,15 +19,18 @@ ros2monitor::Application::Application(int &argc, char **argv)
     m_guiApp = make_shared<QGuiApplication>(argc, argv);
     m_guiApp->setWindowIcon(QIcon(":/ui/icons/ROS2Dashboard.svg"));
     m_qmlEngine = make_shared<QQmlApplicationEngine>();
-    m_daemonClient = make_shared<DaemonClient>("/tmp/ros2monitor.sock");
+    m_daemon_client = make_shared<DaemonClient>("/tmp/ros2monitor.sock");
+    m_daemon_client->killNodeRequest("visualization_node");
 
     m_nodeListModel = make_shared<Ros2NodeListModel>(m_guiApp.get());
     m_packageListModel = make_shared<Ros2PackageListModel>(m_guiApp.get());
     m_connectionListModel = make_shared<Ros2ConnectionListModel>(m_guiApp.get());
     m_topic_model = make_shared<Ros2TopicListModel>(m_guiApp.get());
-    m_visualizer_model = make_shared<VisualizerModel>(argc, argv, m_daemonClient, m_guiApp.get());
+    m_visualizer_model = make_shared<VisualizerModel>(argc, argv, m_guiApp.get());
+    m_config = make_shared<Config>("../config/config.toml");
+    m_settings_model = make_shared<SettingsModel>(m_config, m_guiApp.get());
     m_daemon_client_model = make_shared<DaemonClientModel>(m_guiApp.get());
-    m_daemon_client_model->setDaemonClient(m_daemonClient);
+    m_daemon_client_model->setDaemonClient(m_daemon_client);
 
     registerModels();
 
@@ -47,7 +50,7 @@ ros2monitor::Application::Application(int &argc, char **argv)
         update_entities(data);
     });
 
-    std::future<std::string> state_future = m_daemonClient->stateRequestAsync();
+    std::future<std::string> state_future = m_daemon_client->stateRequestAsync();
     std::string response = state_future.get();
     emit hotStateUpdated(QString::fromStdString(response));
 }
@@ -76,4 +79,5 @@ void ros2monitor::Application::registerModels()
     m_qmlEngine->rootContext()->setContextProperty("visualizerModel", m_visualizer_model.get());
     m_qmlEngine->rootContext()->setContextProperty("topicListModel", m_topic_model.get());
     m_qmlEngine->rootContext()->setContextProperty("daemonClientModel", m_daemon_client_model.get());
+    m_qmlEngine->rootContext()->setContextProperty("settingsModel", m_settings_model.get());
 }

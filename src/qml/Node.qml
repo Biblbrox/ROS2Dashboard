@@ -15,7 +15,7 @@ Qan.NodeItem {
     height: 180
     width: 160
 
-    leftDock: Qan.VerticalDock {
+    /*leftDock: Qan.VerticalDock {
         id: leftDockVert
 
         y: 100
@@ -24,7 +24,7 @@ Qan.NodeItem {
         id: rightDockVert
 
         y: 100
-    }
+    }*/
 
     Item {
         anchors.fill: parent

@@ -1,0 +1,9 @@
+[daemon]
+ros_domain_id = 1
+daemon_pid_file = "asd"
+
+[client]
+enable_utility_topics = true
+enable_utility_nodes = true
+
+

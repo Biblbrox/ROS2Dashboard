@@ -76,7 +76,8 @@ std::string DaemonClient::makeRequest(const std::string &request)
         m_socket->close();
     m_socket->connect(m_sock, connectError);
     if (connectError) {
-        Logger::error(fmt::format("Can't connect to daemon socket {}", m_sock));
+        std::string msg = fmt::format("Can't connect to daemon socket {}. Error: {}", m_sock, connectError.message());
+        throw DaemonException(msg);
     }
 
     std::error_code write_error;

@@ -36,6 +36,41 @@ ApplicationWindow {
                 }
             }
             ToolButton {
+                id: viewButton
+
+                contentItem: Label {
+                    color: Theme.font.color.primary
+                    text: qsTr("View")
+                }
+
+                onClicked: {
+                    viewMenu.open();
+                }
+
+                Menu {
+                    id: viewMenu
+
+                    y: fileButton.height
+
+                    MenuItem {
+                        checkable: true
+                        text: "Show ros2 internal topics"
+
+                        onToggled: function () {
+                            Logger.debug("Show ros2 internal topics: " + checked);
+                        }
+                    }
+                    MenuItem {
+                        checkable: true
+                        text: "Show ros2 internal nodes"
+
+                        onToggled: function () {
+                            Logger.debug("Show ros2 internal nodes: " + checked);
+                        }
+                    }
+                }
+            }
+            ToolButton {
                 id: helpButton
 
                 contentItem: Label {
@@ -273,6 +308,13 @@ ApplicationWindow {
         width: 100
         z: 2
     }*/
+
+    RDSettingsWindow {
+        id: settingsWindow
+
+        height: application.height / 2
+        width: application.width / 2
+    }
     Connections {
         function onSidebarClicked(itemName) {
             Logger.debug("Clicked on " + itemName);
@@ -281,9 +323,9 @@ ApplicationWindow {
                 Logger.debug("Update request");
                 daemonClientModel.update();
                 graphObj.updateNodes();
-            } else if (itemName === "Start")
-            // Make DaemonClient start request
-            {
+            } else if (itemName === "Start") {
+            } else if (itemName === "Settings") {
+                settingsWindow.show();
             }
         }
 
