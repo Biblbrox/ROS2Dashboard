@@ -40,9 +40,9 @@ pushd "$BUILD_DIR"
 # configure build files with CMake
 # we need to explicitly set the install prefix, as CMake's default is /usr/local for some reason...
 VCPKG_TOOLCHAIN=/home/biblbrox/Tesis/ROS2Dashboard/thirdy/vcpkg/scripts/buildsystems/vcpkg.cmake
-cmake --build /home/biblbrox/Tesis/ROS2Dashboard/bin_debug --target ROS2Dashboard # -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${VCPKG_TOOLCHAIN} -G Ninja -S ${REPO_ROOT}
+cmake --build /home/biblbrox/Tesis/ROS2Dashboard/bin --target ROS2Dashboard --config Release # -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${VCPKG_TOOLCHAIN} -G Ninja -S ${REPO_ROOT}
 
-cmake --install /home/biblbrox/Tesis/ROS2Dashboard/bin_debug --prefix=AppDir
+cmake --install /home/biblbrox/Tesis/ROS2Dashboard/bin --prefix=AppDir
 cp -R $VTK_DIR/lib/* "$BUILD_DIR/AppDir/lib"
 
 # now, build AppImage using linuxdeploy and linuxdeploy-plugin-qt
