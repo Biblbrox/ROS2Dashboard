@@ -1,9 +1,5 @@
 #pragma once
 
-#include "VizComponent.hpp"
-#include "qml/models/VisualizerModel.hpp"
-#include "core/SensorInfo.hpp"
-
 #include <QQuickVTKItem.h>
 #include <QVTKRenderWindowAdapter.h>
 
@@ -25,6 +21,10 @@
 #include <vtkRenderer.h>
 #include <vtkTextActor.h>
 #include <vtkTransform.h>
+
+#include "VizComponent.hpp"
+#include "core/SensorInfo.hpp"
+#include "qml/models/VisualizerModel.hpp"
 
 namespace ros2monitor::viz {
 

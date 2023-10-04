@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     try {
         Application app(argc, argv);
         code = app.run();
+        
     } catch (std::exception &e) {
         Logger::error(fmt::format("Unhandled exception: {}", e.what()));
         return EXIT_FAILURE;

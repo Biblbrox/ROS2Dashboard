@@ -26,6 +26,8 @@
         <file alias="OpenNew.svg">res/icons/OpenNew.svg</file>
         <file alias="OpenNewDark.svg">res/icons/OpenNewDark.svg</file>
         <file alias="Launch.svg">res/icons/Launch.svg</file>
+        <file alias="AddWindow.svg">res/icons/AddWindow.svg</file>
+        <file alias="AddWindowDark.svg">res/icons/AddWindowDark.svg</file>
         <file alias="Info.svg">res/icons/Info.svg</file>
         <file alias="ExpandMore.svg">res/icons/ExpandMore.svg</file>
         <file alias="Pause.svg">res/icons/Pause.svg</file>

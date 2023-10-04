@@ -1,5 +1,7 @@
-#include "GeometryViz.hpp"
 #include <vtkTextProperty.h>
+
+#include "GeometryViz.hpp"
+
 
 namespace ros2monitor::viz {
 
@@ -53,10 +55,7 @@ void GeometryViz::registerViz(VisualizerModel *model, const QString &topic_name,
 
 GeometryViz::GeometryViz(QQuickItem *parent) : QQuickVTKItem(parent), m_render_schedule(false)
 {
-    //connect(this, &QQuickItem::widthChanged, this, &GeometryViz::resetCamera);
-    //connect(this, &QQuickItem::heightChanged, this, &GeometryViz::resetCamera);
     connect(this, &GeometryViz::needRedraw, this, [this]() {
-        //auto rect = boundingRect().toRect();
         update();
     });
 }
@@ -125,15 +124,16 @@ void GeometryViz::updatePointCloud(vtkUserData userData)
 
     const uint8_t *data = m_cloud.data.data();
     uint32_t point_step = m_cloud.point_step;
+    Logger::debug(fmt::format("Point step: {}", point_step));
     uint32_t width = m_cloud.width;
     for (uint32_t col = 0; col < width; ++col) {
         // Calculate the offset for the current point
-        uint32_t index = col * point_step;
+        uint32_t index = col * (point_step);
 
         // Access the X, Y, Z coordinates (assuming float32 data type)
-        float x = *reinterpret_cast<const float *>(data + index);
-        float y = *reinterpret_cast<const float *>(data + index + 4);
-        float z = *reinterpret_cast<const float *>(data + index + 8);
+        const float x = *reinterpret_cast<const float *>(data + index);
+        const float y = *reinterpret_cast<const float *>(data + index + sizeof(float));
+        const float z = *reinterpret_cast<const float *>(data + index + sizeof(float) * 2);
 
         auto pointId = points->InsertNextPoint(x, y, z);
         vertices->InsertNextCell(1);
@@ -146,10 +146,8 @@ void GeometryViz::updatePointCloud(vtkUserData userData)
     vtk->poly_data->SetVerts(vertices);
     vtk->mapper->SetInputData(vtk->poly_data);
     vtk->mapper->SetColorModeToDefault();
-    //vtk->mapper->SetScalarRange(zMin, zMax);
     vtk->mapper->SetScalarVisibility(1);
-    //resetCamera();
-    //});
+    vtk->mapper->SetScalarRange(0, 1);
 }
 
 void GeometryViz::destroyingVTK(vtkRenderWindow *renderWindow, QQuickVTKItem::vtkUserData userData)

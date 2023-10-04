@@ -1,9 +1,9 @@
-[daemon]
-ros_domain_id = 1
-daemon_pid_file = "asd"
-
 [client]
-enable_utility_topics = true
 enable_utility_nodes = true
+enable_utility_topics = true
 
-
+[daemon]
+daemon_pid_file = '/tmp/ros2monitor.sock'
+ros_domain_id = 1
+auto_update = false
+auto_update_interval = 10

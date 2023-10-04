@@ -12,6 +12,17 @@ Config::Config(const std::string &path)
     }
 
     m_data = std::move(result).table();
+    m_path = path;
+}
+
+void Config::save(const std::string &path)
+{
+    std::ofstream file(path);
+    file << m_data;
+}
+std::string Config::path() const
+{
+    return m_path;
 }
 
 }// namespace ros2monitor

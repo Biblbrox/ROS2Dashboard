@@ -38,13 +38,15 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
+
 public slots:
     QVariant getValue(const QString &group_name, const QString &param_name) const;
     QVariant getGroupParams(const QString &group_name) const;
+    void setConfigValue(const QString &group_name, const QString &param_name, const QString &value, const QString &type);
+    QVariant getConfigValue(const QString &group_name, const QString &param_name) const;
 
 private:
     std::pair<bool, std::string> validateConfig();
-    QString getConfigValue(const std::string &group_name, const std::string param_name) const;
 
     std::shared_ptr<Config> m_config;
     std::vector<Key> m_keys;

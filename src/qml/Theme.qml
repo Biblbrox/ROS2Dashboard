@@ -11,6 +11,23 @@ QtObject {
     property QtObject vizControls
     property QtObject vizArea
     property QtObject sideBar
+    property QtObject tooltip
+    property QtObject mouseHandle
+
+    mouseHandle: QtObject {
+        property int size: 10
+
+        property QtObject color
+
+        color: QtObject {
+            property color background: darkTheme ? "#3d3948" : "#c0b8a5"
+        }
+    }
+
+    tooltip: QtObject {
+        property int timeout: 5000
+        property int delay: 1000
+    }
 
     sideBar: QtObject {
         property QtObject color

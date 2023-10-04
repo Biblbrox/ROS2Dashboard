@@ -54,18 +54,22 @@ ApplicationWindow {
 
                     MenuItem {
                         checkable: true
+                        checked: settingsModel.getValue("client", "enable_utility_topics")
                         text: "Show ros2 internal topics"
 
                         onToggled: function () {
                             Logger.debug("Show ros2 internal topics: " + checked);
+                            settingsModel.setConfigValue("client", "enable_utility_topics", checked ? "true" : "false", "bool");
                         }
                     }
                     MenuItem {
                         checkable: true
+                        checked: settingsModel.getValue("client", "enable_utility_nodes")
                         text: "Show ros2 internal nodes"
 
                         onToggled: function () {
                             Logger.debug("Show ros2 internal nodes: " + checked);
+                            settingsModel.setConfigValue("client", "enable_utility_nodes", checked ? "true" : "false", "bool");
                         }
                     }
                 }
@@ -94,6 +98,20 @@ ApplicationWindow {
         height: parent.height
         orientation: Qt.Vertical
         width: parent.width - sidebar.width// - rightSidebar.width
+        clip: true
+
+        handle: Item {
+            implicitHeight: Theme.mouseHandle.size
+            clip: true
+
+            Rectangle {
+                implicitHeight: 4
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.width
+
+                color: Theme.mouseHandle.color.background
+            }
+        }
 
         anchors {
             left: sidebar.right
@@ -106,6 +124,17 @@ ApplicationWindow {
             implicitHeight: 500
             orientation: Qt.Horizontal
             width: parent.width
+            handle: Item {
+                implicitWidth: Theme.mouseHandle.size
+
+                Rectangle {
+                    implicitWidth: 4
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height
+
+                    color: Theme.mouseHandle.color.background
+                }
+            }
 
             RDPanel {
                 id: nodeObserver
@@ -130,45 +159,65 @@ ApplicationWindow {
                 implicitWidth: 1000
                 resizeHandlerColor: Theme.background.color.primary
 
-                graph: Qan.Graph {
+                graph: Qan.Graph
+                {
                     id: graphObj
 
+                    function addNode(component, state, name, host, x, y, publishers, subscribers) {
+                        let node = graphObj.insertNode(component);
+                        node.item.state = state;
+                        node.item.name = name;
+                        node.item.host = host;
+                        node.item.x = x;
+                        node.item.y = y;
+
+                        /// Add output ports
+                        let outPorts = {};
+                        let inPorts = {};
+                        for (let j = 0; j < publishers.length; ++j) {
+                            let port = graphObj.insertPort(node, Qan.NodeItem.Right, Qan.PortItem.Out, publishers[j]);
+                            port.setPortType("out");
+                            port.setPortLabel(publishers[j]);
+                            outPorts[port.label] = port;
+                        }
+
+                        /// Add input ports
+                        for (let j = 0; j < subscribers.length; ++j) {
+                            let port = graphObj.insertPort(node, Qan.NodeItem.Left, Qan.PortItem.In, subscribers[j]);
+                            port.setPortType("in");
+                            port.setPortLabel(subscribers[j]);
+                            inPorts[port.label] = port;
+                        }
+
+                        let maxPortCount = Math.max(Object.keys(inPorts).length, Object.keys(outPorts).length);
+                        node.item.width = 500;
+                        node.item.height = maxPortCount * 50;
+                        node.inPorts = inPorts;
+                        node.outPorts = outPorts;
+
+                        Logger.debug("Created node " + node.item.name + " with state " + node.item.state);
+
+                        return node;
+                    }
+
+                    // TODO: very ugly code. Fix this
                     function updateNodes() {
                         graphObj.clearGraph();
+
                         let nodeComponent = Qt.createComponent("qrc:/ui/Node.qml");
                         let nodes = {};
                         /// Create nodes
                         for (let i = 0; i < nodeListModel.rowCount(); ++i) {
-                            let node = graphObj.insertNode(nodeComponent);
-                            node.item.state = nodeListModel.getRow(i, "state");
-                            node.item.name = nodeListModel.getRow(i, "name");
-                            node.item.host = nodeListModel.getRow(i, "host_ip");
-                            Logger.debug("Create node " + node.item.name + " with state " + node.item.state);
-                            node.item.x = 50 + i * 10;
-                            node.item.y = 50;
+                            let state = nodeListModel.getRow(i, "state");
+                            let name = nodeListModel.getRow(i, "name");
+                            let host = nodeListModel.getRow(i, "host_ip");
+                            let x = 50 + i * 10;
+                            let y = 50;
+                            let publishers = nodeListModel.getRow(i, "publishers");
+                            let subscribers = nodeListModel.getRow(i, "subscribers");
 
-                            /// Add output ports
-                            let outPorts = {};
-                            let inPorts = {};
-                            for (let j = 0; j < nodeListModel.getRow(i, "publishers").length; ++j) {
-                                let port = graphObj.insertPort(node, Qan.NodeItem.Right, Qan.PortItem.Out, nodeListModel.getRow(i, "publishers")[j]);
-                                port.setPortType("out");
-                                port.setPortLabel(nodeListModel.getRow(i, "publishers")[j]);
-                                outPorts[port.label] = port;
-                            }
+                            let node = addNode(nodeComponent, state, name, host, x, y, publishers, subscribers);
 
-                            /// Add input ports
-                            for (let j = 0; j < nodeListModel.getRow(i, "subscribers").length; ++j) {
-                                let port = graphObj.insertPort(node, Qan.NodeItem.Left, Qan.PortItem.In, nodeListModel.getRow(i, "subscribers")[j]);
-                                port.setPortType("in");
-                                port.setPortLabel(nodeListModel.getRow(i, "subscribers")[j]);
-                                inPorts[port.label] = port;
-                            }
-                            let maxPortCount = Math.max(Object.keys(inPorts).length, Object.keys(outPorts).length);
-                            node.item.width = 500;
-                            node.item.height = maxPortCount * 50;
-                            node.inPorts = inPorts;
-                            node.outPorts = outPorts;
                             nodes[node.item.name] = node;
                         }
 
@@ -177,7 +226,6 @@ ApplicationWindow {
                             let outNodeName = connectionListModel.getRow(i, "src_node_name");
                             let inNodeName = connectionListModel.getRow(i, "dst_node_name");
                             let topicName = connectionListModel.getRow(i, "topic_name");
-                            Logger.debug("Create connection from " + outNodeName + " and " + inNodeName + " nodes");
                             let outNode = nodes[outNodeName];
                             let inNode = nodes[inNodeName];
                             let outPort = outNode.outPorts[topicName];
@@ -188,6 +236,8 @@ ApplicationWindow {
                             defaultEdgeStyle.lineType = Qan.EdgeStyle.Curved;
                             graphObj.bindEdgeSource(edge, outPort);
                             graphObj.bindEdgeDestination(edge, inPort);
+
+                            Logger.debug("Created connection from " + outNodeName + " and " + inNodeName + " nodes");
                         }
                     }
 
@@ -210,6 +260,7 @@ ApplicationWindow {
                             function setPortLabel(label_) {
                                 port.portLabel = label_;
                             }
+
                             function setPortType(type_) {
                                 port.portType = type_;
                             }
@@ -237,11 +288,12 @@ ApplicationWindow {
                         updateNodes();
                         defaultEdgeStyle.lineWidth = 3;
                         defaultEdgeStyle.lineColor = Qt.binding(function () {
-                                return Theme.node.color.edge;
-                            });
+                            return Theme.node.color.edge;
+                        });
                     }
                 }
-                grid: Qan.AbstractLineGrid {
+                grid: Qan.AbstractLineGrid
+                {
                 }
 
                 /*TapHandler {

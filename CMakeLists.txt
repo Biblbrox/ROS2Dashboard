@@ -11,7 +11,8 @@ find_package(asio CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(QuickQanava REQUIRED)
 find_package(ament_cmake REQUIRED)
-find_package(fmt REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -60,6 +61,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PUBLIC VTK::CommonCore VTK::RenderingCore VTK::GUISupportQt VTK::GUISupportQtQuick)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PCL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE tomlplusplus::tomlplusplus)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 
 
 set(QML_CPP_OBJECTS ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/qml/visualization/GenericTextViz.cpp
@@ -84,7 +86,7 @@ qt_add_qml_module(${PROJECT_NAME}
         VERSION 1.0
         SOURCES
         ${QML_CPP_OBJECTS}
-        )
+)
 
 vtk_module_autoinit(TARGETS ${PROJECT_NAME} MODULES ${VTK_LIBRARIES})
 

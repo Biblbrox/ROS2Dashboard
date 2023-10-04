@@ -41,6 +41,7 @@ Rectangle {
             Layout.fillWidth: true
             height: 60
             iconSource: "Pause"
+            tooltipText: qsTr("Pause data stream")
             userCallback: function () {
                 Logger.debug("playPauseControl clicked");
                 vizControlClicked("pause");
@@ -53,6 +54,7 @@ Rectangle {
             Layout.fillWidth: true
             height: 60
             iconSource: "Close"
+            tooltipText: qsTr("Close visualization")
             userCallback: function () {
                 Logger.debug("closeControl clicked");
                 vizControlClicked("close");
@@ -65,7 +67,8 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
             Layout.fillWidth: true
             height: 60
-            iconSource: "OpenNew"
+            iconSource: "AddWindow"
+            tooltipText: qsTr("Open in separate window")
             userCallback: function () {
                 Logger.debug("openNew clicked");
                 vizControlClicked("OpenNew");

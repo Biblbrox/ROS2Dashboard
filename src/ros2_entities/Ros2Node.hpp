@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "Ros2Publisher.hpp"
 #include "Ros2Subscriber.hpp"
@@ -48,13 +49,12 @@ inline Ros2NodeStatus str2NodeStatus(std::string status)
 
 inline std::string nodeStatus2Str(Ros2NodeStatus status)
 {
-    for (const auto &[key, value] : detail::ros2_node_status_map) {
+    for (const auto &[key, value]: detail::ros2_node_status_map) {
         if (value == status) {
             return key;
         }
     }
     return "unknown";
-
 }
 struct Ros2Node {
     Ros2Node(std::string name_, std::string package_name_, Host host_, Ros2NodeStatus status_) : name(std::move(name_)), package_name(std::move(package_name_)), host(std::move(host_)), status(status_)

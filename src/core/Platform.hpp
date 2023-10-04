@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string_view>
+
+#include <bit>
 namespace ros2monitor {
 
 extern "C" {
@@ -71,6 +73,11 @@ enum class Compiler {
     c_clang,
     c_mvcc
 };
+
+constexpr bool is_le()
+{
+    return std::endian::native == std::endian::little;
+}
 
 constexpr Platform getOsName()
 {

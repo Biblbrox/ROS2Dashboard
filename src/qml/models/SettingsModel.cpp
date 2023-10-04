@@ -80,18 +80,18 @@ std::pair<bool, std::string> SettingsModel::validateConfig()
     return { true, "" };
 }
 
-QString SettingsModel::getConfigValue(const std::string &group_name, const std::string param_name) const
+QVariant SettingsModel::getConfigValue(const QString &group_name, const QString &param_name) const
 {
-    std::string key = group_name;
+    QString key = group_name;
     key += ".";
     key += param_name;
 
-    if (m_groups.at(group_name).at(param_name).second == "int") {
-        return QString::number(m_config->get<int>(key));
-    } else if (m_groups.at(group_name).at(param_name).second == "string") {
-        return QString::fromStdString(m_config->get<std::string>(key));
-    } else if (m_groups.at(group_name).at(param_name).second == "bool") {
-        return QString::fromStdString(m_config->get<bool>(key) ? "true" : "false");
+    if (m_groups.at(group_name.toStdString()).at(param_name.toStdString()).second == "int") {
+        return m_config->get<int>(key.toStdString());
+    } else if (m_groups.at(group_name.toStdString()).at(param_name.toStdString()).second == "string") {
+        return QString::fromStdString(m_config->get<std::string>(key.toStdString()));
+    } else if (m_groups.at(group_name.toStdString()).at(param_name.toStdString()).second == "bool") {
+        return m_config->get<bool>(key.toStdString());
     }
 }
 
@@ -101,7 +101,7 @@ QVariant SettingsModel::getValue(const QString &group_name, const QString &param
         throw std::invalid_argument("Group name does not exist: " + group_name.toStdString());
     }
 
-    return getConfigValue(group_name.toStdString(), param_name.toStdString());
+    return getConfigValue(group_name, param_name);
 }
 
 QVariant SettingsModel::getGroupParams(const QString &group_name) const
@@ -114,11 +114,28 @@ QVariant SettingsModel::getGroupParams(const QString &group_name) const
     for (const auto &[param_name, param_type]: m_groups.at(group_name.toStdString())) {
         QVariantMap param;
         param["name"] = QString::fromStdString(param_name);
-        param["value"] = getConfigValue(group_name.toStdString(), param_name);
+        param["value"] = getConfigValue(group_name, QString::fromStdString(param_name));
         params.push_back(param);
     }
 
     return params;
+}
+
+void SettingsModel::setConfigValue(const QString &group_name, const QString &param_name, const QString &value, const QString &type)
+{
+    QString key = group_name;
+    key += ".";
+    key += param_name;
+
+    if (type == "int") {
+        m_config->set(key.toStdString(), std::stoi(value.toStdString()));
+    } else if (type == "string") {
+        m_config->set(key.toStdString(), value.toStdString());
+    } else if (type == "bool") {
+        m_config->set(key.toStdString(), value == "true");
+    }
+
+    m_config->save(m_config->path());
 }
 
 }// namespace ros2monitor
